@@ -1,6 +1,6 @@
-package com.jovinn.capstoneproject.repo;
+package com.jovinn.capstoneproject.repository;
 
-import com.jovinn.capstoneproject.domain.Role;
+import com.jovinn.capstoneproject.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RoleRepo extends JpaRepository<Role,Long> {

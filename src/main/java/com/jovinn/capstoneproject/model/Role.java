@@ -1,4 +1,4 @@
-package com.jovinn.capstoneproject.domain;
+package com.jovinn.capstoneproject.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

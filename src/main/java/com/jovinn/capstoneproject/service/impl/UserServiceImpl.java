@@ -1,9 +1,9 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.domain.Role;
-import com.jovinn.capstoneproject.domain.User;
-import com.jovinn.capstoneproject.repo.RoleRepo;
-import com.jovinn.capstoneproject.repo.UserRepo;
+import com.jovinn.capstoneproject.model.Role;
+import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.repository.RoleRepo;
+import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,13 +18,15 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class UserServiceImpl implements UserService , UserDetailsService {
 
-    private final UserRepo userRepo;
+    private final UserRepository userRepo;
     private final RoleRepo roleRepo;
     private final PasswordEncoder passwordEncoder;
     @Override
@@ -42,7 +44,7 @@ public class UserServiceImpl implements UserService , UserDetailsService {
     }
     @Override
     public User saveUser(User user) {
-        log.info("Saving new user {} to the database",user.getName());
+        log.info("Saving new user {} to the database",user.getLast_name());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepo.save(user);
     }
@@ -70,9 +72,26 @@ public class UserServiceImpl implements UserService , UserDetailsService {
     @Override
     public List<User> getUsers() {
         log.info("Fetching all users");
-
         return userRepo.findAll();
     }
 
+    @Override
+    public User getUserById(UUID id) {
+        return userRepo.findById(id).orElse(null);
+    }
+
+    @Override
+    public User updateUser(User user) {
+        User existingUser = userRepo.findById(user.getId()).orElse(null);
+
+        existingUser.setFirst_name(user.getFirst_name());
+        existingUser.setLast_name(user.getLast_name());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPhone_number(user.getPhone_number());
+        existingUser.setGender(user.getGender());
+        existingUser.setBirth_date(user.getBirth_date());
+
+        return userRepo.save(existingUser);
+    }
 
 }

@@ -1,15 +1,16 @@
-package com.jovinn.capstoneproject.api;
+package com.jovinn.capstoneproject.controller;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jovinn.capstoneproject.domain.Role;
-import com.jovinn.capstoneproject.domain.User;
+import com.jovinn.capstoneproject.model.Role;
+import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.service.UserService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
@@ -30,8 +31,14 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class UserResource {
+public class UserController {
+    @Autowired
     private final UserService userService;
+
+    @PostMapping("/register")
+    public User createUser (@RequestBody User user) {
+        return userService.saveUser(user);
+    }
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getUsers(){
@@ -70,8 +77,8 @@ public class UserResource {
                         .withClaim("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                         .sign(algorithm);
                 Map<String,String> tokens = new HashMap<>();
-                tokens.put("access_token",access_token);
-                tokens.put("refresh_token",refresh_token);
+                tokens.put("access_token", access_token);
+                tokens.put("refresh_token", refresh_token);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 new ObjectMapper().writeValue(response.getOutputStream(),tokens);
             }catch (Exception exception){
