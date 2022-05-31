@@ -1,0 +1,38 @@
+package com.jovinn.capstoneproject.model;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.UUID;
+
+@Entity
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+public class Education extends BaseEntity {
+    @Id
+    @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    UUID id;
+    UUID seller_id;
+    String university_name;
+    String title;
+    String major;
+    String country;
+    @Temporal(TemporalType.TIMESTAMP)
+    Date year_of_graduation;
+    @Temporal(TemporalType.TIMESTAMP)
+    Date from_date;
+    @Temporal(TemporalType.TIMESTAMP)
+    Date to_date;
+    Boolean opened;
+}
