@@ -1,6 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
-import com.jovinn.capstoneproject.Enumerable.SkillLevel;
+import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@Table(schema = "jovinn_server")
 public class Skill extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)

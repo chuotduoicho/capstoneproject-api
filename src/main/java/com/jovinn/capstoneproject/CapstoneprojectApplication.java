@@ -2,9 +2,6 @@ package com.jovinn.capstoneproject;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class CapstoneprojectApplication {
@@ -12,10 +9,10 @@ public class CapstoneprojectApplication {
     public static void main(String[] args) {
         SpringApplication.run(CapstoneprojectApplication.class, args);
     }
-    @Bean
-    PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    PasswordEncoder passwordEncoder(){
+//        return new BCryptPasswordEncoder();
+//    }
 //    @Bean
 //    CommandLineRunner run(UserService userService) {
 //        return args -> {

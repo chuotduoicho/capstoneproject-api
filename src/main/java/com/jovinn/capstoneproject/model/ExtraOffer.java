@@ -9,7 +9,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.sql.Time;
 import java.util.UUID;
 
 @Entity
@@ -18,6 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@Table(schema = "jovinn_server")
 public class ExtraOffer extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
@@ -26,6 +26,5 @@ public class ExtraOffer extends BaseEntity {
     String title;
     String short_description;
     float extra_price;
-    @Temporal(TemporalType.TIMESTAMP)
-    Time addition_time;
+    Integer addition_time;
 }

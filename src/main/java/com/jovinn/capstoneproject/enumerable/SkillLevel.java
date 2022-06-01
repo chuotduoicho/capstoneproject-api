@@ -1,4 +1,4 @@
-package com.jovinn.capstoneproject.Enumerable;
+package com.jovinn.capstoneproject.enumerable;
 
 public enum SkillLevel {
     BEGINNER, ADVANCED, COMPETENT, PROFICIENT, EXPERT
