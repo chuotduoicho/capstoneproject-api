@@ -1,18 +1,13 @@
 package com.jovinn.capstoneproject.model;
 
-import com.jovinn.capstoneproject.Enumerable.Gender;
-import com.jovinn.capstoneproject.Enumerable.UserActivityType;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.jovinn.capstoneproject.enumerable.Gender;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
@@ -22,6 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@Table(schema = "jovinn_server")
 public class User extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
@@ -32,7 +28,7 @@ public class User extends BaseEntity {
 
     @Column(unique = true, length = 55)
     String email;
-    @Column(unique = true, length = 15)
+    //@Column(unique = true, length = 15)
     String phone_number;
 
     @Enumerated(EnumType.STRING)
@@ -45,22 +41,19 @@ public class User extends BaseEntity {
     String province;
     String city;
     String country;
-
-    String name;
     String avatar;
-    String username;
     String password;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     Date joined_at;
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     Date last_login;
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     Date join_selling_at;
 
     @Enumerated(EnumType.STRING)
     UserActivityType activity_type;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Collection<Role> roles= new ArrayList<>();
+//
+//    @ManyToMany(fetch = FetchType.EAGER)
+//    private Collection<Role> roles= new ArrayList<>();
 }
