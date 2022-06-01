@@ -12,6 +12,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.sql.Time;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -29,12 +30,12 @@ public class Order extends BaseEntity {
     UUID seller_id;
     UUID package_id;
     float total_price;
+    Integer total_delivery_time;
     @Temporal(TemporalType.TIMESTAMP)
-    Time total_delivery_time;
+    Date expect_complete_date;
     String requirement;
     @Enumerated(EnumType.STRING)
     DeliveryStatus delivery_status;
     @Enumerated(EnumType.STRING)
     OrderStatus status;
-
 }

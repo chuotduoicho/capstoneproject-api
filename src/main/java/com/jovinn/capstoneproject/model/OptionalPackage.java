@@ -26,7 +26,5 @@ public class OptionalPackage extends  BaseEntity {
     UUID package_id;
     String title;
     Float option_price;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    Time extra_time;
+    Integer extra_time;
 }

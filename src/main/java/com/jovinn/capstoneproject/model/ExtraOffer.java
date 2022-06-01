@@ -26,6 +26,5 @@ public class ExtraOffer extends BaseEntity {
     String title;
     String short_description;
     float extra_price;
-    @Temporal(TemporalType.TIMESTAMP)
-    Time addition_time;
+    Integer addition_time;
 }

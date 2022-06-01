@@ -10,6 +10,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.sql.Time;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -26,9 +27,6 @@ public class Package extends  BaseEntity {
     UUID box_service_id;
     String title;
     String short_description;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    Time delivery_time;
-
+    Integer delivery_time;
     Float package_price;
 }

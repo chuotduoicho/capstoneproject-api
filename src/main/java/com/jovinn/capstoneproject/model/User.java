@@ -34,23 +34,17 @@ public class User extends BaseEntity {
     String email;
     @Column(unique = true, length = 15)
     String phone_number;
-
     @Enumerated(EnumType.STRING)
     Gender gender;
-
     @Temporal(TemporalType.DATE)
     Date birth_date;
-
+    String avatar;
+    String password;
     String address;
     String province;
     String city;
     String country;
-
-    String name;
-    String avatar;
-    String username;
-    String password;
-
+    Boolean verify;
     @Temporal(TemporalType.TIMESTAMP)
     Date joined_at;
     @Temporal(TemporalType.TIMESTAMP)
