@@ -18,13 +18,15 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class UrlProfile extends BaseEntity {
+public class ServiceGallery extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
-    UUID seller_id;
-    String title;
-    String url;
-
+    UUID boxServiceId;
+    String imageGallery1;
+    String imageGallery2;
+    String imageGallery3;
+    String videoGallery;
+    String documentGallery;
 }

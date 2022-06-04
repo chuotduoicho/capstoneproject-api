@@ -18,10 +18,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class CategoryService extends BaseEntity {
+public class ServiceTagName extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
+    UUID boxServiceId;
     String name;
 }

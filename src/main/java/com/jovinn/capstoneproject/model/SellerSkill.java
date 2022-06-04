@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,13 +19,16 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class OptionalPackage extends  BaseEntity {
+public class SellerSkill extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
-    UUID package_id;
-    String title;
-    float option_price;
-    Integer extra_time;
+    String name;
+    @Enumerated(EnumType.STRING)
+    SkillLevel level;
+    String shortDescribe;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    Seller seller;
 }

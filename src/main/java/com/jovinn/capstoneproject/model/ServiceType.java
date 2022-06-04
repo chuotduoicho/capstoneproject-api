@@ -23,6 +23,6 @@ public class ServiceType extends BaseEntity {
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
-    UUID sub_cat_service_id;
+    UUID subCatServiceId;
     String name;
 }

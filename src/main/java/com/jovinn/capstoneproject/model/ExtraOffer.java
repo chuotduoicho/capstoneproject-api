@@ -24,7 +24,7 @@ public class ExtraOffer extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
     String title;
-    String short_description;
-    float extra_price;
-    Integer addition_time;
+    String shortDescription;
+    float extraPrice;
+    Integer additionTime;
 }

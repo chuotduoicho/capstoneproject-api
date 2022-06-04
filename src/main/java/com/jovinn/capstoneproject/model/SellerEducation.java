@@ -1,6 +1,5 @@
 package com.jovinn.capstoneproject.model;
 
-import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -19,15 +19,23 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class Skill extends BaseEntity {
+public class SellerEducation extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
-    UUID seller_id;
-    String name;
-    @Enumerated(EnumType.STRING)
-    SkillLevel level;
-    String short_describe;
-    Integer year_experience;
+    String universityName;
+    String title;
+    String major;
+    String country;
+    @Temporal(TemporalType.TIMESTAMP)
+    Date yearOfGraduation;
+    @Temporal(TemporalType.TIMESTAMP)
+    Date fromDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    Date toDate;
+    Boolean opened;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    Seller seller;
 }
