@@ -24,7 +24,6 @@ public class Contract extends BaseEntity {
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
-
     @Enumerated(EnumType.STRING)
-    DeliveryStatus delivery_status;
+    DeliveryStatus deliveryStatus;
 }

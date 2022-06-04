@@ -18,14 +18,13 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class Package extends  BaseEntity {
+public class PackageOptional extends  BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
-    UUID box_service_id;
+    UUID packageId;
     String title;
-    String short_description;
-    Integer delivery_time;
-    float price;
+    float optionPrice;
+    Integer extraTime;
 }

@@ -20,18 +20,18 @@ import java.util.Date;
 @MappedSuperclass
 public abstract class BaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
-    Date create_at;
+    Date createAt;
 
     @Temporal(TemporalType.TIMESTAMP)
-    Date updated_at;
+    Date updatedAt;
 
     @PrePersist
     public void prePersist() {
-        this.create_at = this.updated_at = new Date();
+        this.createAt = this.updatedAt = new Date();
     }
 
     @PreUpdate
     public void preUpdate() {
-        this.updated_at = new Date();
+        this.updatedAt = new Date();
     }
 }
