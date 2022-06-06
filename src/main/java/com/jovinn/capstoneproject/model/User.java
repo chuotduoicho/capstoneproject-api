@@ -2,10 +2,7 @@ package com.jovinn.capstoneproject.model;
 
 import com.jovinn.capstoneproject.enumerable.Gender;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
@@ -28,10 +25,10 @@ public class User extends BaseEntity {
     UUID id;
     String firstName;
     String lastName;
-
+    String username;
     @Column(unique = true, length = 55)
     String email;
-    @Column(unique = true, length = 15)
+    //@Column(unique = true, length = 15)
     String phoneNumber;
 
     @Enumerated(EnumType.STRING)
@@ -56,4 +53,7 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     UserActivityType activityType;
+//
+//    @ManyToMany(fetch = FetchType.EAGER)
+//    private Collection<Role> roles= new ArrayList<>();
 }

@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -18,14 +19,22 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class SellerCertificate extends BaseEntity {
+public class Education extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
+    String universityName;
     String title;
-    String name;
-    String linkCer;
+    String major;
+    String country;
+    @Temporal(TemporalType.TIMESTAMP)
+    Date yearOfGraduation;
+    @Temporal(TemporalType.TIMESTAMP)
+    Date fromDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    Date toDate;
+    Boolean opened;
 
     @ManyToOne(fetch = FetchType.LAZY)
     Seller seller;

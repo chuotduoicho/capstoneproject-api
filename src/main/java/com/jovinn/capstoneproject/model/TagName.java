@@ -18,14 +18,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class SellerUrlProfile extends BaseEntity {
+public class TagName extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
-    String title;
-    String url;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    Seller seller;
+    UUID boxServiceId;
+    String name;
 }

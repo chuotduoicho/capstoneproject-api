@@ -1,6 +1,5 @@
 package com.jovinn.capstoneproject.model;
 
-import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,19 +18,15 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class ServiceBox extends  BaseEntity {
+public class Certificate extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
-    UUID sellerId;
-    UUID catServiceId;
-    UUID packageId;
-    UUID galleryId;
-    String description;
-    Integer impression;
-    Integer interesting;
+    String title;
+    String name;
+    String linkCer;
 
-    @Enumerated(EnumType.STRING)
-    BoxServiceStatus status;
+    @ManyToOne(fetch = FetchType.LAZY)
+    Seller seller;
 }

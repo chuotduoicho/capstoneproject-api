@@ -35,25 +35,25 @@ public class Seller extends BaseEntity {
     @OneToMany(mappedBy = "seller",
             fetch = FetchType.LAZY,
             orphanRemoval = true)
-    List<SellerLanguage> languages;
+    List<Language> languages;
 
     @OneToMany(mappedBy = "seller",
             cascade = CascadeType.PERSIST,
             orphanRemoval = true)
-    List<SellerEducation> educations;
+    List<Education> educations;
 
     @OneToMany(mappedBy = "seller",
             cascade = CascadeType.PERSIST,
             orphanRemoval = true)
-    List<SellerSkill> skills;
+    List<Skill> skills;
 
     @OneToMany(mappedBy = "seller",
             cascade = CascadeType.PERSIST,
             orphanRemoval = true)
-    List<SellerCertificate> certificates;
+    List<Certificate> certificates;
 
     @OneToMany(mappedBy = "seller",
             cascade = CascadeType.PERSIST,
             orphanRemoval = true)
-    List<SellerUrlProfile> urlProfiles;
+    List<UrlProfile> urlProfiles;
 }
