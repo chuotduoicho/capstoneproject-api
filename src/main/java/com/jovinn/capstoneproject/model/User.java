@@ -28,7 +28,7 @@ public class User extends BaseEntity {
     String username;
     @Column(unique = true, length = 55)
     String email;
-    //@Column(unique = true, length = 15)
+    @Column(unique = true, length = 15)
     String phoneNumber;
 
     @Enumerated(EnumType.STRING)
@@ -53,7 +53,4 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     UserActivityType activityType;
-//
-//    @ManyToMany(fetch = FetchType.EAGER)
-//    private Collection<Role> roles= new ArrayList<>();
 }

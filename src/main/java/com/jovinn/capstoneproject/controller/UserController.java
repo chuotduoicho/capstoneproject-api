@@ -1,41 +1,29 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.jovinn.capstoneproject.model.Role;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.service.UserService;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
-
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class UserController {
+    @Autowired
     private final UserService userService;
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers(){
+    public ResponseEntity<List<User>> getUsers() {
 
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users").toUriString());
         return ResponseEntity.created(uri).body(userService.getUsers());
