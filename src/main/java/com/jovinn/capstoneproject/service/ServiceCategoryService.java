@@ -1,16 +1,16 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.model.ServiceCategory;
+import com.jovinn.capstoneproject.model.Category;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface ServiceCategoryService {
-    ServiceCategory saveServiceCategory(ServiceCategory serviceCategory);
-    List<ServiceCategory> saveServiceCategories(List<ServiceCategory> serviceCategories);
-    List<ServiceCategory> getServiceCategories();
-    ServiceCategory getServiceCategoryById(UUID id);
-    ServiceCategory getServiceCategoryByName(String name);
+    Category saveServiceCategory(Category category);
+    List<Category> saveServiceCategories(List<Category> serviceCategories);
+    List<Category> getServiceCategories();
+    Category getServiceCategoryById(UUID id);
+    Category getServiceCategoryByName(String name);
     String deleteServiceCategoryById(UUID id);
-    ServiceCategory updateServiceCategory(ServiceCategory serviceCategory);
+    Category updateServiceCategory(Category category);
 }

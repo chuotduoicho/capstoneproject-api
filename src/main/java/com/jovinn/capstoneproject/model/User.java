@@ -23,19 +23,19 @@ public class User extends BaseEntity {
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
-    String first_name;
-    String last_name;
+    String firstName;
+    String lastName;
     String username;
     @Column(unique = true, length = 55)
     String email;
     //@Column(unique = true, length = 15)
-    String phone_number;
+    String phoneNumber;
 
     @Enumerated(EnumType.STRING)
     Gender gender;
 
     @Temporal(TemporalType.DATE)
-    Date birth_date;
+    Date birthDate;
 
     String address;
     String province;
@@ -45,14 +45,14 @@ public class User extends BaseEntity {
     String password;
 
     @Temporal(TemporalType.DATE)
-    Date joined_at;
+    Date joinedAt;
     @Temporal(TemporalType.DATE)
-    Date last_login;
+    Date lastLogin;
     @Temporal(TemporalType.DATE)
-    Date join_selling_at;
+    Date joinSellingAt;
 
     @Enumerated(EnumType.STRING)
-    UserActivityType activity_type;
+    UserActivityType activityType;
 //
 //    @ManyToMany(fetch = FetchType.EAGER)
 //    private Collection<Role> roles= new ArrayList<>();

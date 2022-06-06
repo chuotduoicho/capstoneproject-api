@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,10 +19,19 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class ServiceCategory extends BaseEntity {
+public class Box extends  BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
-    String name;
+    UUID sellerId;
+    UUID catServiceId;
+    UUID packageId;
+    UUID galleryId;
+    String description;
+    Integer impression;
+    Integer interesting;
+
+    @Enumerated(EnumType.STRING)
+    BoxServiceStatus status;
 }

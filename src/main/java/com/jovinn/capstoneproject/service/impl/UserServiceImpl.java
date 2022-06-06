@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService , UserDetailsService {
             log.error("User not found in the database");
             throw new UsernameNotFoundException("User not found in the database");
         }else{
-            log.info("User found in the database: {} role {}",username,user.getActivity_type().toString());
+            log.info("User found in the database: {} role {}",username,user.getActivityType().toString());
         }
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(UserActivityType.BUYER.toString()));
@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService , UserDetailsService {
     }
     @Override
     public User saveUser(User user) {
-        log.info("Saving new user {} {} to the database",user.getFirst_name(),user.getLast_name());
+        log.info("Saving new user {} {} to the database",user.getFirstName(),user.getLastName());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepo.save(user);
     }

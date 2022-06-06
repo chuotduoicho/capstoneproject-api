@@ -1,6 +1,5 @@
 package com.jovinn.capstoneproject.model;
 
-import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,16 +18,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class SellerSkill extends BaseEntity {
+public class Category extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
     String name;
-    @Enumerated(EnumType.STRING)
-    SkillLevel level;
-    String shortDescribe;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    Seller seller;
 }

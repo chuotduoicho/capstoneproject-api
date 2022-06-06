@@ -18,14 +18,15 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class ServicePackage extends  BaseEntity {
+public class Gallery extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
     UUID boxServiceId;
-    String title;
-    String shortDescription;
-    Integer deliveryTime;
-    float price;
+    String imageGallery1;
+    String imageGallery2;
+    String imageGallery3;
+    String videoGallery;
+    String documentGallery;
 }

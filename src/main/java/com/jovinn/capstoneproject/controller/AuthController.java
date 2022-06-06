@@ -48,7 +48,7 @@ public class AuthController {
                         .withSubject(user.getEmail())
                         .withExpiresAt(new Date(System.currentTimeMillis() +10*60*1000))
                         .withIssuer(request.getRequestURL().toString())
-                        .withClaim("roles", user.getActivity_type().toString())
+                        .withClaim("roles", user.getActivityType().toString())
                         .sign(algorithm);
                 Map<String,String> tokens = new HashMap<>();
                 tokens.put("access_token",access_token);
