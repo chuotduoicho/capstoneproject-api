@@ -2,10 +2,7 @@ package com.jovinn.capstoneproject.model;
 
 import com.jovinn.capstoneproject.enumerable.Gender;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
@@ -26,19 +23,19 @@ public class User extends BaseEntity {
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     UUID id;
-    String firstName;
-    String lastName;
-
+    String first_name;
+    String last_name;
+    String username;
     @Column(unique = true, length = 55)
     String email;
-    @Column(unique = true, length = 15)
-    String phoneNumber;
+    //@Column(unique = true, length = 15)
+    String phone_number;
 
     @Enumerated(EnumType.STRING)
     Gender gender;
 
     @Temporal(TemporalType.DATE)
-    Date birthDate;
+    Date birth_date;
 
     String address;
     String province;
@@ -48,12 +45,15 @@ public class User extends BaseEntity {
     String password;
 
     @Temporal(TemporalType.DATE)
-    Date joinedAt;
+    Date joined_at;
     @Temporal(TemporalType.DATE)
-    Date lastLogin;
+    Date last_login;
     @Temporal(TemporalType.DATE)
-    Date joinSellingAt;
+    Date join_selling_at;
 
     @Enumerated(EnumType.STRING)
-    UserActivityType activityType;
+    UserActivityType activity_type;
+//
+//    @ManyToMany(fetch = FetchType.EAGER)
+//    private Collection<Role> roles= new ArrayList<>();
 }
