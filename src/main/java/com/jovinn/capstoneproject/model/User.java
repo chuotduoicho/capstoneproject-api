@@ -2,7 +2,11 @@ package com.jovinn.capstoneproject.model;
 
 import com.jovinn.capstoneproject.enumerable.Gender;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
-import lombok.*;
+import com.sun.istack.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
@@ -26,7 +30,8 @@ public class User extends BaseEntity {
     String firstName;
     String lastName;
     String username;
-    @Column(unique = true, length = 55)
+    @Column(unique = true, length = 55, nullable = false)
+    @NotNull
     String email;
     @Column(unique = true, length = 15)
     String phoneNumber;

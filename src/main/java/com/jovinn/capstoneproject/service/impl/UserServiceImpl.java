@@ -7,6 +7,7 @@ import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.model.User;
 //import com.jovinn.capstoneproject.repo.RoleRepo;
+import com.jovinn.capstoneproject.repository.UserProfileRepository;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,8 @@ import java.nio.file.attribute.UserPrincipal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -30,8 +33,8 @@ import java.util.List;
 public class UserServiceImpl implements UserService , UserDetailsService {
 
     private final UserRepository userRepository;
+    private final UserProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -63,6 +66,11 @@ public class UserServiceImpl implements UserService , UserDetailsService {
                 user.getBirthDate(), user.getAddress(),
                 user.getProvince(), user.getCity(),
                 user.getCountry(), user.getAvatar());
+    }
+
+    @Override
+    public UserProfile getUserProfileById(UUID id) {
+        return null;
     }
 
     @Override
@@ -100,6 +108,21 @@ public class UserServiceImpl implements UserService , UserDetailsService {
     }
 
     @Override
+    public User getUserById(UUID id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public String deleteCategoryById(UUID id) {
+        return null;
+    }
+
+    @Override
+    public User updateUser(User user) {
+        return null;
+    }
+
+    @Override
     public User updateUser(User newUser, String username, UserPrincipal currentUser) {
         return null;
     }
@@ -107,6 +130,21 @@ public class UserServiceImpl implements UserService , UserDetailsService {
     @Override
     public ApiResponse deleteUser(String username, UserPrincipal currentUser) {
         return null;
+    }
+
+    @Override
+    public UserProfile updateProfile(UserProfile userProfile) {
+        UserProfile existUser = profileRepository.findById(userProfile.getId()).orElse(null);
+        existUser.setFirstName(userProfile.getFirstName());
+        existUser.setLastName(userProfile.getLastName());
+        existUser.setPhoneNumber(userProfile.getPhoneNumber());
+        existUser.setGender(userProfile.getGender());
+        existUser.setBirthDate(userProfile.getBirthDate());
+        existUser.setAddress(userProfile.getAddress());
+        existUser.setProvince(userProfile.getProvince());
+        existUser.setCity(userProfile.getCity());
+        existUser.setCountry(userProfile.getCountry());
+        return profileRepository.save(existUser);
     }
 
 

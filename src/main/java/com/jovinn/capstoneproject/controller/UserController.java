@@ -1,15 +1,16 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,23 +21,48 @@ import java.util.UUID;
 public class UserController {
     @Autowired
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers() {
-
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users").toUriString());
-        return ResponseEntity.created(uri).body(userService.getUsers());
-    }
+//    @GetMapping("/users")
+//    public ResponseEntity<List<User>> getUsers() {
+//
+//        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users").toUriString());
+//        return ResponseEntity.created(uri).body(userService.getUsers());
+//    }
 
     @GetMapping("/user/{username}")
     public UserProfile getUserByUsername(@PathVariable String username) {
         return userService.getUserProfile(username);
     }
 
-    @GetMapping("/listUsers")
+    @GetMapping("/users")
     public List<User> getAll() {
         return userService.getUsers();
     }
+
+//    @GetMapping("/user/{id}")
+//    public User getUserById(@PathVariable UUID id) {
+//        return userService.getUserById(id);
+//    }
+
+    @GetMapping("user/{id}")
+    public ResponseEntity<User> getById(@PathVariable UUID id) {
+        User user = userRepository.findById(id).orElse(null);
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/register")
+    public User saveUser(@RequestBody User user) {
+        user.setActivityType(UserActivityType.BUYER);
+        user.setJoinedAt(new Date());
+        return userService.saveUser(user);
+    }
+
+    @PutMapping("/edit")
+    public UserProfile updateProfile(@RequestBody UserProfile userProfile) {
+        return userService.updateProfile(userProfile);
+    }
+
 //    @PostMapping("/auth/register")   //api method post : url :'http://localhost:8080/api/auth/register'
 //    public ResponseEntity<User> register(@RequestBody User user){
 ////        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/save").toUriString());
