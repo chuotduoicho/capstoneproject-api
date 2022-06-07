@@ -27,6 +27,6 @@ public class Certificate extends BaseEntity {
     String name;
     String linkCer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    Seller seller;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    Seller seller;
 }

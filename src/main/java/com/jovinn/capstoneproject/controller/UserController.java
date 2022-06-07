@@ -1,18 +1,17 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -27,6 +26,16 @@ public class UserController {
 
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users").toUriString());
         return ResponseEntity.created(uri).body(userService.getUsers());
+    }
+
+    @GetMapping("/user/{username}")
+    public UserProfile getUserByUsername(@PathVariable String username) {
+        return userService.getUserProfile(username);
+    }
+
+    @GetMapping("/listUsers")
+    public List<User> getAll() {
+        return userService.getUsers();
     }
 //    @PostMapping("/auth/register")   //api method post : url :'http://localhost:8080/api/auth/register'
 //    public ResponseEntity<User> register(@RequestBody User user){

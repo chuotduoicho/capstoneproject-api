@@ -7,6 +7,7 @@ import com.jovinn.capstoneproject.model.User;
 
 import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
+import java.util.UUID;
 
 public interface UserService {
     UserSummary getCurrentUser(UserPrincipal currentUser);

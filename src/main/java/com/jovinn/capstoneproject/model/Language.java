@@ -25,7 +25,7 @@ public class Language extends BaseEntity {
     UUID id;
     String language;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = false)
-    private Seller seller;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "seller_id", nullable = false)
+//    private Seller seller;
 }
