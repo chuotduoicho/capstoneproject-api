@@ -1,9 +1,14 @@
 package com.jovinn.capstoneproject;
 
+import com.jovinn.capstoneproject.model.Admin;
+import com.jovinn.capstoneproject.service.AdminService;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 public class CapstoneprojectApplication {
 
     public static void main(String[] args) {
@@ -35,4 +40,14 @@ public class CapstoneprojectApplication {
 //        };
 //
 //    }
+    @Bean
+    CommandLineRunner run(AdminService adminService){
+        return args -> {
+            adminService.saveAdmin(new Admin(null,"Doan","Duc","duc23400@gmail.com","duc","123","0123456789"));
+            adminService.saveAdmin(new Admin(null,"Vo","Tai","taivo@gmail.com","tai","123","0123456789"));
+            adminService.saveAdmin(new Admin(null,"Son","Tran","sontran@gmail.com","son","123","0123456789"));
+            adminService.saveAdmin(new Admin(null,"Vinh","Nguyen","vinhnguyen@gmail.com","vinh","123","0123456789"));
+            adminService.saveAdmin(new Admin(null,"Tung","Le","tungle@gmail.com","tung","123","0123456789"));
+        };
+    }
 }

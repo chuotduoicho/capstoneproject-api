@@ -22,8 +22,9 @@ public class AdminCotroller {
     }
 
     @GetMapping("/admin/{id}")
-    public Admin findAdminById(@PathVariable UUID id){
-        return adminService.findAdminById(id);
+    public Admin findAdminById(@PathVariable String id){
+
+        return adminService.findAdminById(UUID.fromString(id));
     }
 
     @GetMapping("/admin/findByName/{name}")
