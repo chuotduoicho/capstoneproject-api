@@ -1,7 +1,12 @@
 package com.jovinn.capstoneproject;
 
+import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.model.Box;
+import com.jovinn.capstoneproject.model.Category;
 import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.service.BoxService;
+import com.jovinn.capstoneproject.service.ServiceCategoryService;
 import com.jovinn.capstoneproject.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -10,6 +15,8 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.UUID;
 
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 public class CapstoneprojectApplication {
@@ -22,7 +29,7 @@ public class CapstoneprojectApplication {
         return new BCryptPasswordEncoder();
     }
     @Bean
-    CommandLineRunner run(UserService userService) {
+    CommandLineRunner run(UserService userService, BoxService boxService, ServiceCategoryService serviceCategoryService) {
         return args -> {
 //            userService.saveRole(new Role(null, "ROLE_SELLER"));
 //            userService.saveRole(new Role(null, "ROLE_BUYER"));
@@ -37,7 +44,10 @@ public class CapstoneprojectApplication {
             userService.saveUser(new User(null, "Doan","Minh Duc","duc", "duc@gmail.com",   null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER));
 
             userService.saveUser(new User(null, "Le","Thanh Tung", "tung","tung@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER));
-
+            //boxService.saveBox(new Box(null, UUID.randomUUID(),null,null,null,"MusicSoundCloud",1,2, BoxServiceStatus.ACTIVE));
+            serviceCategoryService.saveServiceCategory(new Category(null,"audio"));
+            serviceCategoryService.saveServiceCategory(new Category(null,"design"));
+            serviceCategoryService.saveServiceCategory(new Category(null,"code"));
 //            userService.addRoleToUser("tai", "ROLE_SELLER");
 //            userService.addRoleToUser("tai", "ROLE_SUPER_ADMIN");
 //            userService.addRoleToUser("vinh", "ROLE_BUYER");
