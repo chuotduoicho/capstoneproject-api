@@ -26,6 +26,6 @@ public class UrlProfile extends BaseEntity {
     String title;
     String url;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    Seller seller;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    Seller seller;
 }

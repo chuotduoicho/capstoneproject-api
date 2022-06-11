@@ -36,6 +36,6 @@ public class Education extends BaseEntity {
     Date toDate;
     Boolean opened;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    Seller seller;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    Seller seller;
 }

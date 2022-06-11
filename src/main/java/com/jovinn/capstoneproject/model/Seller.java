@@ -32,28 +32,28 @@ public class Seller extends BaseEntity {
     RankSeller rankSeller;
     Boolean verifySeller;
 
-    @OneToMany(mappedBy = "seller",
-            fetch = FetchType.LAZY,
-            orphanRemoval = true)
-    List<Language> languages;
-
-    @OneToMany(mappedBy = "seller",
-            cascade = CascadeType.PERSIST,
-            orphanRemoval = true)
-    List<Education> educations;
-
-    @OneToMany(mappedBy = "seller",
-            cascade = CascadeType.PERSIST,
-            orphanRemoval = true)
-    List<Skill> skills;
-
-    @OneToMany(mappedBy = "seller",
-            cascade = CascadeType.PERSIST,
-            orphanRemoval = true)
-    List<Certificate> certificates;
-
-    @OneToMany(mappedBy = "seller",
-            cascade = CascadeType.PERSIST,
-            orphanRemoval = true)
-    List<UrlProfile> urlProfiles;
+//    @OneToMany(mappedBy = "seller",
+//            fetch = FetchType.LAZY,
+//            orphanRemoval = true)
+//    List<Language> languages;
+//
+//    @OneToMany(mappedBy = "seller",
+//            cascade = CascadeType.PERSIST,
+//            orphanRemoval = true)
+//    List<Education> educations;
+//
+//    @OneToMany(mappedBy = "seller",
+//            cascade = CascadeType.PERSIST,
+//            orphanRemoval = true)
+//    List<Skill> skills;
+//
+//    @OneToMany(mappedBy = "seller",
+//            cascade = CascadeType.PERSIST,
+//            orphanRemoval = true)
+//    List<Certificate> certificates;
+//
+//    @OneToMany(mappedBy = "seller",
+//            cascade = CascadeType.PERSIST,
+//            orphanRemoval = true)
+//    List<UrlProfile> urlProfiles;
 }

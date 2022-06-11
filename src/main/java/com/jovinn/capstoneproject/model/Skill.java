@@ -29,6 +29,6 @@ public class Skill extends BaseEntity {
     SkillLevel level;
     String shortDescribe;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    Seller seller;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    Seller seller;
 }
