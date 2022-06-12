@@ -59,4 +59,8 @@ public class Box extends  BaseEntity {
     @JsonManagedReference
     List<Package> packages;
 
+    @OneToOne(mappedBy = "box", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    Gallery gallery;
+
 }
