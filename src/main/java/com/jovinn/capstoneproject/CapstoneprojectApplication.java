@@ -2,9 +2,7 @@ package com.jovinn.capstoneproject;
 
 import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
-import com.jovinn.capstoneproject.model.Box;
-import com.jovinn.capstoneproject.model.Category;
-import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.service.BoxService;
 import com.jovinn.capstoneproject.service.ServiceCategoryService;
 import com.jovinn.capstoneproject.service.UserService;
@@ -16,6 +14,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
@@ -45,9 +45,9 @@ public class CapstoneprojectApplication {
 
             userService.saveUser(new User(null, "Le","Thanh Tung", "tung","tung@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER));
             //boxService.saveBox(new Box(null, UUID.randomUUID(),null,null,null,"MusicSoundCloud",1,2, BoxServiceStatus.ACTIVE));
-            serviceCategoryService.saveServiceCategory(new Category(null,"audio"));
-            serviceCategoryService.saveServiceCategory(new Category(null,"design"));
-            serviceCategoryService.saveServiceCategory(new Category(null,"code"));
+            serviceCategoryService.saveServiceCategory(new Category(null,"cat1",null));
+            serviceCategoryService.saveServiceCategory(new Category(null,"cat2",null));
+            serviceCategoryService.saveServiceCategory(new Category(null,"cat3",null));
 //            userService.addRoleToUser("tai", "ROLE_SELLER");
 //            userService.addRoleToUser("tai", "ROLE_SUPER_ADMIN");
 //            userService.addRoleToUser("vinh", "ROLE_BUYER");

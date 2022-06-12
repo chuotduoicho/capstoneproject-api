@@ -36,7 +36,8 @@ public class SubCategory extends  BaseEntity {
 
     String name;
 
-    @OneToMany(mappedBy = "sub_category")
+    @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
+    @PrimaryKeyJoinColumn
     List<ServiceType> serviceTypes;
 }

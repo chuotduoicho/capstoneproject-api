@@ -28,7 +28,8 @@ public class Category extends BaseEntity {
     @Type(type = "uuid-char")
     UUID id;
     String name;
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @PrimaryKeyJoinColumn
     @JsonManagedReference
     List<SubCategory> subCategories;
 }

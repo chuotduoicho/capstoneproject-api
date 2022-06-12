@@ -23,11 +23,6 @@ public class BoxController {
     //API add Service
     @PostMapping("/addService")
     public Box addService(@RequestBody Box box){
-//        Box temp = new Box();
-//        temp.setId(box.getId());
-//        for(Package pack : box.getPackages()){
-//            pack.setBox(temp);
-//        }
         return boxService.saveBox(box);
     }
 

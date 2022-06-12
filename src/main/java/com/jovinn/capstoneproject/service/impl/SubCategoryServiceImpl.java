@@ -26,7 +26,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 
     @Override
     public List<SubCategory> getSubCategoriesByCategory(UUID categoryId) {
-        return subCategoryRepository.getSubCategoriesByCategory(categoryId);
+        return subCategoryRepository.findByCategoryId(categoryId);
     }
 
     @Override
@@ -35,7 +35,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     }
 
     @Override
-    public String deleteSubcategory(UUID categoryId) {
-        return null;
+    public String deleteSubcategory(UUID subCategoryId) {
+        subCategoryRepository.deleteById(subCategoryId);
+        return "deleted sub_category "+ subCategoryId;
     }
 }

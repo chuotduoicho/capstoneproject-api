@@ -28,7 +28,7 @@ public class ServiceType extends BaseEntity {
     UUID id;
     String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sub_category_id", referencedColumnName = "id")
     @JsonBackReference
     SubCategory subCategory;
