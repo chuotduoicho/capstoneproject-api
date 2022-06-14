@@ -42,15 +42,6 @@ public class CapstoneprojectApplication {
 
     }
 
-//    @Bean
-//    public WebMvcConfigurer configurer(){
-//        return new WebMvcConfigurer() {
-//            @Override
-//            public void addCorsMappings(CorsRegistry registry) {
-//                registry.addMapping("/*").allowedOrigins("*");
-//            }
-//        };
-//    }
     @PostConstruct
     void init() {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
