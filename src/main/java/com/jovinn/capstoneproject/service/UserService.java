@@ -9,6 +9,6 @@ import java.util.List;
 public interface UserService {
     UserSummary getCurrentUser(UserPrincipal currentUser);
     User saveUser(User user);
-//    User getUser(String username);
+
     List<User> getUsers();
 }

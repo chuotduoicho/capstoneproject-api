@@ -9,6 +9,7 @@ import com.jovinn.capstoneproject.dto.request.SignUpRequest;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
 import com.jovinn.capstoneproject.service.UserService;
+import com.jovinn.capstoneproject.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,9 +37,29 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
     private JwtTokenProvider jwtTokenProvider;
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @GetMapping("/")
+    public String welcome() {
+        return "Welcome to java !!";
+    }
+
+//    @PostMapping("/signin")
+//    public String generateToken(@RequestBody LoginRequest loginRequest) throws Exception {
+//        try {
+//            authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+//            );
+//        } catch (Exception ex) {
+//            throw new Exception("invalid username/password");
+//        }
+//        return jwtUtil.generateToken(loginRequest.getUsername());
+//    }
 
     @PostMapping("/register")   //api method post : url :'http://localhost:8080/api/auth/register'
     public ResponseEntity<User> register(@RequestBody User user){
@@ -48,7 +69,7 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 

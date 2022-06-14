@@ -13,24 +13,28 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.UUID;
 
-@Service
-public class CustomUserDetailsServiceImpl implements UserDetailsService, CustomUserDetailsService {
-    @Autowired
-    private UserRepository userRepository;
+public class CustomUserDetailsServiceImpl  {
+//    @Autowired
+//    private UserRepository userRepository;
+//
+//    @Override
+//    @Transactional
+//    public UserDetails loadUserByUsername(String username) {
+//        User user = userRepository.findByUsernameOrEmail(username, username)
+//                .orElseThrow(() -> new UsernameNotFoundException(String.format("User not found with this username or email: %s", username)));
+//        return UserPrincipal.create(user);
+//    }
 
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String usernameOrEmail) {
-        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("User not found with this username or email: %s", usernameOrEmail)));
-        return UserPrincipal.create(user);
-    }
+//    @Override
+//    public UserDetails loadUserById(UUID id) {
+//        return null;
+//    }
 
-    @Override
-    @Transactional
-    public UserDetails loadUserById(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException(String.format("User not found with id: %s", id)));
-
-        return UserPrincipal.create(user);
-    }
+//    @Override
+//    @Transactional
+//    public UserDetails loadUserById(UUID id) {
+//        User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException(String.format("User not found with id: %s", id)));
+//
+//        return UserPrincipal.create(user);
+//    }
 }

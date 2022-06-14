@@ -1,14 +1,37 @@
 package com.jovinn.capstoneproject.service;
 
+import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
-public interface CustomUserDetailsService {
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+    @Autowired
+    private UserRepository userRepository;
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username);
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), new ArrayList<>());
+    }
+    //UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
-    UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException;
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        User user = userRepository.findByUsername(username);
+//        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), new ArrayList<>());
+//    }
 
-    UserDetails loadUserById(UUID id);
+    //    UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException;
+//
+    public UserDetails loadUserById(UUID id) {
+        return null;
+    }
 
 }
