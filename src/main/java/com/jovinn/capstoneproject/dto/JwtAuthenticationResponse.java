@@ -1,4 +1,4 @@
-package com.jovinn.capstoneproject.payload;
+package com.jovinn.capstoneproject.dto;
 import lombok.Data;
 
 @Data

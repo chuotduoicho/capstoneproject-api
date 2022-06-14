@@ -10,21 +10,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Configuration
 @EnableJpaAuditing
 public class AuditingConfig {
 
     @Bean
-    public AuditorAware<Long> auditorProvider() {
+    public SpringSecurityAuditAwareImpl auditorProvider() {
         return new SpringSecurityAuditAwareImpl();
     }
 }
 
-class SpringSecurityAuditAwareImpl implements AuditorAware<Long> {
+class SpringSecurityAuditAwareImpl implements AuditorAware<UUID> {
 
     @Override
-    public Optional<Long> getCurrentAuditor() {
+    public Optional<UUID> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {

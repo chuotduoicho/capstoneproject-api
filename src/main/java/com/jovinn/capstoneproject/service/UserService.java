@@ -1,7 +1,7 @@
 package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.model.User;
-import com.jovinn.capstoneproject.payload.UserSummary;
+import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
 import java.util.List;

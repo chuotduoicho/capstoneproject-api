@@ -1,4 +1,4 @@
-package com.jovinn.capstoneproject.payload.request;
+package com.jovinn.capstoneproject.dto.request;
 
 import lombok.Data;
 

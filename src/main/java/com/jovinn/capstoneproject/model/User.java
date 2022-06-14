@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -21,14 +22,15 @@ import java.util.UUID;
 public class User extends BaseEntity {
     @Id
     @GeneratedValue( strategy = GenerationType.AUTO)
-//    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    Long id;
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Type(type = "uuid-char")
+    UUID id;
     String firstName;
     String lastName;
     String username;
     @Column(unique = true, length = 55)
     String email;
-    //@Column(unique = true, length = 15)
+    @Column(unique = true, length = 15)
     String phone_number;
 
     @Enumerated(EnumType.STRING)
@@ -52,8 +54,5 @@ public class User extends BaseEntity {
     Date join_selling_at;
 
     @Enumerated(EnumType.STRING)
-    UserActivityType activityType = UserActivityType.BUYER;
-//
-//    @ManyToMany(fetch = FetchType.EAGER)
-//    private Collection<Role> roles= new ArrayList<>();
+    UserActivityType activityType;
 }
