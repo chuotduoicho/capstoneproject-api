@@ -1,11 +1,17 @@
 package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.model.Box;
+import com.jovinn.capstoneproject.model.Category;
 import com.jovinn.capstoneproject.repository.BoxRepository;
+import com.jovinn.capstoneproject.repository.CategoryRepository;
 import com.jovinn.capstoneproject.service.BoxService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,6 +24,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public Box saveBox(Box box) {
+       // box.setCategory(category);
         if (box != null){
             return boxRepository.save(box);
         }
@@ -41,6 +48,10 @@ public class BoxServiceImpl implements BoxService {
                 if (box.getSellerId() != null){
                     boxExist.setSellerId(box.getSellerId());
                 }
+                if(box.getServiceType() != null){
+                    boxExist.setServiceType(box.getServiceType());
+                }
+
 
                 return boxRepository.save(boxExist);
             }
@@ -73,5 +84,21 @@ public class BoxServiceImpl implements BoxService {
     @Override
     public Box getServiceByID(UUID id) {
         return boxRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Box> getAllServiceByCategoryID(UUID categoryId) {
+        //Pageable pageable = PageRequest.of(page,8, Sort.Direction.DESC);
+        return boxRepository.getAllServiceByCategoryId(categoryId) ;
+    }
+
+    @Override
+    public Page<Box> getAllServiceByCatIdPagination(int page,UUID categoryId) {
+        return boxRepository.findAllByServiceType_SubCategory_Category_Id(categoryId,PageRequest.of(page,8));
+    }
+
+    @Override
+    public Page<Box> searchServiceByCatNameByServiceTypeName(int offset, String catName, String serviceTypeName) {
+        return boxRepository.findAllByServiceType_NameOrServiceType_SubCategory_Category_Name(serviceTypeName,catName,PageRequest.of(offset,8));
     }
 }
