@@ -1,5 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.Gender;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import lombok.*;
@@ -7,10 +9,12 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Data
@@ -54,5 +58,43 @@ public class User extends BaseEntity {
     Date join_selling_at;
 
     @Enumerated(EnumType.STRING)
+    AuthTypeUser authType;
+
+    @Enumerated(EnumType.STRING)
     UserActivityType activityType;
+
+//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    @JoinTable(
+//            name = "user_activity_type",
+//            joinColumns = @JoinColumn(name = "userId"),
+//            inverseJoinColumns = @JoinColumn(name = "activityTypeId")
+//    )
+//    Set<ActivityType> activityType = new HashSet<>();
+//
+//    public void addActivityType(ActivityType activityType) {
+//        activityTypes.add(activityType);
+//        activityType.getUsers().add(this);
+//    }
+//
+//    public void removeActivityType(ActivityType activityType) {
+//        activityTypes.remove(activityType);
+//        activityType.getUsers().remove(this);
+//    }
+//    public Set<ActivityType> getActivityTypes() {
+//        return activityTypes;
+//    }
+
+//    public void setActivityTypes(Set<ActivityType> activityTypes) {
+//        this.activityTypes = activityTypes;
+//    }
+
+    //    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+//    @JsonManagedReference
+//    Buyer buyer;
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "buyerId")
+    Buyer buyer;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    Seller seller;
 }

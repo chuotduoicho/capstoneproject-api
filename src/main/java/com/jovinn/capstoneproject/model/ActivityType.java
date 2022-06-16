@@ -1,6 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +11,9 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -20,21 +23,19 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class Buyer extends BaseEntity {
+public class ActivityType {
     @Id
-    @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
+    @GeneratedValue( strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-    Integer successContract;
-    String buyerNumber;
+    @Enumerated(EnumType.STRING)
+    UserActivityType activityType;
 
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "user_id")
-//    @JsonManagedReference
-//    User user;
-//    @OneToOne(fetch = FetchType.LAZY,
-//            cascade = CascadeType.ALL)
-//    @JoinColumn(name = "UserId")
-//    User user;
+//    @ManyToMany(mappedBy = "activityTypes")
+//    List<User> users = new ArrayList<>();
+
+//    public ActivityType(UserActivityType activityType) {
+//        this.activityType = activityType;
+//    }
 }

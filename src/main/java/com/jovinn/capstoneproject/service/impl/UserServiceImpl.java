@@ -1,8 +1,7 @@
 package com.jovinn.capstoneproject.service.impl;
 
-//import com.jovinn.capstoneproject.model.Role;
+import com.jovinn.capstoneproject.model.Buyer;
 import com.jovinn.capstoneproject.model.User;
-//import com.jovinn.capstoneproject.repo.RoleRepo;
 import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
@@ -17,13 +16,15 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class UserServiceImpl implements UserService ,UserDetailsService {
+public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepo;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -36,18 +37,24 @@ public class UserServiceImpl implements UserService ,UserDetailsService {
     public User saveUser(User user) {
         log.info("Saving new user {} {} to the database",user.getFirstName(),user.getLastName());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepo.save(user);
+//        Buyer buyer = user.getBuyer();
+//        buyer.setId(UUID.randomUUID());
+        return userRepository.save(user);
     }
 
     @Override
     public List<User> getUsers() {
         log.info("Fetching all users");
-
-        return userRepo.findAll();
+        return userRepository.findAll();
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
-    }
+//    @Override
+//    public User findByUserId(UUID id) {
+//        return userRepository.findByUserId(id);
+//    }
+
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        return null;
+//    }
 }

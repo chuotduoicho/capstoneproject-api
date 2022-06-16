@@ -18,19 +18,44 @@ import java.net.URI;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class UserController {
     @Autowired
     private UserService userService;
 
+    @PostMapping("")
+    //Get list all user - Using for admin
     @GetMapping("/users")
     public ResponseEntity<List<User>> getUsers(){
-
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users").toUriString());
         return ResponseEntity.created(uri).body(userService.getUsers());
     }
+
+    //View buyer infor throught user - Using for seller
+//    @GetMapping("/buyer/{id}")
+//    public User getBuyer(@PathVariable UUID id) {
+//        return userService.findByUserId(id);
+//    }
+
+    //View seller infor throught user - Using for buyer
+    @GetMapping("/seller/{id}")
+    public User findSellerById(@PathVariable UUID id) {
+        return null;
+    }
+
+    //Update user can using function like seller - Using for buyer (One time)
+    @PostMapping("/joinSelling")
+    public User joinSelling(@RequestBody User user) {
+        return null;
+    }
+
+    //Edit profile for User - Using for buyer and seller
+//    @PostMapping("/edit/{id}")
+//    public User updateUser(@PathVariable UUID id) {
+//        User existUser = userService.findByUserId(id);
+//        return userService.saveUser(existUser);
+//    }
     @GetMapping("/me")
     @PreAuthorize("hasRole('BUYER')")
     public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
