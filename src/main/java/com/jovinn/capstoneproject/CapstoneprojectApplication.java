@@ -3,8 +3,10 @@ package com.jovinn.capstoneproject;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 //import com.jovinn.capstoneproject.filter.JwtAuthenticationFilter;
+import com.jovinn.capstoneproject.model.ActivityType;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.SellerService;
 import com.jovinn.capstoneproject.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -32,9 +34,10 @@ public class CapstoneprojectApplication {
     }
 
     @Bean
-    CommandLineRunner run(UserService userService) {
+    CommandLineRunner run(UserService userService, ActivityTypeService activityTypeService) {
         return args -> {
-            userService.saveUser(new User(null, "Vo","Duc Tai", "tai","tai@gmail.com",null,null,null,null,null,null,null,null,"123", null,null,null,null,null,null,null));
+            //activityTypeService.saveType(new ActivityType(null, UserActivityType.BUYER));
+//            userService.saveUser(new User(null, "Vo","Duc Tai", "tai","tai@gmail.com",null,null,null,null,null,null,null,null,"123", null,null,null,null,null,null,null));
 //            userService.saveUser(new User(null, "Nguyen","The Vinh", "vinh","vinh@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null,null,null,null,null));
 //
 //            userService.saveUser(new User(null, "Tran","Xuan Son","son", "son@gmail.com", null,null,null,null,null,null,null,null, "123",null,null, null,null,null,null,null));
@@ -42,7 +45,6 @@ public class CapstoneprojectApplication {
 //            userService.saveUser(new User(null, "Doan","Minh Duc","duc", "duc@gmail.com",   null,null,null,null,null,null,null,null, "123",null,null, null,null,null,null,null));
 //
 //            userService.saveUser(new User(null, "Le","Thanh Tung", "tung","tung@gmail.com", null,null,null,null,null,null,null,null, "123",null,null, null,null,null,null,null));
-            //sellerService.saveSeller(new Seller(null, "scasc", "123456", RankSeller.BEGINNER, true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         };
 
     }

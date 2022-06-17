@@ -1,39 +1,31 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.model.ActivityType;
 import com.jovinn.capstoneproject.model.Buyer;
 import com.jovinn.capstoneproject.model.User;
-import com.jovinn.capstoneproject.dto.ApiResponse;
 import com.jovinn.capstoneproject.dto.JwtAuthenticationResponse;
 import com.jovinn.capstoneproject.dto.request.LoginRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.repository.auth.ActivityTypeRepository;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
-import com.jovinn.capstoneproject.service.UserService;
 import com.jovinn.capstoneproject.service.custom.CustomUserDetailsService;
 import com.jovinn.capstoneproject.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
-import java.net.URI;
-import java.util.Collections;
-import java.util.UUID;
-
-import static com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat.UUID;
+import java.util.Date;
+import java.util.random.RandomGenerator;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,21 +50,21 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) throws Exception {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        //return new ResponseEntity<>("User signed-in successfully!.", HttpStatus.OK);
-//        try {
-//            authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword())
-//            );
-//        } catch (BadCredentialsException e){
-//            throw new Exception("Incorrect username or password", e);
-//        }
+//        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+//                loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
+//
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        return new ResponseEntity<>("User signed-in successfully!.", HttpStatus.OK);
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
+        } catch (BadCredentialsException e){
+            throw new Exception("Incorrect username or password", e);
+        }
 
         final UserDetails userDetails = customUserDetailsService
-                .loadUserByUsername(loginRequest.getUsernameOrEmail());
+                .loadUserByUsername(loginRequest.getUsername());
         final String accessToken = jwtUtil.generateToken(userDetails);
         return ResponseEntity.ok(new JwtAuthenticationResponse(accessToken));
     }
@@ -97,7 +89,11 @@ public class AuthController {
         user.setUsername(signUpRequest.getUsername());
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
-//        Buyer buyer = user.getBuyer();
+        user.setJoinedAt(new Date());
+
+        Buyer buyer = new Buyer();
+        buyer.setBuyerNumber(RandomString.make(6));
+        user.setBuyer(buyer);
 //        buyer.setId(java.util.UUID.randomUUID());
 
 //        ActivityType activityType = activityTypeRepository.findByActivityType("SELLER").get();

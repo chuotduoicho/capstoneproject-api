@@ -35,27 +35,27 @@ public class Seller extends BaseEntity {
     RankSeller rankSeller;
     Boolean verifySeller;
 
-//    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "userId")
-//    User user;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "userId")
+    User user;
 
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    List<Certificate> certificates = new ArrayList<>();
-//
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    List<Education> educations = new ArrayList<>();
-//
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    List<Language> languages = new ArrayList<>();
-//
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    List<Skill> skills = new ArrayList<>();
-//
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    List<UrlProfile> urlProfiles = new ArrayList<>();
+    @JsonIgnore
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<Certificate> certificates = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<Education> educations = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<Language> languages = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<Skill> skills = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<UrlProfile> urlProfiles = new ArrayList<>();
 }

@@ -1,9 +1,9 @@
 package com.jovinn.capstoneproject.security;
 
 import com.jovinn.capstoneproject.filter.JwtRequestFilter;
-import com.jovinn.capstoneproject.repository.UserRepository;
+//import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.service.custom.CustomUserDetailsService;
-import com.jovinn.capstoneproject.service.impl.CustomUserDetailsServiceImpl;
+//import com.jovinn.capstoneproject.service.impl.CustomUserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/**").permitAll().anyRequest().authenticated()
+                .antMatchers("/api/v1/**").permitAll().anyRequest().authenticated()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

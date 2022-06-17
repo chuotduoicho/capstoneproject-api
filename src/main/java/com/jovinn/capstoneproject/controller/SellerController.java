@@ -3,10 +3,7 @@ package com.jovinn.capstoneproject.controller;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -15,6 +12,10 @@ public class SellerController {
     @Autowired
     private SellerService sellerService;
 
+    @GetMapping("/sellers")
+    public Seller getListSellers() {
+        return null;
+    }
     @PostMapping("/add-info-seller")
     public Seller addInfo(@RequestBody Seller seller) {
         return sellerService.saveSeller(seller);

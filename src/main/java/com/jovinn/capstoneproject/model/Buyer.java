@@ -26,6 +26,8 @@ public class Buyer extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
+    @Type(type = "uuid-char")
+    UUID userId;
     Integer successContract;
     String buyerNumber;
 

@@ -26,20 +26,34 @@ public class CustomUserDetailsService implements UserDetailsService {
 //        this.userRepository = userRepository;
 //    }
     @Override
-    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
-        return null;
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found with username or email == " + username));
+        return new org.springframework.security.core.userdetails.User(user.getUsername(),
+                user.getPassword(), mapRolesToAuthorities(user.getActivityType()));
+    //        return null;
+    //        return userRepository.findByUsername(username)
+    //                .orElseThrow(() -> new UsernameNotFoundException("Not found user"));
+    //        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+    //                .orElseThrow(() ->
+    //                        new UsernameNotFoundException("User not found with username or email" + usernameOrEmail));
+    }
+//    @Override
+//    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+////        return null;
 //        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
 //                .orElseThrow(() ->
 //                        new UsernameNotFoundException("User not found with username or email" + usernameOrEmail));
 //        return new org.springframework.security.core.userdetails.User(user.getEmail(),
 //                user.getPassword(), mapRolesToAuthorities(user.getActivityType()));
-//        return null;
-//        return userRepository.findByUsername(username)
-//                .orElseThrow(() -> new UsernameNotFoundException("Not found user"));
-//        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
-//                .orElseThrow(() ->
-//                        new UsernameNotFoundException("User not found with username or email" + usernameOrEmail));
-    }
+////        return null;
+////        return userRepository.findByUsername(username)
+////                .orElseThrow(() -> new UsernameNotFoundException("Not found user"));
+////        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+////                .orElseThrow(() ->
+////                        new UsernameNotFoundException("User not found with username or email" + usernameOrEmail));
+//    }
 
     private Collection< ? extends GrantedAuthority> mapRolesToAuthorities(Set<ActivityType> activityType){
         return activityType.stream().map(role -> new SimpleGrantedAuthority(role.getActivityType().name())).collect(Collectors.toList());

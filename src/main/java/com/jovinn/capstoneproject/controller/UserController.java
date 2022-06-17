@@ -37,7 +37,10 @@ public class UserController {
 //    public User getBuyer(@PathVariable UUID id) {
 //        return userService.findByUserId(id);
 //    }
-
+    @GetMapping("/list")
+    public List<User> getListUsers() {
+        return userService.getUsers();
+    }
     //View seller infor throught user - Using for buyer
     @GetMapping("/seller/{id}")
     public User findSellerById(@PathVariable UUID id) {

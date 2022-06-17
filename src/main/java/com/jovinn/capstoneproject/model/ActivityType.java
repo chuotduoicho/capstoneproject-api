@@ -32,8 +32,8 @@ public class ActivityType {
     @Enumerated(EnumType.STRING)
     UserActivityType activityType;
 
-//    @ManyToMany(mappedBy = "activityTypes")
-//    List<User> users = new ArrayList<>();
+    @ManyToMany(mappedBy = "activityType")
+    List<User> users = new ArrayList<>();
 
 //    public ActivityType(UserActivityType activityType) {
 //        this.activityType = activityType;
