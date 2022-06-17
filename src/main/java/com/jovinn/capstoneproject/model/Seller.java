@@ -1,6 +1,5 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,10 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,35 +24,36 @@ public class Seller extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Type(type = "uuid-char")
     UUID id;
+    UUID userId;
     String descriptionBio;
     String sellerNumber;
     @Enumerated(EnumType.STRING)
     RankSeller rankSeller;
     Boolean verifySeller;
 
-//    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "userId")
-//    User user;
-
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    List<Certificate> certificates = new ArrayList<>();
+//    @OneToMany(mappedBy = "seller",
+//            fetch = FetchType.LAZY,
+//            orphanRemoval = true)
+//    List<Language> languages;
 //
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    List<Education> educations = new ArrayList<>();
+//    @OneToMany(mappedBy = "seller",
+//            cascade = CascadeType.PERSIST,
+//            orphanRemoval = true)
+//    List<Education> educations;
 //
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    List<Language> languages = new ArrayList<>();
+//    @OneToMany(mappedBy = "seller",
+//            cascade = CascadeType.PERSIST,
+//            orphanRemoval = true)
+//    List<Skill> skills;
 //
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    List<Skill> skills = new ArrayList<>();
+//    @OneToMany(mappedBy = "seller",
+//            cascade = CascadeType.PERSIST,
+//            orphanRemoval = true)
+//    List<Certificate> certificates;
 //
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    List<UrlProfile> urlProfiles = new ArrayList<>();
+//    @OneToMany(mappedBy = "seller",
+//            cascade = CascadeType.PERSIST,
+//            orphanRemoval = true)
+//    List<UrlProfile> urlProfiles;
 }

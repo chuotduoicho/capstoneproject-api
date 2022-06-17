@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface CategoryService {
     Category saveCategory(Category category);
-    List<Category> saveCategories(List<Category> serviceCategories);
+    List<Category> saveCategories(List<Category> categories);
     List<Category> getCategories();
     Category getCategoryById(UUID id);
     Category getCategoryByName(String name);

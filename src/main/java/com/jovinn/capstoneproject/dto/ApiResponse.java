@@ -14,7 +14,6 @@ import java.io.Serializable;
         "message"
 })
 public class ApiResponse implements Serializable {
-
     @JsonIgnore
     private static final long serialVersionUID = 7702134516418120340L;
 

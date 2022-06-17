@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.Gender;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
-import lombok.*;
+import com.sun.istack.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
@@ -12,6 +16,7 @@ import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.*;
@@ -32,7 +37,7 @@ public class User extends BaseEntity {
     String firstName;
     String lastName;
     String username;
-    @Column(unique = true, length = 55)
+    @Column(unique = true, length = 55, nullable = false)
     String email;
     @Column(unique = true, length = 15)
     String phone_number;
@@ -97,4 +102,6 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     Seller seller;
+
+    String resetPasswordToken;
 }
