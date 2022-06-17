@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.ResetPasswordRequest;
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
@@ -143,7 +144,6 @@ public class UserController {
             userService.updateResetPasswordToken(token, email);
             String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
             sendEmail(email, resetPasswordLink);
-            //model.addAttribute("message", "We have sent a reset password link to your email. Please check.");
         } catch (ResourceNotFoundException ex) {
             return "User not found with email: "+email;
         } catch (UnsupportedEncodingException | MessagingException e) {
@@ -173,9 +173,9 @@ public class UserController {
         mailSender.send(message);
     }
     @PostMapping("/reset_password")
-    public String processResetPassword(HttpServletRequest request) {
-        String token = request.getParameter("token");
-        String password = request.getParameter("password");
+    public String processResetPassword(@RequestBody ResetPasswordRequest request) {
+        String token = request.getToken();
+        String password = request.getPassword();
         User user = userService.getUserByResetPasswordToken(token);
         if(user == null){
             return "Invalid token: "+token;

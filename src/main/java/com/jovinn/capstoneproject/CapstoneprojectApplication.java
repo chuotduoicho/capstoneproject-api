@@ -38,6 +38,7 @@ public class CapstoneprojectApplication {
             //userService.saveUser(new User(null, "Tran","Xuan Son","son", "son@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER,null));
 
             userService.saveUser(new User(null, "Doan","Minh Duc","duc", "ducdmhe141516@fpt.edu.vn",   null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER,null));
+            userService.saveUser(new User(null, "Le","Thanh Tung","tung", "tunglthe141097@fpt.edu.vn",   null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER,null));
 
             //userService.saveUser(new User(null, "Le","Thanh Tung", "tung","tung@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER,null));
 
