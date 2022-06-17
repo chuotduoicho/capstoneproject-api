@@ -99,6 +99,6 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public Page<Box> searchServiceByCatNameByServiceTypeName(int offset, String catName, String serviceTypeName) {
-        return boxRepository.findAllByServiceType_NameOrServiceType_SubCategory_Category_Name(serviceTypeName,catName,PageRequest.of(offset,8));
+        return boxRepository.findAllByServiceType_NameContainsOrServiceType_SubCategory_Category_NameContains(serviceTypeName,catName,PageRequest.of(offset,8));
     }
 }

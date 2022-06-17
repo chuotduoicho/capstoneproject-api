@@ -21,7 +21,8 @@ public interface BoxRepository extends JpaRepository<Box, UUID> {
 
     Page<Box> findAllByServiceType_SubCategory_Category_Id(UUID catId, PageRequest pageRequest);
 
-    Page<Box> findAllByServiceType_NameOrServiceType_SubCategory_Category_Name(String serviceTypeName, String catName, PageRequest pageRequest);
+    Page<Box> findAllByServiceType_NameContainsOrServiceType_SubCategory_Category_NameContains(String serviceTypeName, String catName, PageRequest pageRequest);
 //    @Query("select b from Box b where b.serviceType.subCategory.category.name = :catName or b.serviceType.name = :serviceTypeName or b.packages.")
 //    List<Box> searchAllServiceByCatNameByServiceTypeNameByPrice();
 }
+
