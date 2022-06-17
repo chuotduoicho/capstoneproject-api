@@ -7,14 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Data
@@ -25,10 +21,8 @@ import java.util.UUID;
 @Table(schema = "jovinn_server")
 public class ActivityType {
     @Id
-    @GeneratedValue( strategy = GenerationType.AUTO)
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Type(type = "uuid-char")
-    UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
     @Enumerated(EnumType.STRING)
     UserActivityType activityType;
 

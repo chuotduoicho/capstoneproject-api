@@ -19,12 +19,11 @@ import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "**")
 public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("")
     //Get list all user - Using for admin
     @GetMapping("/users")
     public ResponseEntity<List<User>> getUsers(){
@@ -32,6 +31,29 @@ public class UserController {
         return ResponseEntity.created(uri).body(userService.getUsers());
     }
 
+    @PutMapping("/buyer/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, @RequestBody User user) {
+        userService.updateUser(id, user);
+        return new ResponseEntity<>(userService.getByUserId(id), HttpStatus.OK);
+    }
+
+    @PutMapping("/me/profile/{id}")
+    public ResponseEntity<User> updateUserProfile(@PathVariable UUID id, @RequestBody User user) {
+        User existUser = userService.getByUserId(id);
+        existUser.setFirstName(user.getFirstName());
+        existUser.setLastName(user.getLastName());
+        existUser.setPhoneNumber(user.getPhoneNumber());
+        existUser.setGender(user.getGender());
+        existUser.setBirthDate(user.getBirthDate());
+        existUser.setAddress(user.getAddress());
+        existUser.setProvince(user.getProvince());
+        existUser.setCity(user.getCity());
+        existUser.setCountry(user.getCountry());
+        existUser.setAvatar(user.getAvatar());
+
+        User update = userService.saveUser(existUser);
+        return ResponseEntity.ok().body(update);
+    }
     //View buyer infor throught user - Using for seller
 //    @GetMapping("/buyer/{id}")
 //    public User getBuyer(@PathVariable UUID id) {

@@ -1,12 +1,10 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.enumerable.UserActivityType;
-import com.jovinn.capstoneproject.model.ActivityType;
-import com.jovinn.capstoneproject.model.Buyer;
-import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.dto.JwtAuthenticationResponse;
 import com.jovinn.capstoneproject.dto.request.LoginRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
+import com.jovinn.capstoneproject.model.Buyer;
+import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.repository.auth.ActivityTypeRepository;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
@@ -25,7 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.random.RandomGenerator;
 
 @RestController
 @RequiredArgsConstructor
