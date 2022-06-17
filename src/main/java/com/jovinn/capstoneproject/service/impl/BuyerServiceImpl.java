@@ -28,7 +28,7 @@ public class BuyerServiceImpl implements BuyerService {
     @Override
     public Buyer getBuyerById(UUID id) {
         return buyerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Buyer", "Buyer not found", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Buyer", "Buyer not found", id.toString()));
     }
 
     @Override
@@ -39,7 +39,7 @@ public class BuyerServiceImpl implements BuyerService {
     @Override
     public Buyer updateBuyer(Buyer buyer) {
         Buyer existBuyer = buyerRepository.findById(buyer.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Buyer", "Not found buyer", buyer));
+                .orElseThrow(() -> new ResourceNotFoundException("Buyer", "Not found buyer", buyer.getId().toString()));
         existBuyer.setSuccessContract(buyer.getSuccessContract());
         return buyerRepository.save(buyer);
     }

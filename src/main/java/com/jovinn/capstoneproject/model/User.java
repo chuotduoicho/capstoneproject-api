@@ -100,7 +100,8 @@ public class User extends BaseEntity {
     @JoinColumn(name = "buyerId")
     Buyer buyer;
 
-    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "sellerId")
     Seller seller;
 
     String resetPasswordToken;

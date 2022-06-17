@@ -34,7 +34,7 @@ public class SellerServiceImpl implements SellerService {
     @Override
     public Seller getSellerById(UUID id) {
         return sellerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Seller", "seller not found", id ));
+                .orElseThrow(() -> new ResourceNotFoundException("Seller", "seller not found", id.toString() ));
     }
 
     @Override

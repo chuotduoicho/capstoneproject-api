@@ -1,6 +1,6 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.ResetPasswordRequest;
+import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
@@ -37,9 +37,6 @@ public class UserController {
     private UserService userService;
     //@Autowired
     private final JavaMailSender mailSender;
-    @Autowired
-    private UserRepository userRepository;
-
 //    @GetMapping("/users")
 //    public ResponseEntity<List<User>> getUsers() {
 //
