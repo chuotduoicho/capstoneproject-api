@@ -2,14 +2,25 @@ package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.service.UserService;
+import com.jovinn.capstoneproject.util.RequestUtility;
 import lombok.RequiredArgsConstructor;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -20,8 +31,11 @@ import java.util.UUID;
 @CrossOrigin(origins = "*")
 public class UserController {
     @Autowired
-    private final UserService userService;
-    private final UserRepository userRepository;
+    private UserService userService;
+    //@Autowired
+    private final JavaMailSender mailSender;
+    @Autowired
+    private UserRepository userRepository;
 
 //    @GetMapping("/users")
 //    public ResponseEntity<List<User>> getUsers() {
@@ -58,10 +72,10 @@ public class UserController {
         return userService.saveUser(user);
     }
 
-    @PutMapping("/edit")
-    public UserProfile updateProfile(@RequestBody UserProfile userProfile) {
-        return userService.updateProfile(userProfile);
-    }
+//    @PutMapping("/edit")
+//    public UserProfile updateProfile(@RequestBody UserProfile userProfile) {
+//        return userService.updateProfile(userProfile);
+//    }
 
 //    @PostMapping("/auth/register")   //api method post : url :'http://localhost:8080/api/auth/register'
 //    public ResponseEntity<User> register(@RequestBody User user){
@@ -117,6 +131,60 @@ public class UserController {
 //        }
 //    }
 //
+//    @GetMapping("user/forgot_password")
+//    public String forgotPasswordForm(){
+//        return "forgot_password_form";
+//    }
+    @PostMapping("/forgot_password")
+    public String processForgotPassword(HttpServletRequest request) {
+        String email = request.getParameter("email");
+        String token = RandomString.make(10);
+        try{
+            userService.updateResetPasswordToken(token, email);
+            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
+            sendEmail(email, resetPasswordLink);
+            //model.addAttribute("message", "We have sent a reset password link to your email. Please check.");
+        } catch (ResourceNotFoundException ex) {
+            return "User not found with email: "+email;
+        } catch (UnsupportedEncodingException | MessagingException e) {
+            return "Error while sending email";
+        }
+        return token;
+    }
+    public void sendEmail(String recipientEmail, String link) throws MessagingException, UnsupportedEncodingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        helper.setFrom("ducdmhe141516@fpt.edu.vn", "Jovinn support");
+        helper.setTo(recipientEmail);
+        String subject = "Here's the link to reset your password";
+
+        String content = "<p>Hello,</p>"
+                + "<p>You have requested to reset your password.</p>"
+                + "<p>Click the link below to change your password:</p>"
+                + "<p><a href=\"" + link + "\">Change my password</a></p>"
+                + "<br>"
+                + "<p>Ignore this email if you do remember your password, "
+                + "or you have not made the request.</p>";
+
+        helper.setSubject(subject);
+
+        helper.setText(content, true);
+
+        mailSender.send(message);
+    }
+    @PostMapping("/reset_password")
+    public String processResetPassword(HttpServletRequest request) {
+        String token = request.getParameter("token");
+        String password = request.getParameter("password");
+        User user = userService.getUserByResetPasswordToken(token);
+        if(user == null){
+            return "Invalid token: "+token;
+        }
+        else{
+            userService.updatePassword(user, password);
+            return "You have succcessfully changed your password.";
+        }
+    }
 }
 //@Data
 //class RoleToUserForm{

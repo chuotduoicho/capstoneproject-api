@@ -18,6 +18,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findById(UUID id);
     User findByUsername(String username);
     User findByEmail(String email);
+    User findByResetPasswordToken(String token);
     default User getUser(UserPrincipal currentUser) {
         return getUserByName(currentUser.getName());
     }

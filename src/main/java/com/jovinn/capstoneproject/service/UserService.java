@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.service;
 import com.jovinn.capstoneproject.dto.ApiResponse;
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
+import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;
 
 import java.nio.file.attribute.UserPrincipal;
@@ -22,5 +23,11 @@ public interface UserService {
     User updateUser(User newUser, String username, UserPrincipal currentUser);
     ApiResponse deleteUser(String username, UserPrincipal currentUser);
 
-    UserProfile updateProfile(UserProfile userProfile);
+    //UserProfile updateProfile(UserProfile userProfile);
+
+    User getUserByEmail(String email);
+    User getUserByResetPasswordToken(String token);
+    String updatePassword(User user, String newPassword);
+
+    String updateResetPasswordToken(String token, String email);
 }

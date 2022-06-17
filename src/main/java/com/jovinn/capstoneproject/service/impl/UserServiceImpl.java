@@ -5,17 +5,20 @@ import com.jovinn.capstoneproject.dto.ApiResponse;
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;
 //import com.jovinn.capstoneproject.repo.RoleRepo;
-import com.jovinn.capstoneproject.repository.UserProfileRepository;
+//import com.jovinn.capstoneproject.repository.UserProfileRepository;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +36,9 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService , UserDetailsService {
 
     private final UserRepository userRepository;
-    private final UserProfileRepository profileRepository;
+
+    //private final UserProfileRepository profileRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -132,19 +137,51 @@ public class UserServiceImpl implements UserService , UserDetailsService {
         return null;
     }
 
+//    @Override
+//    public UserProfile updateProfile(UserProfile userProfile) {
+//        UserProfile existUser = profileRepository.findById(userProfile.getId()).orElse(null);
+//        existUser.setFirstName(userProfile.getFirstName());
+//        existUser.setLastName(userProfile.getLastName());
+//        existUser.setPhoneNumber(userProfile.getPhoneNumber());
+//        existUser.setGender(userProfile.getGender());
+//        existUser.setBirthDate(userProfile.getBirthDate());
+//        existUser.setAddress(userProfile.getAddress());
+//        existUser.setProvince(userProfile.getProvince());
+//        existUser.setCity(userProfile.getCity());
+//        existUser.setCountry(userProfile.getCountry());
+//        return profileRepository.save(existUser);
+//    }
+
     @Override
-    public UserProfile updateProfile(UserProfile userProfile) {
-        UserProfile existUser = profileRepository.findById(userProfile.getId()).orElse(null);
-        existUser.setFirstName(userProfile.getFirstName());
-        existUser.setLastName(userProfile.getLastName());
-        existUser.setPhoneNumber(userProfile.getPhoneNumber());
-        existUser.setGender(userProfile.getGender());
-        existUser.setBirthDate(userProfile.getBirthDate());
-        existUser.setAddress(userProfile.getAddress());
-        existUser.setProvince(userProfile.getProvince());
-        existUser.setCity(userProfile.getCity());
-        existUser.setCountry(userProfile.getCountry());
-        return profileRepository.save(existUser);
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public User getUserByResetPasswordToken(String token) {
+        return userRepository.findByResetPasswordToken(token);
+    }
+
+    @Override
+    public String updatePassword(User user, String newPassword) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setResetPasswordToken(null);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+        return encodedPassword;
+    }
+
+    @Override
+    public String updateResetPasswordToken(String token, String email) throws ResourceNotFoundException {
+        User user = userRepository.findUserByEmail(email).orElse(null);
+        if(user!=null){
+            user.setResetPasswordToken(token);
+            userRepository.save(user);
+        }else{
+            throw new ResourceNotFoundException("User","email",email);
+        }
+        return token;
     }
 
 
