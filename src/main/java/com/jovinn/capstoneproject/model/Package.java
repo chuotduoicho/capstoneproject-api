@@ -31,7 +31,7 @@ public class Package extends  BaseEntity {
     String title;
     String shortDescription;
     Integer deliveryTime;
-    float price;
+    Float price;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "box_service_id",referencedColumnName = "id")

@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,10 +26,16 @@ public class Gallery extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-    UUID boxServiceId;
+    //UUID boxServiceId;
     String imageGallery1;
     String imageGallery2;
     String imageGallery3;
     String videoGallery;
     String documentGallery;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "box_service_id",referencedColumnName = "id")
+    //@JsonIgnore
+    @JsonBackReference
+    Box box;
 }

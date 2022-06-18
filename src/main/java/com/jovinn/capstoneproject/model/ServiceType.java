@@ -1,6 +1,8 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +13,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -32,4 +35,9 @@ public class ServiceType extends BaseEntity {
     @JoinColumn(name = "sub_category_id", referencedColumnName = "id")
     @JsonBackReference
     SubCategory subCategory;
+
+    @OneToMany(mappedBy = "serviceType")
+    @JsonManagedReference
+    //@JsonIgnore
+    List<Box> boxes;
 }

@@ -1,5 +1,10 @@
 package com.jovinn.capstoneproject.model;
 
+<<<<<<< HEAD
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+=======
+>>>>>>> feature/userProfile
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,6 +33,7 @@ public class Category extends BaseEntity {
     @Type(type = "uuid-char")
     UUID id;
     String name;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     @PrimaryKeyJoinColumn
     @JsonManagedReference

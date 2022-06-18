@@ -1,5 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
 import lombok.AccessLevel;
@@ -12,10 +14,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Data
@@ -34,17 +33,17 @@ public class Box extends  BaseEntity {
     @Type(type = "uuid-char")
     UUID sellerId;
 
-    @Type(type = "uuid-char")
-    UUID catServiceId;
+//    @Type(type = "uuid-char")
+//    UUID catServiceId;
 
-    @Type(type = "uuid-char")
-    UUID subCatServiceId;
+//    @Type(type = "uuid-char")
+//    UUID subCatServiceId;
 
-    @Type(type = "uuid-char")
-    UUID serviceTypeId;
+//    @Type(type = "uuid-char")
+//    UUID serviceTypeId;
 
-    @Type(type = "uuid-char")
-    UUID galleryId;
+//    @Type(type = "uuid-char")
+//    UUID galleryId;
 
     String description;
     Integer impression;
@@ -53,10 +52,37 @@ public class Box extends  BaseEntity {
     @Enumerated(EnumType.STRING)
     BoxServiceStatus status;
 
+//    @ManyToOne(fetch = FetchType.EAGER)
+////    //@OneToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "cat_service_id",referencedColumnName = "id")
+////    //@JsonIgnore
+////    //@MapsId
+//    //@JsonBackReference
+//    //@JsonIgnore
+//    Category category;
+
+//    @ManyToOne(fetch =  FetchType.EAGER)
+//    @JoinColumn(name = "sub_cat_service_id", referencedColumnName = "id")
+//    //@JsonBackReference
+//    SubCategory subCategory;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    //@ManyToOne(optional = false)
+    //@OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "service_type_id", referencedColumnName = "id")
+    //@JsonIgnore
+    //@MapsId
+    @JsonBackReference
+    ServiceType serviceType;
+
     @OneToMany(mappedBy = "box", cascade = CascadeType.ALL, orphanRemoval = true)
     //@OneToMany(mappedBy = "box")
     @PrimaryKeyJoinColumn
     @JsonManagedReference
     List<Package> packages;
+
+    @OneToOne(mappedBy = "box", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    Gallery gallery;
 
 }
