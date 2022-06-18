@@ -1,75 +1,160 @@
-//package com.jovinn.capstoneproject.controller;
+package com.jovinn.capstoneproject.controller;
+
+import com.jovinn.capstoneproject.dto.JwtAuthenticationResponse;
+import com.jovinn.capstoneproject.dto.request.LoginRequest;
+import com.jovinn.capstoneproject.dto.request.SignUpRequest;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.model.ActivityType;
+import com.jovinn.capstoneproject.model.Buyer;
+import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.repository.UserRepository;
+import com.jovinn.capstoneproject.repository.auth.ActivityTypeRepository;
+import com.jovinn.capstoneproject.security.JwtTokenProvider;
+import com.jovinn.capstoneproject.service.custom.CustomUserDetailsService;
+import com.jovinn.capstoneproject.util.JwtUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.Random;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("api/v1")
+@CrossOrigin(origins = "*")
+public class AuthController {
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private ActivityTypeRepository activityTypeRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @PostMapping("/signin")
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) throws Exception {
+//        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+//                loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
 //
-//import com.auth0.jwt.JWT;
-//import com.auth0.jwt.JWTVerifier;
-//import com.auth0.jwt.algorithms.Algorithm;
-//import com.auth0.jwt.interfaces.DecodedJWT;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.jovinn.capstoneproject.model.User;
-//import com.jovinn.capstoneproject.service.UserService;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.http.MediaType;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//
-//import javax.servlet.http.HttpServletRequest;
-//import javax.servlet.http.HttpServletResponse;
-//import java.io.IOException;
-//import java.util.Date;
-//import java.util.HashMap;
-//import java.util.Map;
-//
-//import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-//import static org.springframework.http.HttpStatus.FORBIDDEN;
-//
-//@RestController
-//@RequestMapping("/api/v1")
-//@RequiredArgsConstructor
-//@CrossOrigin(origins = "*")
-//public class AuthController {
-//    private final UserService userService;
-//    @PostMapping("/auth/register")   //api method post : url :'http://localhost:8080/api/auth/register'
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        return new ResponseEntity<>("User signed-in successfully!.", HttpStatus.OK);
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
+        } catch (BadCredentialsException e){
+            throw new Exception("Incorrect username or password", e);
+        }
+
+        final UserDetails userDetails = customUserDetailsService
+                .loadUserByUsername(loginRequest.getUsername());
+        final String accessToken = jwtUtil.generateToken(userDetails);
+        return ResponseEntity.ok(new JwtAuthenticationResponse(accessToken));
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@RequestBody SignUpRequest signUpRequest){
+        if(userRepository.existsByUsername(signUpRequest.getUsername())) {
+            return new ResponseEntity<>("Username is already taken!", HttpStatus.BAD_REQUEST);
+        }
+
+        if(userRepository.existsByEmail(signUpRequest.getEmail())) {
+            return new ResponseEntity<>("Email is already taken!", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = new User();
+        user.setFirstName(signUpRequest.getFirstName());
+        user.setLastName(signUpRequest.getLastName());
+        user.setUsername(signUpRequest.getUsername());
+        user.setEmail(signUpRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+        user.setJoinedAt(new Date());
+
+        ActivityType at = activityTypeRepository.findByActivityType(UserActivityType.BUYER).get();
+        at.setActivityType(UserActivityType.BUYER);
+        user.setActivityType(Collections.singleton(at));
+
+        Buyer buyer = new Buyer();
+        buyer.setBuyerNumber(getRandomNumberString());
+        user.setBuyer(buyer);
+
+        userRepository.save(user);
+
+        return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+    }
+
+    public static String getRandomNumberString() {
+        Random rnd = new Random();
+        int number = rnd.nextInt(999999);
+        return String.format("%06d", number);
+    }
+//    @PostMapping("/register")   //api method post : url :'http://localhost:8080/api/auth/register'
 //    public ResponseEntity<User> register(@RequestBody User user){
-////        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/save").toUriString());
 //        return ResponseEntity.ok().body(userService.saveUser(user));
 //    }
-//    @GetMapping("/auth/token/refresh")
-//    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        String authorizationHeader = request.getHeader(AUTHORIZATION);
-//        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
-//            try {
-//                String refresh_token = authorizationHeader.substring("Bearer ".length());
-//                Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-//                JWTVerifier verifier = JWT.require(algorithm).build();
-//                DecodedJWT decodedJWT = verifier.verify(refresh_token);
-//                String email = decodedJWT.getSubject();
-//                User user = userService.getUser(email);
-//                String access_token = JWT.create()
-//                        .withSubject(user.getEmail())
-//                        .withExpiresAt(new Date(System.currentTimeMillis() +10*60*1000))
-//                        .withIssuer(request.getRequestURL().toString())
-//                        .withClaim("roles", user.getActivityType().toString())
-//                        .sign(algorithm);
-//                Map<String,String> tokens = new HashMap<>();
-//                tokens.put("access_token",access_token);
-//                tokens.put("refresh_token",refresh_token);
-//                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//                new ObjectMapper().writeValue(response.getOutputStream(),tokens);
-//            }catch (Exception exception){
 //
-//                response.setHeader("error",exception.getMessage());
-//                response.setStatus(FORBIDDEN.value());
-////                      response.sendError(FORBIDDEN.value());
-//                Map<String,String> error = new HashMap<>();
-////                      tokens.put("access_token",access_token);
-//                error.put("error_message",exception.getMessage());
-//                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//                new ObjectMapper().writeValue(response.getOutputStream(),error);
-//            }
+//    @PostMapping("/signin")
+//    public ResponseEntity<JwtAuthenticationResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+//        Authentication authentication = authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
 //
-//        }else{
-//            throw new  RuntimeException("Refresh token is missing");
-//        }
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//        String jwt = jwtTokenProvider.generateToken(authentication);
+//        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
 //    }
+
+//    @PostMapping("/signup")
+//    public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+//        if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
+//            throw new ApiException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại");
+//        }
 //
-//}
+//        if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
+//            throw new ApiException(HttpStatus.BAD_REQUEST, "Email đã được đăng kí");
+//        }
+//
+//        String firstName = signUpRequest.getFirstName();
+//
+//        String lastName = signUpRequest.getLastName();
+//
+//        String username = signUpRequest.getUsername().toLowerCase();
+//
+//        String email = signUpRequest.getEmail().toLowerCase();
+//
+//        String password = passwordEncoder.encode(signUpRequest.getPassword());
+//
+//        User user = new User();
+//        user.setFirstName(firstName);
+//        user.setLastName(lastName);
+//        user.setUsername(username);
+//        user.setEmail(email);
+//        user.setPassword(password);
+//
+//        Buyer buyer = user.getBuyer();
+//        //buyer.setId(java.util.UUID.randomUUID());
+//
+//        User result = userRepository.save(user);
+//
+//        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{userId}")
+//                .buildAndExpand(result.getId()).toUri();
+//
+//        return ResponseEntity.created(location).body(new ApiResponse(Boolean.TRUE, "Đăng ký tài khoản thành công"));
+//    }
+}

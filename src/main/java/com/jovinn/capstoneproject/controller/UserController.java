@@ -17,6 +17,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -27,9 +29,9 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@RequestMapping("api/v1")
+@CrossOrigin(origins = "**")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -45,91 +47,73 @@ public class UserController {
 //        return ResponseEntity.created(uri).body(userService.getUsers());
 //    }
 
-    @GetMapping("/user/{username}")
-    public UserProfile getUserByUsername(@PathVariable String username) {
-        return userService.getUserProfile(username);
-    }
-
-    @GetMapping("/users")
-    public List<User> getAll() {
-        return userService.getUsers();
-    }
 
 //    @GetMapping("/user/{id}")
 //    public User getUserById(@PathVariable UUID id) {
 //        return userService.getUserById(id);
 //    }
 
-    @GetMapping("user/{id}")
-    public ResponseEntity<User> getById(@PathVariable UUID id) {
-        User user = userRepository.findById(id).orElse(null);
-        return ResponseEntity.ok(user);
+    //Update profile user - For both role
+    @PutMapping("/profile/edit/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, @RequestBody User user) {
+        userService.updateUser(id, user);
+        return new ResponseEntity<>(userService.getByUserId(id), HttpStatus.OK);
     }
 
-    @PostMapping("/register")
-    public User saveUser(@RequestBody User user) {
-        user.setActivityType(UserActivityType.BUYER);
-        user.setJoinedAt(new Date());
-        return userService.saveUser(user);
+    @GetMapping("/profile/{id}")
+    public User getUserProfile(@PathVariable UUID id) {
+        return userService.getByUserId(id);
+    }
+//    @PutMapping("/me/profile/{id}")
+//    public ResponseEntity<User> updateUserProfile(@PathVariable UUID id, @RequestBody User user) {
+//        User existUser = userService.getByUserId(id);
+//        existUser.setFirstName(user.getFirstName());
+//        existUser.setLastName(user.getLastName());
+//        existUser.setPhoneNumber(user.getPhoneNumber());
+//        existUser.setGender(user.getGender());
+//        existUser.setBirthDate(user.getBirthDate());
+//        existUser.setAddress(user.getAddress());
+//        existUser.setProvince(user.getProvince());
+//        existUser.setCity(user.getCity());
+//        existUser.setCountry(user.getCountry());
+//        existUser.setAvatar(user.getAvatar());
+//
+//        User update = userService.saveUser(existUser);
+//        return ResponseEntity.ok().body(update);
+//    }
+    //View buyer infor throught user - Using for seller
+//    @GetMapping("/buyer/{id}")
+//    public User getBuyer(@PathVariable UUID id) {
+//        return userService.findByUserId(id);
+//    }
+    @GetMapping("/users")
+    public List<User> getListUsers() {
+        return userService.getUsers();
+    }
+    //View seller infor throught user - Using for buyer
+    @GetMapping("/seller/{id}")
+    public User findSellerById(@PathVariable UUID id) {
+        return null;
     }
 
-//    @PutMapping("/edit")
-//    public UserProfile updateProfile(@RequestBody UserProfile userProfile) {
-//        return userService.updateProfile(userProfile);
-//    }
+    //Update user can using function like seller - Using for buyer (One time)
+    @PostMapping("/joinSelling")
+    public User joinSelling(@RequestBody User user) {
+        return null;
+    }
 
-//    @PostMapping("/auth/register")   //api method post : url :'http://localhost:8080/api/auth/register'
-//    public ResponseEntity<User> register(@RequestBody User user){
-////        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/save").toUriString());
-//        return ResponseEntity.ok().body(userService.saveUser(user));
+    //Edit profile for User - Using for buyer and seller
+//    @PostMapping("/edit/{id}")
+//    public User updateUser(@PathVariable UUID id) {
+//        User existUser = userService.findByUserId(id);
+//        return userService.saveUser(existUser);
 //    }
-    //    @PostMapping("/role/save")
-//    public ResponseEntity<Role> saveRole(@RequestBody Role role){
-////        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/role/save").toUriString());
-//        return ResponseEntity.ok().body(userService.saveRole(role));
-//    }
-//    @PostMapping("/role/addtouser")
-//    public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form){
-//        userService.addRoleToUser(form.getUsername(),form.getRoleName());
-//        return ResponseEntity.ok().build();
-//    }
-//    @GetMapping("/auth/token/refresh")
-//    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        String authorizationHeader = request.getHeader(AUTHORIZATION);
-//        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
-//            try {
-//                String refresh_token = authorizationHeader.substring("Bearer ".length());
-//                Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-//                JWTVerifier verifier = JWT.require(algorithm).build();
-//                DecodedJWT decodedJWT = verifier.verify(refresh_token);
-//                String email = decodedJWT.getSubject();
-//                User user = userService.getUser(email);
-//                String access_token = JWT.create()
-//                        .withSubject(user.getEmail())
-//                        .withExpiresAt(new Date(System.currentTimeMillis() +10*60*1000))
-//                        .withIssuer(request.getRequestURL().toString())
-//                        .withClaim("roles", user.getActivity_type().toString())
-//                        .sign(algorithm);
-//                Map<String,String> tokens = new HashMap<>();
-//                tokens.put("access_token",access_token);
-//                tokens.put("refresh_token",refresh_token);
-//                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//                new ObjectMapper().writeValue(response.getOutputStream(),tokens);
-//            }catch (Exception exception){
+//    @GetMapping("/me")
+//    @PreAuthorize("hasRole('BUYER')")
+//    public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+//        UserSummary userSummary = userService.getCurrentUser(currentUser);
 //
-//                response.setHeader("error",exception.getMessage());
-//                response.setStatus(FORBIDDEN.value());
-////                      response.sendError(FORBIDDEN.value());
-//                Map<String,String> error = new HashMap<>();
-////                      tokens.put("access_token",access_token);
-//                error.put("error_message",exception.getMessage());
-//                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//                new ObjectMapper().writeValue(response.getOutputStream(),error);
-//            }
-//
-//        }else{
-//            throw new  RuntimeException("Refresh token is missing");
-//        }
+//        return new ResponseEntity< >(userSummary, HttpStatus.OK);
 //    }
 //
 //    @GetMapping("user/forgot_password")
@@ -186,8 +170,3 @@ public class UserController {
         }
     }
 }
-//@Data
-//class RoleToUserForm{
-//    private String username;
-//    private String roleName;
-//}
