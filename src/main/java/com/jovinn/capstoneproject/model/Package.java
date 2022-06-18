@@ -1,5 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,9 +27,16 @@ public class Package extends  BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-    UUID boxServiceId;
+//    UUID boxServiceId;
     String title;
     String shortDescription;
     Integer deliveryTime;
     float price;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "box_service_id",referencedColumnName = "id")
+    //@JsonIgnore
+    @JsonBackReference
+    Box box;
+
 }

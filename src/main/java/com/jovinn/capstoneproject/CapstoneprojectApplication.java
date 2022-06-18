@@ -1,5 +1,10 @@
 package com.jovinn.capstoneproject;
 
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.model.*;
+import com.jovinn.capstoneproject.service.BoxService;
+import com.jovinn.capstoneproject.service.CategoryService;
+import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -23,8 +28,11 @@ public class CapstoneprojectApplication {
     }
 
     @Bean
-    CommandLineRunner run(UserService userService, ActivityTypeService activityTypeService) {
+    CommandLineRunner run(UserService userService, ActivityTypeService activityTypeService, BoxService boxService, CategoryService categoryService) {
         return args -> {
+            categoryService.saveCategory(new Category(null,"cat1",null));
+            categoryService.saveCategory(new Category(null,"cat2",null));
+            categoryService.saveCategory(new Category(null,"cat3",null));
 //            ActivityType buyer = ActivityType.builder().activityType(UserActivityType.BUYER).build();
 //            ActivityType seller = ActivityType.builder().activityType(UserActivityType.SELLER).build();
 //            ActivityType buyers = new ActivityType();

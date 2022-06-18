@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -26,4 +28,8 @@ public class Category extends BaseEntity {
     @Type(type = "uuid-char")
     UUID id;
     String name;
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @PrimaryKeyJoinColumn
+    @JsonManagedReference
+    List<SubCategory> subCategories;
 }

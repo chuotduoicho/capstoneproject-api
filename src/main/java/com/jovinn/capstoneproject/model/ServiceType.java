@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +26,10 @@ public class ServiceType extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-    UUID subCatServiceId;
     String name;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sub_category_id", referencedColumnName = "id")
+    @JsonBackReference
+    SubCategory subCategory;
 }
