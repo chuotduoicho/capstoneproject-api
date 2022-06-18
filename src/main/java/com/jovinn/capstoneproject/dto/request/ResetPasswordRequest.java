@@ -1,4 +1,4 @@
-package com.jovinn.capstoneproject.dto;
+package com.jovinn.capstoneproject.dto.request;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
