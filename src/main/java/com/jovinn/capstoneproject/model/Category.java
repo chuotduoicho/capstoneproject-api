@@ -1,7 +1,10 @@
 package com.jovinn.capstoneproject.model;
 
+<<<<<<< HEAD
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+=======
+>>>>>>> feature/userProfile
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,7 +16,6 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,9 +38,4 @@ public class Category extends BaseEntity {
     @PrimaryKeyJoinColumn
     @JsonManagedReference
     List<SubCategory> subCategories;
-
-//    @OneToMany(mappedBy = "category")
-//    //@JsonManagedReference
-//    @JsonIgnore
-//    List<Box> boxes;
 }

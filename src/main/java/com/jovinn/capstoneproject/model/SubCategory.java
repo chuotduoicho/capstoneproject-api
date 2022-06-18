@@ -1,7 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -29,6 +28,7 @@ public class SubCategory extends  BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
+
     @ManyToOne
     @JoinColumn(name = "category_id",referencedColumnName = "id")
     @JsonBackReference
@@ -40,9 +40,4 @@ public class SubCategory extends  BaseEntity {
     @JsonManagedReference
     @PrimaryKeyJoinColumn
     List<ServiceType> serviceTypes;
-
-//    @OneToMany(mappedBy = "subCategory")
-//    //@JsonManagedReference
-//    @JsonIgnore
-//    List<Box> boxes;
 }

@@ -1,102 +1,166 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.jovinn.capstoneproject.model.Role;
+import com.jovinn.capstoneproject.dto.ResetPasswordRequest;
+import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.service.UserService;
-import lombok.Data;
+import com.jovinn.capstoneproject.util.RequestUtility;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
+import net.bytebuddy.utility.RandomString;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
-
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@RequestMapping("api/v1")
+@CrossOrigin(origins = "**")
 public class UserController {
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
+    //@Autowired
+    private final JavaMailSender mailSender;
+    @Autowired
+    private UserRepository userRepository;
 
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers(){
+//    @GetMapping("/users")
+//    public ResponseEntity<List<User>> getUsers() {
+//
+//        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users").toUriString());
+//        return ResponseEntity.created(uri).body(userService.getUsers());
+//    }
 
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users").toUriString());
-        return ResponseEntity.created(uri).body(userService.getUsers());
+
+//    @GetMapping("/user/{id}")
+//    public User getUserById(@PathVariable UUID id) {
+//        return userService.getUserById(id);
+//    }
+
+    //Update profile user - For both role
+    @PutMapping("/profile/edit/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, @RequestBody User user) {
+        userService.updateUser(id, user);
+        return new ResponseEntity<>(userService.getByUserId(id), HttpStatus.OK);
     }
-//    @PostMapping("/auth/register")   //api method post : url :'http://localhost:8080/api/auth/register'
-//    public ResponseEntity<User> register(@RequestBody User user){
-////        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/save").toUriString());
-//        return ResponseEntity.ok().body(userService.saveUser(user));
-//    }
-    //    @PostMapping("/role/save")
-//    public ResponseEntity<Role> saveRole(@RequestBody Role role){
-////        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/role/save").toUriString());
-//        return ResponseEntity.ok().body(userService.saveRole(role));
-//    }
-//    @PostMapping("/role/addtouser")
-//    public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form){
-//        userService.addRoleToUser(form.getUsername(),form.getRoleName());
-//        return ResponseEntity.ok().build();
-//    }
-//    @GetMapping("/auth/token/refresh")
-//    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        String authorizationHeader = request.getHeader(AUTHORIZATION);
-//        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
-//            try {
-//                String refresh_token = authorizationHeader.substring("Bearer ".length());
-//                Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-//                JWTVerifier verifier = JWT.require(algorithm).build();
-//                DecodedJWT decodedJWT = verifier.verify(refresh_token);
-//                String email = decodedJWT.getSubject();
-//                User user = userService.getUser(email);
-//                String access_token = JWT.create()
-//                        .withSubject(user.getEmail())
-//                        .withExpiresAt(new Date(System.currentTimeMillis() +10*60*1000))
-//                        .withIssuer(request.getRequestURL().toString())
-//                        .withClaim("roles", user.getActivity_type().toString())
-//                        .sign(algorithm);
-//                Map<String,String> tokens = new HashMap<>();
-//                tokens.put("access_token",access_token);
-//                tokens.put("refresh_token",refresh_token);
-//                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//                new ObjectMapper().writeValue(response.getOutputStream(),tokens);
-//            }catch (Exception exception){
+
+    @GetMapping("/profile/{id}")
+    public User getUserProfile(@PathVariable UUID id) {
+        return userService.getByUserId(id);
+    }
+//    @PutMapping("/me/profile/{id}")
+//    public ResponseEntity<User> updateUserProfile(@PathVariable UUID id, @RequestBody User user) {
+//        User existUser = userService.getByUserId(id);
+//        existUser.setFirstName(user.getFirstName());
+//        existUser.setLastName(user.getLastName());
+//        existUser.setPhoneNumber(user.getPhoneNumber());
+//        existUser.setGender(user.getGender());
+//        existUser.setBirthDate(user.getBirthDate());
+//        existUser.setAddress(user.getAddress());
+//        existUser.setProvince(user.getProvince());
+//        existUser.setCity(user.getCity());
+//        existUser.setCountry(user.getCountry());
+//        existUser.setAvatar(user.getAvatar());
 //
-//                response.setHeader("error",exception.getMessage());
-//                response.setStatus(FORBIDDEN.value());
-////                      response.sendError(FORBIDDEN.value());
-//                Map<String,String> error = new HashMap<>();
-////                      tokens.put("access_token",access_token);
-//                error.put("error_message",exception.getMessage());
-//                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//                new ObjectMapper().writeValue(response.getOutputStream(),error);
-//            }
+//        User update = userService.saveUser(existUser);
+//        return ResponseEntity.ok().body(update);
+//    }
+    //View buyer infor throught user - Using for seller
+//    @GetMapping("/buyer/{id}")
+//    public User getBuyer(@PathVariable UUID id) {
+//        return userService.findByUserId(id);
+//    }
+    @GetMapping("/users")
+    public List<User> getListUsers() {
+        return userService.getUsers();
+    }
+    //View seller infor throught user - Using for buyer
+    @GetMapping("/seller/{id}")
+    public User findSellerById(@PathVariable UUID id) {
+        return null;
+    }
+
+    //Update user can using function like seller - Using for buyer (One time)
+    @PostMapping("/joinSelling")
+    public User joinSelling(@RequestBody User user) {
+        return null;
+    }
+
+    //Edit profile for User - Using for buyer and seller
+//    @PostMapping("/edit/{id}")
+//    public User updateUser(@PathVariable UUID id) {
+//        User existUser = userService.findByUserId(id);
+//        return userService.saveUser(existUser);
+//    }
+//    @GetMapping("/me")
+//    @PreAuthorize("hasRole('BUYER')")
+//    public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+//        UserSummary userSummary = userService.getCurrentUser(currentUser);
 //
-//        }else{
-//            throw new  RuntimeException("Refresh token is missing");
-//        }
+//        return new ResponseEntity< >(userSummary, HttpStatus.OK);
 //    }
 //
+//    @GetMapping("user/forgot_password")
+//    public String forgotPasswordForm(){
+//        return "forgot_password_form";
+//    }
+    @PostMapping("/forgot_password")
+    public String processForgotPassword(HttpServletRequest request) {
+        String email = request.getParameter("email");
+        String token = RandomString.make(10);
+        try{
+            userService.updateResetPasswordToken(token, email);
+            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
+            sendEmail(email, resetPasswordLink);
+        } catch (ResourceNotFoundException ex) {
+            return "User not found with email: "+email;
+        } catch (UnsupportedEncodingException | MessagingException e) {
+            return "Error while sending email";
+        }
+        return token;
+    }
+    public void sendEmail(String recipientEmail, String link) throws MessagingException, UnsupportedEncodingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        helper.setFrom("ducdmhe141516@fpt.edu.vn", "Jovinn support");
+        helper.setTo(recipientEmail);
+        String subject = "Here's the link to reset your password";
+
+        String content = "<p>Hello,</p>"
+                + "<p>You have requested to reset your password.</p>"
+                + "<p>Click the link below to change your password:</p>"
+                + "<p><a href=\"" + link + "\">Change my password</a></p>"
+                + "<br>"
+                + "<p>Ignore this email if you do remember your password, "
+                + "or you have not made the request.</p>";
+
+        helper.setSubject(subject);
+
+        helper.setText(content, true);
+
+        mailSender.send(message);
+    }
+    @PostMapping("/reset_password")
+    public String processResetPassword(@RequestBody ResetPasswordRequest request) {
+        String token = request.getToken();
+        String password = request.getPassword();
+        User user = userService.getUserByResetPasswordToken(token);
+        if(user == null){
+            return "Invalid token: "+token;
+        }
+        else{
+            userService.updatePassword(user, password);
+            return "You have succcessfully changed your password.";
+        }
+    }
 }
-//@Data
-//class RoleToUserForm{
-//    private String username;
-//    private String roleName;
-//}

@@ -13,7 +13,6 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,12 +29,7 @@ public class ServiceType extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-    //UUID subCatServiceId;
     String name;
-
-//    @OneToMany(mappedBy = "serviceType",cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonManagedReference
-//    List<Box> boxes;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sub_category_id", referencedColumnName = "id")
