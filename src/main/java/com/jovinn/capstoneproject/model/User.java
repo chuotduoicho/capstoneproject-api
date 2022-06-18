@@ -34,7 +34,8 @@ public class User extends BaseEntity {
     String firstName;
     String lastName;
     String username;
-    @Column(unique = true, length = 55)
+    @Column(unique = true, length = 55, nullable = false)
+    @NotNull
     String email;
     @Column(unique = true, length = 15)
     String phoneNumber;
@@ -62,6 +63,7 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     AuthTypeUser authType;
 
+    String resetPasswordToken;
 //    @Enumerated(EnumType.STRING)
 //    UserActivityType activityType;
 

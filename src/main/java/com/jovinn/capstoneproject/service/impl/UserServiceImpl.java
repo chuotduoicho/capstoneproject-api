@@ -64,6 +64,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public User getUserByResetPasswordToken(String token) {
+        return userRepository.findByResetPasswordToken(token);
+    }
+
+    @Override
+    public String updatePassword(User user, String newPassword) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setResetPasswordToken(null);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+        return encodedPassword;
+    }
+
+    @Override
+    public String updateResetPasswordToken(String token, String email) throws ResourceNotFoundException {
+        User user = userRepository.findUserByEmail(email).orElse(null);
+        if(user!=null){
+            user.setResetPasswordToken(token);
+            userRepository.save(user);
+        }else{
+            throw new ResourceNotFoundException("User","email",email);
+        }
+        return token;
+    }
+
+    @Override
     public User getByUserId(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "Not found user by id", id));

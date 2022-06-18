@@ -30,6 +30,15 @@ public class CapstoneprojectApplication {
     @Bean
     CommandLineRunner run(UserService userService, ActivityTypeService activityTypeService, BoxService boxService, CategoryService categoryService) {
         return args -> {
+//            userService.saveRole(new Role(null, "ROLE_SELLER"));
+//            userService.saveRole(new Role(null, "ROLE_BUYER"));
+//            userService.saveRole(new Role(null, "ROLE_ADMIN"));
+//            userService.saveRole(new Role(null, "ROLE_SUPER_ADMIN"));
+
+            // userService.saveUser(new User(null, "Doan","Minh Duc","duc", "ducdmhe141516@fpt.edu.vn",   null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER,null));
+            // userService.saveUser(new User(null, "Le","Thanh Tung","tung", "tunglthe141097@fpt.edu.vn",   null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER,null));
+
+            //userService.saveUser(new User(null, "Le","Thanh Tung", "tung","tung@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER,null));
             categoryService.saveCategory(new Category(null,"cat1",null));
             categoryService.saveCategory(new Category(null,"cat2",null));
             categoryService.saveCategory(new Category(null,"cat3",null));
