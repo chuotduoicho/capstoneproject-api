@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,6 +39,9 @@ public class Education extends BaseEntity {
     Date toDate;
     Boolean opened;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    Seller seller;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sellerId", referencedColumnName = "id")
+    //@JsonManagedReference
+    @JsonBackReference
+    Seller seller;
 }

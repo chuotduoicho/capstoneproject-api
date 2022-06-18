@@ -4,8 +4,8 @@ import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.service.BoxService;
 import com.jovinn.capstoneproject.service.CategoryService;
-import com.jovinn.capstoneproject.filter.JwtAuthenticationFilter;
 import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
@@ -28,26 +28,28 @@ public class CapstoneprojectApplication {
     }
 
     @Bean
-    CommandLineRunner run(UserService userService, BoxService boxService, CategoryService categoryService) {
+    CommandLineRunner run(UserService userService, ActivityTypeService activityTypeService, BoxService boxService, CategoryService categoryService) {
         return args -> {
-            userService.saveUser(new User(null, "Vo","Duc Tai", "tai","tai@gmail.com",null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER));
-            userService.saveUser(new User(null, "Nguyen","The Vinh", "vinh","vinh@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER));
-
-            userService.saveUser(new User(null, "Tran","Xuan Son","son", "son@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.SELLER));
-
-            userService.saveUser(new User(null, "Doan","Minh Duc","duc", "duc@gmail.com",   null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER));
-
-            userService.saveUser(new User(null, "Le","Thanh Tung", "tung","tung@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER));
-            //boxService.saveBox(new Box(null, UUID.randomUUID(),null,null,null,"MusicSoundCloud",1,2, BoxServiceStatus.ACTIVE));
             categoryService.saveCategory(new Category(null,"cat1",null));
             categoryService.saveCategory(new Category(null,"cat2",null));
             categoryService.saveCategory(new Category(null,"cat3",null));
-//            userService.addRoleToUser("tai", "ROLE_SELLER");
-//            userService.addRoleToUser("tai", "ROLE_SUPER_ADMIN");
-//            userService.addRoleToUser("vinh", "ROLE_BUYER");
-//            userService.addRoleToUser("son", "ROLE_BUYER");
-//            userService.addRoleToUser("duc", "ROLE_ADMIN");
-//            userService.addRoleToUser("tung", "ROLE_SELLER");
+//            ActivityType buyer = ActivityType.builder().activityType(UserActivityType.BUYER).build();
+//            ActivityType seller = ActivityType.builder().activityType(UserActivityType.SELLER).build();
+//            ActivityType buyers = new ActivityType();
+//            buyers.setActivityType(UserActivityType.BUYER);
+//            ActivityType sell = new ActivityType();
+//            sell.setActivityType(UserActivityType.SELLER);
+//            activityTypeService.saveType(buyers);
+//            activityTypeService.saveType(sell);
+            //activityTypeService.saveType(new ActivityType(null, UserActivityType.BUYER));
+//            userService.saveUser(new User(null, "Vo","Duc Tai", "tai","tai@gmail.com",null,null,null,null,null,null,null,null,"123", null,null,null,null,null,null,null));
+//            userService.saveUser(new User(null, "Nguyen","The Vinh", "vinh","vinh@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null,null,null,null,null));
+//
+//            userService.saveUser(new User(null, "Tran","Xuan Son","son", "son@gmail.com", null,null,null,null,null,null,null,null, "123",null,null, null,null,null,null,null));
+//
+//            userService.saveUser(new User(null, "Doan","Minh Duc","duc", "duc@gmail.com",   null,null,null,null,null,null,null,null, "123",null,null, null,null,null,null,null));
+//
+//            userService.saveUser(new User(null, "Le","Thanh Tung", "tung","tung@gmail.com", null,null,null,null,null,null,null,null, "123",null,null, null,null,null,null,null));
         };
 
     }
@@ -57,10 +59,10 @@ public class CapstoneprojectApplication {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
-    }
+//    @Bean
+//    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+//        return new JwtAuthenticationFilter();
+//    }
 
     @Bean
     public ModelMapper modelMapper() {
