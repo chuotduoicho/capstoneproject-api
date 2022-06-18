@@ -1,8 +1,6 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.ResetPasswordRequest;
-import com.jovinn.capstoneproject.dto.UserProfile;
-import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.UserRepository;
@@ -11,20 +9,16 @@ import com.jovinn.capstoneproject.util.RequestUtility;
 import lombok.RequiredArgsConstructor;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 

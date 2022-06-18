@@ -1,7 +1,6 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.model.Box;
-import com.jovinn.capstoneproject.model.Package;
 import com.jovinn.capstoneproject.service.BoxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,15 +9,10 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class BoxController {
     @Autowired
     private BoxService boxService;
-
-    @GetMapping("/a")
-    public String test(){
-        return "done";
-    }
 
     //API add Service
     @PostMapping("/addService")
