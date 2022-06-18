@@ -8,6 +8,7 @@ import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -85,12 +86,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String updateResetPasswordToken(String token, String email) throws ResourceNotFoundException {
-        User user = userRepository.findUserByEmail(email).orElse(null);
-        if(user!=null){
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Email", "Email not present ", email));
+
+        if(user != null){
             user.setResetPasswordToken(token);
             userRepository.save(user);
         }else{
-            throw new ResourceNotFoundException("User","email",email);
+            throw new ResourceNotFoundException("User", "email", email);
         }
         return token;
     }
@@ -100,14 +104,4 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "Not found user by id", id));
     }
-
-//    @Override
-//    public User findByUserId(UUID id) {
-//        return userRepository.findByUserId(id);
-//    }
-
-//    @Override
-//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        return null;
-//    }
 }

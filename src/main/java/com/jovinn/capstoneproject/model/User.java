@@ -35,7 +35,6 @@ public class User extends BaseEntity {
     String lastName;
     String username;
     @Column(unique = true, length = 55, nullable = false)
-    @NotNull
     String email;
     @Column(unique = true, length = 15)
     String phoneNumber;
