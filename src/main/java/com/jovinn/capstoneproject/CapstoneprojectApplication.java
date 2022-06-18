@@ -1,7 +1,5 @@
 package com.jovinn.capstoneproject;
 
-import com.jovinn.capstoneproject.enumerable.UserActivityType;
-import com.jovinn.capstoneproject.model.ActivityType;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -29,13 +27,12 @@ public class CapstoneprojectApplication {
         return args -> {
 //            ActivityType buyer = ActivityType.builder().activityType(UserActivityType.BUYER).build();
 //            ActivityType seller = ActivityType.builder().activityType(UserActivityType.SELLER).build();
-            ActivityType buyers = new ActivityType();
-            buyers.setActivityType(UserActivityType.BUYER);
-            ActivityType sell = new ActivityType();
-            sell.setActivityType(UserActivityType.SELLER);
-            activityTypeService.saveType(buyers);
-            activityTypeService.saveType(sell);
-
+//            ActivityType buyers = new ActivityType();
+//            buyers.setActivityType(UserActivityType.BUYER);
+//            ActivityType sell = new ActivityType();
+//            sell.setActivityType(UserActivityType.SELLER);
+//            activityTypeService.saveType(buyers);
+//            activityTypeService.saveType(sell);
             //activityTypeService.saveType(new ActivityType(null, UserActivityType.BUYER));
 //            userService.saveUser(new User(null, "Vo","Duc Tai", "tai","tai@gmail.com",null,null,null,null,null,null,null,null,"123", null,null,null,null,null,null,null));
 //            userService.saveUser(new User(null, "Nguyen","The Vinh", "vinh","vinh@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null,null,null,null,null));

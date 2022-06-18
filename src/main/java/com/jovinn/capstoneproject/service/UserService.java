@@ -12,7 +12,7 @@ public interface UserService {
     User saveUser(User user);
     List<User> getUsers();
 
-    User updateUser(UUID id, User user);
+    void updateUser(UUID id, User user);
     User getByUserId(UUID id);
     //User findByUserId(UUID id);
 }

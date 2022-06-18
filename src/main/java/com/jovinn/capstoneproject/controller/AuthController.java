@@ -3,6 +3,8 @@ package com.jovinn.capstoneproject.controller;
 import com.jovinn.capstoneproject.dto.JwtAuthenticationResponse;
 import com.jovinn.capstoneproject.dto.request.LoginRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.model.ActivityType;
 import com.jovinn.capstoneproject.model.Buyer;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.UserRepository;
@@ -11,7 +13,6 @@ import com.jovinn.capstoneproject.security.JwtTokenProvider;
 import com.jovinn.capstoneproject.service.custom.CustomUserDetailsService;
 import com.jovinn.capstoneproject.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +23,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.Random;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1")
 @CrossOrigin(origins = "*")
 public class AuthController {
-//    private final UserService userService;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
@@ -68,18 +70,14 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignUpRequest signUpRequest){
-
-        // add check for username exists in a DB
         if(userRepository.existsByUsername(signUpRequest.getUsername())) {
             return new ResponseEntity<>("Username is already taken!", HttpStatus.BAD_REQUEST);
         }
 
-        // add check for email exists in DB
         if(userRepository.existsByEmail(signUpRequest.getEmail())) {
             return new ResponseEntity<>("Email is already taken!", HttpStatus.BAD_REQUEST);
         }
 
-        // create user object
         User user = new User();
         user.setFirstName(signUpRequest.getFirstName());
         user.setLastName(signUpRequest.getLastName());
@@ -88,18 +86,23 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setJoinedAt(new Date());
 
-        Buyer buyer = new Buyer();
-        buyer.setBuyerNumber(RandomString.make(6));
-        user.setBuyer(buyer);
-//        buyer.setId(java.util.UUID.randomUUID());
+        ActivityType at = activityTypeRepository.findByActivityType(UserActivityType.BUYER).get();
+        at.setActivityType(UserActivityType.BUYER);
+        user.setActivityType(Collections.singleton(at));
 
-//        ActivityType activityType = activityTypeRepository.findByActivityType("SELLER").get();
-//        user.setActivityTypes(Collections.singleton(activityType));
+        Buyer buyer = new Buyer();
+        buyer.setBuyerNumber(getRandomNumberString());
+        user.setBuyer(buyer);
 
         userRepository.save(user);
 
         return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+    }
 
+    public static String getRandomNumberString() {
+        Random rnd = new Random();
+        int number = rnd.nextInt(999999);
+        return String.format("%06d", number);
     }
 //    @PostMapping("/register")   //api method post : url :'http://localhost:8080/api/auth/register'
 //    public ResponseEntity<User> register(@RequestBody User user){

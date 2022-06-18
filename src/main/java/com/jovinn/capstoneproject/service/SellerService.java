@@ -11,7 +11,7 @@ public interface SellerService {
     List<Seller> getListInfoBySellerId(UUID sellerId);
     Seller getSellerById(UUID id);
     Seller getSellerBySellerNumber(String sellerNumber);
-    Seller updateSeller(Seller seller, UUID id);
+    void updateSeller(UUID id, Seller seller);
     //Using for admin
     Seller deleteSeller(UUID id);
 }

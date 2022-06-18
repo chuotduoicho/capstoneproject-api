@@ -34,8 +34,6 @@ public class UserServiceImpl implements UserService {
     public User saveUser(User user) {
         log.info("Saving new user {} {} to the database",user.getFirstName(),user.getLastName());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-//        Buyer buyer = user.getBuyer();
-//        buyer.setId(UUID.randomUUID());
         return userRepository.save(user);
     }
 
@@ -46,7 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(UUID id, User user) {
+    public void updateUser(UUID id, User user) {
         User existUser = userRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User", "Not found user by ", id));
@@ -62,7 +60,7 @@ public class UserServiceImpl implements UserService {
         existUser.setCountry(user.getCountry());
         existUser.setAvatar(user.getAvatar());
 
-        return userRepository.save(existUser);
+        userRepository.save(existUser);
     }
 
     @Override

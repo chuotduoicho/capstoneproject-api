@@ -2,7 +2,9 @@ package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.Seller;
+import com.jovinn.capstoneproject.repository.CertificateRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
+import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.service.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,11 @@ public class SellerServiceImpl implements SellerService {
     @Autowired
     private SellerRepository sellerRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CertificateRepository certificateRepository;
     @Override
     public Seller saveSeller(Seller seller) {
         return sellerRepository.save(seller);
@@ -43,8 +50,20 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public Seller updateSeller(Seller seller, UUID id) {
-        return null;
+    public void updateSeller(UUID id, Seller seller) {
+        Seller existSeller = sellerRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Seller", "Seller Not found by ", id));
+        existSeller.setDescriptionBio(seller.getDescriptionBio());
+//        Certificate certificate = certificateRepository.findBySellerId(id);
+//        certificate.setSeller(seller);
+//        existSeller.setCertificates(seller.getCertificates());
+//        existSeller.setUrlProfiles(seller.getUrlProfiles());
+//        existSeller.setEducations(seller.getEducations());
+//        existSeller.setLanguages(seller.getLanguages());
+//        existSeller.setSkills(seller.getSkills());
+
+        sellerRepository.save(existSeller);
     }
 
     @Override

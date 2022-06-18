@@ -1,6 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,8 +29,10 @@ public class UrlProfile extends BaseEntity {
     String title;
     String url;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    //@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sellerId", referencedColumnName = "id")
-    @JsonManagedReference
+    //@JsonManagedReference
+    @JsonBackReference
     Seller seller;
 }

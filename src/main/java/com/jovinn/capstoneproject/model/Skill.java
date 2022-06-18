@@ -1,6 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -32,8 +32,9 @@ public class Skill extends BaseEntity {
     SkillLevel level;
     String shortDescribe;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne( fetch = FetchType.EAGER)
     @JoinColumn(name = "sellerId", referencedColumnName = "id")
-    @JsonManagedReference
+    //@JsonManagedReference
+    @JsonBackReference
     Seller seller;
 }

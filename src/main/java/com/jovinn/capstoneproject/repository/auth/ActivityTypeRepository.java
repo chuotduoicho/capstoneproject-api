@@ -8,5 +8,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ActivityTypeRepository extends JpaRepository<ActivityType, UUID> {
-    Optional<ActivityType> findByActivityType(ActivityType type);
+    Optional<ActivityType> findByActivityType(UserActivityType type);
 }

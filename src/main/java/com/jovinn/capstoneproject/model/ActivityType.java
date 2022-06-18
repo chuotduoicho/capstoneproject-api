@@ -26,10 +26,7 @@ public class ActivityType {
     @Enumerated(EnumType.STRING)
     UserActivityType activityType;
 
-    @ManyToMany(mappedBy = "activityType")
+    @ManyToMany(mappedBy = "activityType", fetch = FetchType.LAZY)
+    //@JsonBackReference
     List<User> users = new ArrayList<>();
-
-//    public ActivityType(UserActivityType activityType) {
-//        this.activityType = activityType;
-//    }
 }

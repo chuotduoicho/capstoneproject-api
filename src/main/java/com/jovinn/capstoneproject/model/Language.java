@@ -1,6 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,8 +28,9 @@ public class Language extends BaseEntity {
     UUID id;
     String language;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sellerId", referencedColumnName = "id")
-    @JsonManagedReference
+//    @JsonManagedReference
+    @JsonBackReference
     Seller seller;
 }
