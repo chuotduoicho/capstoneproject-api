@@ -59,26 +59,6 @@ public class UserServiceImpl implements UserService {
                 user.getAddress(), user.getProvince(), user.getCity(), user.getCountry(), user.getAvatar());
     }
 
-//    @Override
-//    public void updateUser(UUID id, User user) {
-//        User existUser = userRepository.findById(id)
-//                .orElseThrow(() ->
-//                        new ResourceNotFoundException("User", "Not found user by ", id));
-//
-//        existUser.setFirstName(user.getFirstName());
-//        existUser.setLastName(user.getLastName());
-//        existUser.setPhoneNumber(user.getPhoneNumber());
-//        existUser.setGender(user.getGender());
-//        existUser.setBirthDate(user.getBirthDate());
-//        existUser.setAddress(user.getAddress());
-//        existUser.setProvince(user.getProvince());
-//        existUser.setCity(user.getCity());
-//        existUser.setCountry(user.getCountry());
-//        existUser.setAvatar(user.getAvatar());
-//
-//        userRepository.save(existUser);
-//    }
-
     @Override
     public User update(User newUser, UUID id, UserPrincipal currentUser) {
         User existUser = userRepository.findById(id)
@@ -103,26 +83,6 @@ public class UserServiceImpl implements UserService {
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to update profile of: " + existUser.getUsername());
         throw new UnauthorizedException(apiResponse);
     }
-
-//    @Override
-//    public void update(String username, User user) {
-//        User existUser = userRepository.findByUsername(username)
-//                .orElseThrow(() ->
-//                        new ResourceNotFoundException("User", "Not found user by ", username));
-//
-//        existUser.setFirstName(user.getFirstName());
-//        existUser.setLastName(user.getLastName());
-//        existUser.setPhoneNumber(user.getPhoneNumber());
-//        existUser.setGender(user.getGender());
-//        existUser.setBirthDate(user.getBirthDate());
-//        existUser.setAddress(user.getAddress());
-//        existUser.setProvince(user.getProvince());
-//        existUser.setCity(user.getCity());
-//        existUser.setCountry(user.getCountry());
-//        existUser.setAvatar(user.getAvatar());
-//
-//        userRepository.save(existUser);
-//    }
 
     @Override
     public User getUserByEmail(String email) {

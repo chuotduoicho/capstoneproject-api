@@ -6,17 +6,21 @@ import com.jovinn.capstoneproject.dto.request.LoginRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.model.ActivityType;
 import com.jovinn.capstoneproject.model.Buyer;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.repository.auth.ActivityTypeRepository;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
+import com.jovinn.capstoneproject.service.ActivityTypeService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +32,8 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.*;
 
+import static com.jovinn.capstoneproject.util.GenerateRandomNumber.getRandomNumberString;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -37,6 +43,8 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private ActivityTypeService activityTypeService;
+    @Autowired
     private ActivityTypeRepository activityTypeRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -45,13 +53,17 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> authenticateUser(@RequestBody LoginRequest loginRequest) throws Exception {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = jwtTokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+            String jwt = jwtTokenProvider.generateToken(authentication);
+            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        } catch (BadCredentialsException e) {
+            throw new JovinnException(HttpStatus.BAD_REQUEST, "Username/Email or password does not exist");
+        }
     }
 
 //    @PostMapping("/signup")
@@ -118,17 +130,14 @@ public class AuthController {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Email đã được đăng kí");
         }
 
-
         User user = new User();
         user.setFirstName(signUpRequest.getFirstName());
         user.setLastName(signUpRequest.getLastName());
         user.setUsername(signUpRequest.getUsername().toLowerCase());
         user.setEmail(signUpRequest.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
-
-        ActivityType at = activityTypeRepository.findByActivityType(UserActivityType.BUYER).get();
-        at.setActivityType(UserActivityType.BUYER);
-        user.setActivityType(Collections.singleton(at));
+        user.setJoinedAt(new Date());
+        user.setActivityType(activityTypeService.getByActivityType(UserActivityType.BUYER));
         Buyer buyer = new Buyer();
         buyer.setBuyerNumber(getRandomNumberString());
         buyer.setUser(user);
@@ -140,11 +149,5 @@ public class AuthController {
                 .buildAndExpand(result.getId()).toUri();
 
         return ResponseEntity.created(location).body(new ApiResponse(Boolean.TRUE, "Đăng ký tài khoản thành công"));
-    }
-
-    public static String getRandomNumberString() {
-        Random rnd = new Random();
-        int number = rnd.nextInt(999999);
-        return String.format("%06d", number);
     }
 }

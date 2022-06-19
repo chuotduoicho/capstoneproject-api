@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.model.Seller;
+import com.jovinn.capstoneproject.security.UserPrincipal;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +12,8 @@ public interface SellerService {
     List<Seller> getListInfoBySellerId(UUID sellerId);
     Seller getSellerById(UUID id);
     Seller getSellerBySellerNumber(String sellerNumber);
-    void updateSeller(UUID id, Seller seller);
+    Seller updateSeller(UUID id, Seller seller, UserPrincipal currentUser);
+    Seller getSellerByUserId(UUID userId);
     //Using for admin
     Seller deleteSeller(UUID id);
 }

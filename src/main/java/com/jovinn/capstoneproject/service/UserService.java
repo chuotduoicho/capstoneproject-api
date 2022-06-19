@@ -19,7 +19,6 @@ public interface UserService {
     void updatePassword(User user, String newPassword);
     void updateResetPasswordToken(String token, String email);
 
-//    void updateUser(UUID id, User user);
     User update(User newUser, UUID id, UserPrincipal currentUser);
 
     User getByUserId(UUID id);

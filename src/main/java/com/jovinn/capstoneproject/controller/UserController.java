@@ -1,12 +1,21 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
+import com.jovinn.capstoneproject.enumerable.RankSeller;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
+import com.jovinn.capstoneproject.model.ActivityType;
+import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
+import com.jovinn.capstoneproject.service.ActivityTypeService;
+import com.jovinn.capstoneproject.service.SellerService;
 import com.jovinn.capstoneproject.service.UserService;
 import com.jovinn.capstoneproject.util.RequestUtility;
 import lombok.RequiredArgsConstructor;
@@ -26,49 +35,52 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import static com.jovinn.capstoneproject.util.GenerateRandomNumber.getRandomNumberString;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
-//@CrossOrigin(origins = "**")
 public class UserController {
     @Autowired
     private UserService userService;
-    //@Autowired
-    private final JavaMailSender mailSender;
-
     @Autowired
-    private UserRepository userRepository;
+    private SellerService sellerService;
+    @Autowired
+    private ActivityTypeService activityTypeService;
+    private final JavaMailSender mailSender;
 
     @GetMapping("/me")
     public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
         UserSummary userSummary = userService.getCurrentUser(currentUser);
 
+        if(userSummary == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "User not found in database!!!");
+        }
+
         return new ResponseEntity< >(userSummary, HttpStatus.OK);
     }
 
+    @GetMapping("/profile/{id}")
+    public User getUserProfile(@PathVariable UUID id) {
+        return userService.getByUserId(id);
+    }
 
-//    @GetMapping("/users")
-//    public ResponseEntity<List<User>> getUsers() {
-//
-//        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users").toUriString());
-//        return ResponseEntity.created(uri).body(userService.getUsers());
-//    }
+    @GetMapping("/profileByName/{username}")
+    public ResponseEntity<UserProfile> getUSerProfileByUserName(@PathVariable String username) {
+        UserProfile userProfile = userService.getUserProfile(username);
 
+        return new ResponseEntity< >(userProfile, HttpStatus.OK);
+    }
 
-//    @GetMapping("/user/{id}")
-//    public User getUserById(@PathVariable UUID id) {
-//        return userService.getUserById(id);
-//    }
-
-    //Update profile user - For both role
-//    @PutMapping("/profile/edit/{id}")
-//    public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, @RequestBody User user) {
-//        userService.u(id, user);
-//        return new ResponseEntity<>(userService.getByUserId(id), HttpStatus.OK);
-//    }
+    @GetMapping("")
+    public List<User> getListUsers() {
+        return userService.getUsers();
+    }
 
     @PutMapping("/profile/{id}")
     public ResponseEntity<User> updateUser(@Valid @RequestBody User newUser,
@@ -77,64 +89,20 @@ public class UserController {
 
         return new ResponseEntity< >(updatedUSer, HttpStatus.CREATED);
     }
-
-
-    //    @PutMapping("/update/{username}")
-//    public ResponseEntity<UserDetails> updateUser(@RequestParam("username") String username, @RequestBody User user) {
-//        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-//                .getPrincipal();
-//        String name = userDetails.getUsername();
-//        userService.update(username, user);
-//        return new ResponseEntity<>(customUserDetailsService.loadUserByUsername(name), HttpStatus.OK);
-//    }
-    @GetMapping("/profile/{id}")
-    public User getUserProfile(@PathVariable UUID id) {
-        return userService.getByUserId(id);
+    @PostMapping("/{id}/join-selling")
+    public Seller joinSelling(@PathVariable UUID id, @RequestBody Seller seller) {
+        User user = userService.getByUserId(id);
+        seller.setUser(user);
+        seller.setRankSeller(RankSeller.BEGINNER);
+        seller.setSellerNumber(getRandomNumberString());
+        seller.setVerifySeller(Boolean.FALSE);
+        seller.setTotalOrderFinish(0);
+        user.setSeller(seller);
+        user.setActivityType(activityTypeService.getByActivityType(UserActivityType.SELLER));
+        user.setJoinSellingAt(new Date());
+        return sellerService.saveSeller(seller);
     }
-//    @PutMapping("/me/profile/{id}")
-//    public ResponseEntity<User> updateUserProfile(@PathVariable UUID id, @RequestBody User user) {
-//        User existUser = userService.getByUserId(id);
-//        existUser.setFirstName(user.getFirstName());
-//        existUser.setLastName(user.getLastName());
-//        existUser.setPhoneNumber(user.getPhoneNumber());
-//        existUser.setGender(user.getGender());
-//        existUser.setBirthDate(user.getBirthDate());
-//        existUser.setAddress(user.getAddress());
-//        existUser.setProvince(user.getProvince());
-//        existUser.setCity(user.getCity());
-//        existUser.setCountry(user.getCountry());
-//        existUser.setAvatar(user.getAvatar());
-//
-//        User update = userService.saveUser(existUser);
-//        return ResponseEntity.ok().body(update);
-//    }
-    //View buyer infor throught user - Using for seller
-//    @GetMapping("/buyer/{id}")
-//    public User getBuyer(@PathVariable UUID id) {
-//        return userService.findByUserId(id);
-//    }
-    @GetMapping("/users")
-    public List<User> getListUsers() {
-        return userService.getUsers();
-    }
-    //Edit profile for User - Using for buyer and seller
-//    @PostMapping("/edit/{id}")
-//    public User updateUser(@PathVariable UUID id) {
-//        User existUser = userService.findByUserId(id);
-//        return userService.saveUser(existUser);
-//    }
-//    @GetMapping("/me")
-//    @PreAuthorize("hasRole('BUYER')")
-//    public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
-//        UserSummary userSummary = userService.getCurrentUser(currentUser);
-//
-//        return new ResponseEntity< >(userSummary, HttpStatus.OK);
-//    }
-//
-//    @GetMapping("user/forgot_password")
-//    public String forgotPasswordForm(){
-//        return "forgot_password_form";
-//    }
+
     @PostMapping("/forgot_password")
     public String processForgotPassword(HttpServletRequest request) {
         String email = request.getParameter("email");

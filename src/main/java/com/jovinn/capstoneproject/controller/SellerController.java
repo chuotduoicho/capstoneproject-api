@@ -6,15 +6,19 @@ import com.jovinn.capstoneproject.model.ActivityType;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.auth.ActivityTypeRepository;
+import com.jovinn.capstoneproject.security.CurrentUser;
+import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.SellerService;
 import com.jovinn.capstoneproject.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -29,27 +33,18 @@ public class SellerController {
     @Autowired
     private ActivityTypeRepository activityTypeRepository;
     @GetMapping("/sellers")
-    public Seller getListSellers() {
-        return null;
+    public List<Seller> getListSellers() {
+        return sellerService.getSellers();
     }
-//    @PostMapping("/add-info-seller")
-//    public Seller addInfo(@RequestBody Seller seller) {
-//        return sellerService.saveSeller(seller);
-//    }
-    @PostMapping("/me/{id}/join-selling")
-    public Seller addInfo(@PathVariable UUID id, @RequestBody Seller seller) {
-        User user = userService.getByUserId(id);
-        seller.setUser(user);
-        seller.setRankSeller(RankSeller.BEGINNER);
-        ActivityType at = activityTypeRepository.findByActivityType(UserActivityType.SELLER).get();
-        at.setActivityType(UserActivityType.SELLER);
-        user.setActivityType(Collections.singleton(at));
-        user.setJoinSellingAt(new Date());
-        return sellerService.saveSeller(seller);
+    @GetMapping("/profile/{id}")
+    public Seller getSellerProfile(@PathVariable UUID id) {
+        return sellerService.getSellerById(id);
     }
     @PutMapping("/profile/{id}")
-    public ResponseEntity<Seller> updateInfo(@PathVariable("id") UUID id, @RequestBody Seller seller) {
-        sellerService.updateSeller(id, seller);
-        return new ResponseEntity<>(sellerService.getSellerById(id), HttpStatus.OK);
+    public ResponseEntity<Seller> updateInfo(@PathVariable("id") UUID id,
+                                             @RequestBody Seller seller,
+                                             @CurrentUser UserPrincipal currentUser) {
+        Seller updateSeller = sellerService.updateSeller(id, seller, currentUser);
+        return new ResponseEntity< >(updateSeller, HttpStatus.CREATED);
     }
 }

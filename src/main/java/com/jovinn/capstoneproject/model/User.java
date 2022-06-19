@@ -37,7 +37,7 @@ public class User extends BaseEntity {
     String username;
     @Column(unique = true, length = 55, nullable = false)
     String email;
-    @Column(unique = true, length = 15)
+    @Column(length = 15)
     String phoneNumber;
 
     @Enumerated(EnumType.STRING)
