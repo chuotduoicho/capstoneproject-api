@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("/api/v1/seller")
 public class SellerController {
     @Autowired
     private SellerService sellerService;
@@ -42,12 +42,12 @@ public class SellerController {
         seller.setUser(user);
         seller.setRankSeller(RankSeller.BEGINNER);
         ActivityType at = activityTypeRepository.findByActivityType(UserActivityType.SELLER).get();
-        at.setActivityType(UserActivityType.BUYER);
+        at.setActivityType(UserActivityType.SELLER);
         user.setActivityType(Collections.singleton(at));
         user.setJoinSellingAt(new Date());
         return sellerService.saveSeller(seller);
     }
-    @PutMapping("/me/seller/{id}")
+    @PutMapping("/profile/{id}")
     public ResponseEntity<Seller> updateInfo(@PathVariable("id") UUID id, @RequestBody Seller seller) {
         sellerService.updateSeller(id, seller);
         return new ResponseEntity<>(sellerService.getSellerById(id), HttpStatus.OK);

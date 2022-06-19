@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,11 @@ public class ActivityType {
     @Enumerated(EnumType.STRING)
     UserActivityType activityType;
 
-    @ManyToMany(mappedBy = "activityType", fetch = FetchType.LAZY)
-    //@JsonBackReference
-    List<User> users = new ArrayList<>();
+//    @ManyToMany(mappedBy = "activityType", fetch = FetchType.EAGER)
+//    //@JsonBackReference
+//    List<User> users = new ArrayList<>();
+
+    public ActivityType(UserActivityType activityType) {
+        this.activityType = activityType;
+    }
 }

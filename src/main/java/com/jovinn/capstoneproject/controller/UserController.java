@@ -1,9 +1,12 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.UserRepository;
+import com.jovinn.capstoneproject.security.CurrentUser;
+import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.UserService;
 import com.jovinn.capstoneproject.util.RequestUtility;
 import lombok.RequiredArgsConstructor;
@@ -13,26 +16,39 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1")
-@CrossOrigin(origins = "**")
+@RequestMapping("/api/v1/users")
+//@CrossOrigin(origins = "**")
 public class UserController {
     @Autowired
     private UserService userService;
     //@Autowired
     private final JavaMailSender mailSender;
+
     @Autowired
     private UserRepository userRepository;
+
+    @GetMapping("/me")
+    public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+        UserSummary userSummary = userService.getCurrentUser(currentUser);
+
+        return new ResponseEntity< >(userSummary, HttpStatus.OK);
+    }
+
 
 //    @GetMapping("/users")
 //    public ResponseEntity<List<User>> getUsers() {
@@ -48,12 +64,29 @@ public class UserController {
 //    }
 
     //Update profile user - For both role
-    @PutMapping("/profile/edit/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, @RequestBody User user) {
-        userService.updateUser(id, user);
-        return new ResponseEntity<>(userService.getByUserId(id), HttpStatus.OK);
+//    @PutMapping("/profile/edit/{id}")
+//    public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, @RequestBody User user) {
+//        userService.u(id, user);
+//        return new ResponseEntity<>(userService.getByUserId(id), HttpStatus.OK);
+//    }
+
+    @PutMapping("/profile/{id}")
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User newUser,
+                                           @PathVariable("id") UUID id, @CurrentUser UserPrincipal currentUser) {
+        User updatedUSer = userService.update(newUser, id, currentUser);
+
+        return new ResponseEntity< >(updatedUSer, HttpStatus.CREATED);
     }
 
+
+    //    @PutMapping("/update/{username}")
+//    public ResponseEntity<UserDetails> updateUser(@RequestParam("username") String username, @RequestBody User user) {
+//        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+//                .getPrincipal();
+//        String name = userDetails.getUsername();
+//        userService.update(username, user);
+//        return new ResponseEntity<>(customUserDetailsService.loadUserByUsername(name), HttpStatus.OK);
+//    }
     @GetMapping("/profile/{id}")
     public User getUserProfile(@PathVariable UUID id) {
         return userService.getByUserId(id);
@@ -84,18 +117,6 @@ public class UserController {
     public List<User> getListUsers() {
         return userService.getUsers();
     }
-    //View seller infor throught user - Using for buyer
-    @GetMapping("/seller/{id}")
-    public User findSellerById(@PathVariable UUID id) {
-        return null;
-    }
-
-    //Update user can using function like seller - Using for buyer (One time)
-    @PostMapping("/joinSelling")
-    public User joinSelling(@RequestBody User user) {
-        return null;
-    }
-
     //Edit profile for User - Using for buyer and seller
 //    @PostMapping("/edit/{id}")
 //    public User updateUser(@PathVariable UUID id) {
@@ -123,7 +144,7 @@ public class UserController {
             String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
             sendEmail(email, resetPasswordLink);
         } catch (ResourceNotFoundException ex) {
-            return "User not found with email: "+email;
+            return "User not found with email: " + email;
         } catch (UnsupportedEncodingException | MessagingException e) {
             return "Error while sending email";
         }
@@ -132,7 +153,7 @@ public class UserController {
     public void sendEmail(String recipientEmail, String link) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
-        helper.setFrom("ducdmhe141516@fpt.edu.vn", "Jovinn support");
+        helper.setFrom("duc24600@gmail.com", "Jovinn support");
         helper.setTo(recipientEmail);
         String subject = "Here's the link to reset your password";
 
@@ -155,10 +176,9 @@ public class UserController {
         String token = request.getToken();
         String password = request.getPassword();
         User user = userService.getUserByResetPasswordToken(token);
-        if(user == null){
-            return "Invalid token: "+token;
-        }
-        else{
+        if (user == null) {
+            return "Invalid token: " + token;
+        } else {
             userService.updatePassword(user, password);
             return "You have succcessfully changed your password.";
         }

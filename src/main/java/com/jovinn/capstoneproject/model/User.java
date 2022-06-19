@@ -13,6 +13,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -50,6 +51,7 @@ public class User extends BaseEntity {
     String city;
     String country;
     String avatar;
+    @Size(max = 100)
     String password;
 
     @Temporal(TemporalType.DATE)
