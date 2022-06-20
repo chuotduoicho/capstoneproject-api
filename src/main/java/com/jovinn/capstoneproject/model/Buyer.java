@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,15 +27,16 @@ public class Buyer extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-    @Type(type = "uuid-char")
-    UUID userId;
+//    @Type(type = "uuid-char")
+//    UUID userId;
     Integer successContract;
     String buyerNumber;
 
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "user_id")
-//    @JsonManagedReference
-//    User user;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    //@JsonManagedReference
+    User user;
 //    @OneToOne(fetch = FetchType.LAZY,
 //            cascade = CascadeType.ALL)
 //    @JoinColumn(name = "UserId")

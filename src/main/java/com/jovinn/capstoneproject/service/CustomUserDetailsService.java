@@ -5,7 +5,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.UUID;
 
-public interface CustomerUserDetailService {
-    UserDetails loadUserByUserName(String userNameOrEmail) throws UsernameNotFoundException;
+public interface CustomUserDetailsService {
+    UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException;
+
     UserDetails loadUserById(UUID id);
 }

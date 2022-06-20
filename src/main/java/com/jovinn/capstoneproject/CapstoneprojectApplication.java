@@ -39,9 +39,9 @@ public class CapstoneprojectApplication {
             // userService.saveUser(new User(null, "Le","Thanh Tung","tung", "tunglthe141097@fpt.edu.vn",   null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER,null));
 
             //userService.saveUser(new User(null, "Le","Thanh Tung", "tung","tung@gmail.com", null,null,null,null,null,null,null,null, "123",null,null,null, UserActivityType.BUYER,null));
-            categoryService.saveCategory(new Category(null,"cat1",null));
-            categoryService.saveCategory(new Category(null,"cat2",null));
-            categoryService.saveCategory(new Category(null,"cat3",null));
+//            categoryService.saveCategory(new Category(null,"cat1",null));
+//            categoryService.saveCategory(new Category(null,"cat2",null));
+//            categoryService.saveCategory(new Category(null,"cat3",null));
 //            ActivityType buyer = ActivityType.builder().activityType(UserActivityType.BUYER).build();
 //            ActivityType seller = ActivityType.builder().activityType(UserActivityType.SELLER).build();
 //            ActivityType buyers = new ActivityType();

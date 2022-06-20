@@ -47,7 +47,7 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
 
-        return UUID.randomUUID();
+        return UUID.fromString(claims.getSubject());
     }
 
     public boolean validateToken(String authToken) {

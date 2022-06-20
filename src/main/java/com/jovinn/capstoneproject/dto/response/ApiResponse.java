@@ -1,4 +1,4 @@
-package com.jovinn.capstoneproject.dto;
+package com.jovinn.capstoneproject.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

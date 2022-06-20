@@ -33,6 +33,7 @@ public class Seller extends BaseEntity {
     String sellerNumber;
     @Enumerated(EnumType.STRING)
     RankSeller rankSeller;
+    Integer totalOrderFinish;
     Boolean verifySeller;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -43,29 +44,29 @@ public class Seller extends BaseEntity {
     //@OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    List<Certificate> certificates = new ArrayList<>();
+    List<Certificate> certificates;
 
 //    @JsonIgnore
     //@OneToMany(mappedBy = "seller", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    List<Education> educations = new ArrayList<>();
+    List<Education> educations;
 
 //    @JsonIgnore
     //@OneToMany(mappedBy = "seller", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    List<Language> languages = new ArrayList<>();
+    List<Language> languages;
 
 //    @JsonIgnore
     //@OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    List<Skill> skills = new ArrayList<>();
+    List<Skill> skills;
 
 //    @JsonIgnore
     //@OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    List<UrlProfile> urlProfiles = new ArrayList<>();
+    List<UrlProfile> urlProfiles;
 }
