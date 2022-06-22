@@ -44,7 +44,7 @@ public class Box extends  BaseEntity {
 
 //    @Type(type = "uuid-char")
 //    UUID galleryId;
-
+String title;
     String description;
     Integer impression;
     Integer interesting;
