@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
         return new UserProfile(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(),
                 user.getEmail(), user.getPhoneNumber(), user.getGender(), user.getBirthDate(),
-                user.getAddress(), user.getProvince(), user.getCity(), user.getCountry(), user.getAvatar());
+                user.getCity(), user.getCountry(), user.getAvatar());
     }
 
     @Override
@@ -70,14 +70,11 @@ public class UserServiceImpl implements UserService {
             existUser.setPhoneNumber(newUser.getPhoneNumber());
             existUser.setGender(newUser.getGender());
             existUser.setBirthDate(newUser.getBirthDate());
-            existUser.setAddress(newUser.getAddress());
-            existUser.setProvince(newUser.getProvince());
             existUser.setCity(newUser.getCity());
             existUser.setCountry(newUser.getCountry());
             existUser.setAvatar(newUser.getAvatar());
 
             return userRepository.save(existUser);
-
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to update profile of: " + existUser.getUsername());

@@ -11,6 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -20,20 +21,32 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class Certificate extends BaseEntity {
+public class PostRequest extends BaseEntity {
     @Id
-    @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
+    @GeneratedValue( strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-    String title;
-    String name;
-    String linkCer;
 
-//    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Type(type = "uuid-char")
+    UUID categoryId;
+    @Type(type = "uuid-char")
+    UUID subCategoryId;
+
+    String jobTitle;
+    String shortRequirement;
+    String attachFile;
+    Integer numberOfApplicants;
+
+    @Temporal(TemporalType.DATE)
+    Date termRecord;
+
+    String recruitLevel;
+    Integer expectDelivery;
+    Float budget;
+
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sellerId", referencedColumnName = "id")
-    //@JsonManagedReference
+    @JoinColumn(name = "userId", referencedColumnName = "id")
     @JsonBackReference
-Seller seller;
+    User user;
 }

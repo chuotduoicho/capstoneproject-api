@@ -24,8 +24,6 @@ public class UserProfile {
     String phoneNumber;
     Gender gender;
     Date birthDate;
-    String address;
-    String province;
     String city;
     String country;
     String avatar;

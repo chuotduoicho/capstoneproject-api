@@ -138,10 +138,10 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setJoinedAt(new Date());
         user.setActivityType(activityTypeService.getByActivityType(UserActivityType.BUYER));
-        Buyer buyer = new Buyer();
-        buyer.setBuyerNumber(getRandomNumberString());
-        buyer.setUser(user);
-        user.setBuyer(buyer);
+//        Buyer buyer = new Buyer();
+//        buyer.setBuyerNumber(getRandomNumberString());
+//        buyer.setUser(user);
+        //user.setBuyer(buyer);
 
         User result = userRepository.save(user);
 
