@@ -23,4 +23,10 @@ public interface UserService {
     User update(User newUser, UUID id, UserPrincipal currentUser);
 
     User getByUserId(UUID id);
+
+    User verifyRegistration(String verificationCode);
+
+
+
+
 }

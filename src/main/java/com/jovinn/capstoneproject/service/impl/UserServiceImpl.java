@@ -162,4 +162,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "Not found user by id", id));
     }
+
+    @Override
+    public User verifyRegistration(String verificationCode) throws ResourceNotFoundException{
+        User user = userRepository.findUserByVerificationCode(verificationCode);
+        if(user==null){
+            throw new ResourceNotFoundException("User","verification code",verificationCode);
+        }
+        user.setEnabled(true);
+        return userRepository.save(user);
+    }
 }

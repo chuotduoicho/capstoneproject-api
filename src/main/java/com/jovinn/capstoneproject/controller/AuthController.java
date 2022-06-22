@@ -12,10 +12,14 @@ import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.repository.auth.ActivityTypeRepository;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
+import com.jovinn.capstoneproject.service.UserService;
 import lombok.RequiredArgsConstructor;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,7 +28,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.print.DocFlavor;
 import javax.validation.Valid;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.*;
 
@@ -42,6 +50,11 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private UserService userService;
+
+    private final JavaMailSender mailSender;
 
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> authenticateUser(@RequestBody LoginRequest loginRequest) throws Exception {
@@ -109,7 +122,7 @@ public class AuthController {
 //    }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public User registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại");
         }
@@ -118,6 +131,7 @@ public class AuthController {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Email đã được đăng kí");
         }
 
+        String verificationCode = RandomString.make(10);
 
         User user = new User();
         user.setFirstName(signUpRequest.getFirstName());
@@ -133,11 +147,28 @@ public class AuthController {
         buyer.setBuyerNumber(getRandomNumberString());
         buyer.setUser(user);
         user.setBuyer(buyer);
-
+        user.setVerificationCode(verificationCode);
+        user.setEnabled(false);
         User result = userRepository.save(user);
+        String link = "http://localhost:3000/auth/verifyAccount/" + verificationCode;
+        try{
+            sendEmail(signUpRequest.getEmail(), link);
+        }catch (UnsupportedEncodingException | MessagingException exception){
+            return null;
+        }
 
+//        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{userId}")
+//                .buildAndExpand(result.getId()).toUri();
+//
+//        return ResponseEntity.created(location).body(new ApiResponse(Boolean.TRUE, "Đăng ký tài khoản thành công"));
+        return result;
+    }
+
+    @PutMapping("/verify/{verificationCode}")
+    public ResponseEntity<ApiResponse> verifyAccount(@PathVariable String verificationCode ){
+        User user = userService.verifyRegistration(verificationCode);
         URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{userId}")
-                .buildAndExpand(result.getId()).toUri();
+                .buildAndExpand(user.getId()).toUri();
 
         return ResponseEntity.created(location).body(new ApiResponse(Boolean.TRUE, "Đăng ký tài khoản thành công"));
     }
@@ -146,5 +177,27 @@ public class AuthController {
         Random rnd = new Random();
         int number = rnd.nextInt(999999);
         return String.format("%06d", number);
+    }
+
+    public void sendEmail(String recipientEmail, String link) throws MessagingException, UnsupportedEncodingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        helper.setFrom("duc24600@gmail.com", "Jovinn support");
+        helper.setTo(recipientEmail);
+        String subject = "Here's the link to verify your email";
+
+        String content = "<p>Hello,</p>"
+                + "<p>You have requested to register.</p>"
+                + "<p>Click the link below to verify your email:</p>"
+                + "<p><a href=\"" + link + "\">Verify my email</a></p>"
+                + "<br>"
+                + "<p>Ignore this email if you do have an account with this email, "
+                + "or you have not made the request.</p>";
+
+        helper.setSubject(subject);
+
+        helper.setText(content, true);
+
+        mailSender.send(message);
     }
 }

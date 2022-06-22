@@ -2,13 +2,13 @@ package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.UserService;
-import com.jovinn.capstoneproject.util.RequestUtility;
 import lombok.RequiredArgsConstructor;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +16,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -141,7 +140,7 @@ public class UserController {
         String token = RandomString.make(10);
         try{
             userService.updateResetPasswordToken(token, email);
-            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
+            String resetPasswordLink = "http://localhost:3000/auth/resetPassword/" + token;
             sendEmail(email, resetPasswordLink);
         } catch (ResourceNotFoundException ex) {
             return "User not found with email: " + email;
@@ -172,15 +171,15 @@ public class UserController {
         mailSender.send(message);
     }
     @PostMapping("/reset_password")
-    public String processResetPassword(@RequestBody ResetPasswordRequest request) {
+    public ResponseEntity<ApiResponse> processResetPassword(@RequestBody ResetPasswordRequest request) {
         String token = request.getToken();
         String password = request.getPassword();
         User user = userService.getUserByResetPasswordToken(token);
-        if (user == null) {
-            return "Invalid token: " + token;
-        } else {
-            userService.updatePassword(user, password);
-            return "You have succcessfully changed your password.";
-        }
+        userService.updatePassword(user, password);
+        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{userId}")
+                .buildAndExpand(user.getId()).toUri();
+
+        return ResponseEntity.created(location).body(new ApiResponse(Boolean.TRUE, "Đổi mật khẩu thành công"));
+
     }
 }

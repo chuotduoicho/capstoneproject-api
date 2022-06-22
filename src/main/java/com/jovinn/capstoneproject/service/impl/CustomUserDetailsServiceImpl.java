@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Service
 public class CustomUserDetailsServiceImpl implements UserDetailsService, CustomUserDetailsService {
-    @Autowired
+
     private UserRepository userRepository;
     @Override
     public UserDetails loadUserById(UUID id) {

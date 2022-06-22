@@ -8,7 +8,6 @@ import javax.validation.constraints.NotBlank;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findUserByEmail(String email);
     Optional<User> findByUsername(@NotBlank String username);
@@ -29,4 +28,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 //        return findByUsername(username)
 //                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
 //    }
+    User findUserByVerificationCode(String code);
 }

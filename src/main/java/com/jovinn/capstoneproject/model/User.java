@@ -38,6 +38,8 @@ public class User extends BaseEntity {
     @Column(unique = true, length = 55, nullable = false)
     String email;
     @Column(unique = true, length = 15)
+    String verificationCode;
+    boolean isEnabled;
     String phoneNumber;
 
     @Enumerated(EnumType.STRING)
