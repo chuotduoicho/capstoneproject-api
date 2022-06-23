@@ -10,12 +10,14 @@ import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.SellerService;
 import com.jovinn.capstoneproject.service.UserService;
+import org.aspectj.internal.lang.reflect.StringToType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EnumType;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -46,5 +48,9 @@ public class SellerController {
                                              @CurrentUser UserPrincipal currentUser) {
         Seller updateSeller = sellerService.updateSeller(id, seller, currentUser);
         return new ResponseEntity< >(updateSeller, HttpStatus.CREATED);
+    }
+    @GetMapping("/getTop3SellerByRank/{rank}")
+    public List<Seller> getTop3SellerByRank(@PathVariable("rank") String rank){
+        return sellerService.getListTopSellerByRank(RankSeller.valueOf(rank));
     }
 }

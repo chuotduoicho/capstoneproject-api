@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Seller;
@@ -14,6 +15,7 @@ import com.jovinn.capstoneproject.service.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EnumType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -87,6 +89,11 @@ public class SellerServiceImpl implements SellerService {
     @Override
     public Seller deleteSeller(UUID id) {
         return null;
+    }
+
+    @Override
+    public List<Seller> getListTopSellerByRank(RankSeller Rank) {
+        return sellerRepository.findTop3ByRankSeller(Rank);
     }
 
 //    @Override
