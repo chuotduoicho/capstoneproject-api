@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -36,8 +37,13 @@ public class SubCategory extends  BaseEntity {
 
     String name;
 
-    @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    @PrimaryKeyJoinColumn
-    List<ServiceType> serviceTypes;
+//    @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonManagedReference
+//    @PrimaryKeyJoinColumn
+//    List<ServiceType> serviceTypes;
+
+    @OneToMany(mappedBy = "subCategory")
+//    @JsonManagedReference
+    @JsonIgnore
+    List<Box> boxes;
 }

@@ -30,8 +30,8 @@ public class Box extends  BaseEntity {
     @Type(type = "uuid-char")
     UUID id;
 
-    @Type(type = "uuid-char")
-    UUID sellerId;
+//    @Type(type = "uuid-char")
+//    UUID sellerId;
 
 //    @Type(type = "uuid-char")
 //    UUID catServiceId;
@@ -44,7 +44,7 @@ public class Box extends  BaseEntity {
 
 //    @Type(type = "uuid-char")
 //    UUID galleryId;
-String title;
+    String title;
     String description;
     Integer impression;
     Integer interesting;
@@ -61,19 +61,23 @@ String title;
 //    //@JsonIgnore
 //    Category category;
 
-//    @ManyToOne(fetch =  FetchType.EAGER)
-//    @JoinColumn(name = "sub_cat_service_id", referencedColumnName = "id")
-//    //@JsonBackReference
-//    SubCategory subCategory;
+    @ManyToOne(fetch =  FetchType.EAGER)
+    @JoinColumn(name = "seller_id", referencedColumnName = "id")
+//    @JsonBackReference
+    Seller seller;
+    @ManyToOne(fetch =  FetchType.EAGER)
+    @JoinColumn(name = "sub_cat_service_id", referencedColumnName = "id")
+//    @JsonBackReference
+    SubCategory subCategory;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    //@ManyToOne(optional = false)
-    //@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "service_type_id", referencedColumnName = "id")
-    //@JsonIgnore
-    //@MapsId
-    @JsonBackReference
-    ServiceType serviceType;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    //@ManyToOne(optional = false)
+//    //@OneToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "service_type_id", referencedColumnName = "id")
+//    //@JsonIgnore
+//    //@MapsId
+//    @JsonBackReference
+//    ServiceType serviceType;
 
     @OneToMany(mappedBy = "box", cascade = CascadeType.ALL, orphanRemoval = true)
     //@OneToMany(mappedBy = "box")

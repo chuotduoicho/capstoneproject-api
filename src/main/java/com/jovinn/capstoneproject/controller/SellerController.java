@@ -49,8 +49,8 @@ public class SellerController {
         Seller updateSeller = sellerService.updateSeller(id, seller, currentUser);
         return new ResponseEntity< >(updateSeller, HttpStatus.CREATED);
     }
-    @GetMapping("/getTop3SellerByRank/{rank}")
-    public List<Seller> getTop3SellerByRank(@PathVariable("rank") String rank){
-        return sellerService.getListTopSellerByRank(RankSeller.valueOf(rank));
+    @GetMapping("/getTop3SellerByRank")
+    public List<Seller> getTop3SellerByRank(){
+        return sellerService.getListTopSellerByRank();
     }
 }

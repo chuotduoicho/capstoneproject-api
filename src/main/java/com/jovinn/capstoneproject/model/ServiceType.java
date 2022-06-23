@@ -31,13 +31,13 @@ public class ServiceType extends BaseEntity {
     UUID id;
     String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sub_category_id", referencedColumnName = "id")
-    @JsonBackReference
-    SubCategory subCategory;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "sub_category_id", referencedColumnName = "id")
+//    @JsonBackReference
+//    SubCategory subCategory;
 
-    @OneToMany(mappedBy = "serviceType")
-    @JsonManagedReference
-    //@JsonIgnore
-    List<Box> boxes;
+//    @OneToMany(mappedBy = "serviceType")
+//    @JsonManagedReference
+//    //@JsonIgnore
+//    List<Box> boxes;
 }

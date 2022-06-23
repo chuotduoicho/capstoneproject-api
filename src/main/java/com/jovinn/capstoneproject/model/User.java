@@ -102,7 +102,8 @@ public class User extends BaseEntity {
     @JoinColumn(name = "buyerId")
     Buyer buyer;
 
-    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonManagedReference
+    @JsonIgnore
     Seller seller;
 }

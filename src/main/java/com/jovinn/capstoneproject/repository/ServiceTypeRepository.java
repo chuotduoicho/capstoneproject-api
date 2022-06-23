@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ServiceTypeRepository extends JpaRepository<ServiceType, UUID> {
-    List<ServiceType> findBySubCategoryId(UUID subCategoryId);
+    //List<ServiceType> findBySubCategoryId(UUID subCategoryId);
 }
 

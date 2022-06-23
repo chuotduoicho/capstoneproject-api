@@ -92,8 +92,8 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public List<Seller> getListTopSellerByRank(RankSeller Rank) {
-        return sellerRepository.findTop3ByRankSeller(Rank);
+    public List<Seller> getListTopSellerByRank() {
+        return sellerRepository.findTop3ByRankSeller();
     }
 
 //    @Override

@@ -16,12 +16,12 @@ import java.util.UUID;
 public interface BoxRepository extends JpaRepository<Box, UUID> {
     List<Box> findAllById(UUID sellerId);
 
-    @Query("select b from Box b where b.serviceType.subCategory.category.id = :catId")
+    @Query("select b from Box b where b.subCategory.category.id = :catId")
     List<Box> getAllServiceByCategoryId(@Param("catId") UUID catId);
 
-    Page<Box> findAllByServiceType_SubCategory_Category_Id(UUID catId, PageRequest pageRequest);
+    Page<Box> findAllBySubCategory_Category_Id(UUID catId, PageRequest pageRequest);
 
-    Page<Box> findAllByServiceType_NameContainsOrServiceType_SubCategory_Category_NameContains(String serviceTypeName, String catName, PageRequest pageRequest);
+    Page<Box> findAllBySubCategory_NameContainsOrSubCategory_Category_NameContains(String subCatName, String catName, PageRequest pageRequest);
 //    @Query("select b from Box b where b.serviceType.subCategory.category.name = :catName or b.serviceType.name = :serviceTypeName or b.packages.")
 //    List<Box> searchAllServiceByCatNameByServiceTypeNameByPrice();
 }

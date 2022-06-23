@@ -20,5 +20,5 @@ public interface SellerService {
     Seller deleteSeller(UUID id);
 
     //View list seller buy rank
-    List<Seller> getListTopSellerByRank(RankSeller Rank);
+    List<Seller> getListTopSellerByRank();
 }
