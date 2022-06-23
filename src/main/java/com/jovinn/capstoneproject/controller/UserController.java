@@ -31,6 +31,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
+@CrossOrigin(origins = "*")
 //@CrossOrigin(origins = "**")
 public class UserController {
     @Autowired
@@ -134,7 +135,7 @@ public class UserController {
 //    public String forgotPasswordForm(){
 //        return "forgot_password_form";
 //    }
-    @PostMapping("/forgot_password")
+            @PostMapping("/forgot_password")
     public String processForgotPassword(HttpServletRequest request) {
         String email = request.getParameter("email");
         String token = RandomString.make(10);
@@ -170,7 +171,7 @@ public class UserController {
 
         mailSender.send(message);
     }
-    @PostMapping("/reset_password")
+            @PostMapping("/reset_password")
     public ResponseEntity<ApiResponse> processResetPassword(@RequestBody ResetPasswordRequest request) {
         String token = request.getToken();
         String password = request.getPassword();

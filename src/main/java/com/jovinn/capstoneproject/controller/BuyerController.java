@@ -11,7 +11,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1")
+
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class BuyerController {
     @Autowired
     private BuyerService buyerService;

@@ -6,6 +6,7 @@ import com.jovinn.capstoneproject.dto.request.LoginRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.model.ActivityType;
 import com.jovinn.capstoneproject.model.Buyer;
 import com.jovinn.capstoneproject.model.User;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,6 +41,7 @@ import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -56,17 +59,30 @@ public class AuthController {
 
     private final JavaMailSender mailSender;
 
+//    @PostMapping("/signin")
+//    public ResponseEntity<JwtAuthenticationResponse> authenticateUser(@RequestBody LoginRequest loginRequest) throws Exception {
+//        Authentication authentication = authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
+//
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//        String jwt = jwtTokenProvider.generateToken(authentication);
+//        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+//    }
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> authenticateUser(@RequestBody LoginRequest loginRequest) throws Exception {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = jwtTokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+            String jwt =jwtTokenProvider.generateToken(authentication);
+            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        } catch (BadCredentialsException e) {
+            throw new JovinnException(HttpStatus.BAD_REQUEST, "Username/Email or password does not exist");
+        }
     }
-
 //    @PostMapping("/signup")
 //    public ResponseEntity<?> registerUser(@RequestBody SignUpRequest signUpRequest){
 //        if(userRepository.existsByUsername(signUpRequest.getUsername())) {
@@ -122,7 +138,7 @@ public class AuthController {
 //    }
 
     @PostMapping("/signup")
-    public User registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại");
         }
@@ -157,11 +173,11 @@ public class AuthController {
             return null;
         }
 
-//        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{userId}")
-//                .buildAndExpand(result.getId()).toUri();
-//
-//        return ResponseEntity.created(location).body(new ApiResponse(Boolean.TRUE, "Đăng ký tài khoản thành công"));
-        return result;
+        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{userId}")
+                .buildAndExpand(result.getId()).toUri();
+
+        return ResponseEntity.created(location).body(new ApiResponse(Boolean.TRUE, "Liên kết xác thực đã được gửi vào email của bạn!"));
+//        return result;
     }
 
     @PutMapping("/verify/{verificationCode}")
