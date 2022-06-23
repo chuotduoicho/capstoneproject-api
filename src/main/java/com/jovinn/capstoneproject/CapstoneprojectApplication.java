@@ -42,10 +42,10 @@ public class CapstoneprojectApplication {
 //            categoryService.saveCategory(new Category(null,"cat1",null));
 //            categoryService.saveCategory(new Category(null,"cat2",null));
 //            categoryService.saveCategory(new Category(null,"cat3",null));
-//            ActivityType buyer = ActivityType.builder().activityType(UserActivityType.BUYER).build();
-//            ActivityType seller = ActivityType.builder().activityType(UserActivityType.SELLER).build();
-//            activityTypeService.saveType(buyer);
-//            activityTypeService.saveType(seller);
+            ActivityType buyer = ActivityType.builder().activityType(UserActivityType.BUYER).build();
+            ActivityType seller = ActivityType.builder().activityType(UserActivityType.SELLER).build();
+            activityTypeService.saveType(buyer);
+            activityTypeService.saveType(seller);
 //            ActivityType buyers = new ActivityType();
 //            buyers.setActivityType(UserActivityType.BUYER);
 //            ActivityType sell = new ActivityType();

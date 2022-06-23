@@ -147,7 +147,7 @@ public class AuthController {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Email đã được đăng kí");
         }
 
-        String verificationCode = RandomString.make(10);
+        String verificationCode = RandomString.make(15);
 
         User user = new User();
         user.setFirstName(signUpRequest.getFirstName());

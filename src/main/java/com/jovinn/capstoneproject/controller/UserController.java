@@ -135,20 +135,19 @@ public class UserController {
 //    public String forgotPasswordForm(){
 //        return "forgot_password_form";
 //    }
-            @PostMapping("/forgot_password")
-    public String processForgotPassword(HttpServletRequest request) {
-        String email = request.getParameter("email");
+            @PostMapping("/forgot_password/{email}")
+    public ApiResponse processForgotPassword(@Valid @PathVariable String email) {
         String token = RandomString.make(10);
         try{
             userService.updateResetPasswordToken(token, email);
             String resetPasswordLink = "http://localhost:3000/auth/resetPassword/" + token;
             sendEmail(email, resetPasswordLink);
         } catch (ResourceNotFoundException ex) {
-            return "User not found with email: " + email;
+            return new ApiResponse(Boolean.FALSE,"Không tìm thấy tài khoản.");
         } catch (UnsupportedEncodingException | MessagingException e) {
-            return "Error while sending email";
+            return new ApiResponse(Boolean.FALSE,"Đã xảy ra lỗi khi gửi email.");
         }
-        return token;
+        return new ApiResponse(Boolean.TRUE,"Liên kết đổi mật khẩu đã được gửi vào email của bạn!");
     }
     public void sendEmail(String recipientEmail, String link) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
@@ -172,15 +171,14 @@ public class UserController {
         mailSender.send(message);
     }
             @PostMapping("/reset_password")
-    public ResponseEntity<ApiResponse> processResetPassword(@RequestBody ResetPasswordRequest request) {
+    public ApiResponse processResetPassword(@RequestBody ResetPasswordRequest request) {
         String token = request.getToken();
         String password = request.getPassword();
         User user = userService.getUserByResetPasswordToken(token);
+        if(user == null){
+            return new ApiResponse(Boolean.FALSE, "Không tìm thấy tài khoản.");
+        }
         userService.updatePassword(user, password);
-        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{userId}")
-                .buildAndExpand(user.getId()).toUri();
-
-        return ResponseEntity.created(location).body(new ApiResponse(Boolean.TRUE, "Đổi mật khẩu thành công"));
-
+        return new ApiResponse(Boolean.TRUE, "Đổi mật khẩu thành công.");
     }
 }
