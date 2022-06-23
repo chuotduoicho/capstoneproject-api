@@ -1,6 +1,9 @@
 package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.enumerable.RankSeller;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Seller;
@@ -12,25 +15,26 @@ import com.jovinn.capstoneproject.repository.auth.ActivityTypeRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import static com.jovinn.capstoneproject.util.GenerateRandomNumber.getRandomNumberString;
 
 @Service
 public class SellerServiceImpl implements SellerService {
 
     @Autowired
     private SellerRepository sellerRepository;
-
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private ActivityTypeRepository activityTypeRepository;
 
-    @Autowired
-    private CertificateRepository certificateRepository;
     @Override
     public Seller saveSeller(Seller seller) {
         return sellerRepository.save(seller);
@@ -53,28 +57,43 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
+    public ApiResponse becomeSeller(UUID id, Seller seller, UserPrincipal currentUser) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("", "", id));
+        if (Boolean.TRUE.equals(sellerRepository.existsByUserId(user.getId()))) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Bạn đã đăng ky là seller");
+        }
+        seller.setUser(user);
+        seller.setRankSeller(RankSeller.BEGINNER);
+        seller.setSellerNumber(getRandomNumberString());
+        seller.setVerifySeller(Boolean.TRUE);
+        seller.setTotalOrderFinish(0);
+        user.setSeller(seller);
+        user.setActivityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER));
+        user.setJoinSellingAt(new Date());
+        sellerRepository.save(seller);
+        return new ApiResponse(Boolean.TRUE, user.getFirstName() + " Bạn đã trở thành người làm việc");
+    }
+
+    @Override
     public Seller getSellerBySellerNumber(String sellerNumber) {
         return sellerRepository.findBySellerNumber(sellerNumber);
     }
 
     @Override
-    public Seller updateSeller(UUID id, Seller seller, UserPrincipal currentUser) {
+    public Seller updateSeller(UUID id, Seller editSeller) {
         Seller existSeller = sellerRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Seller", "Seller Not found by ", id));
-        User user = existSeller.getUser();
-        if(user.getId().equals(currentUser.getId())) {
-            existSeller.setDescriptionBio(seller.getDescriptionBio());
-            existSeller.setLanguages(new ArrayList<>());
-            existSeller.setCertificates(new ArrayList<>());
-            existSeller.setSkills(new ArrayList<>());
-            existSeller.setEducations(new ArrayList<>());
-            existSeller.setUrlProfiles(new ArrayList<>());
-            return sellerRepository.save(existSeller);
-        } else {
-            ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to update profile of: " + user.getUsername());
-            throw new UnauthorizedException(apiResponse);
-        }
+//        User user = currentUser.getId();
+//        if(existSeller.getId().equals(currentUser.getId())) {
+//        }
+        existSeller.setDescriptionBio(editSeller.getDescriptionBio());
+
+        return sellerRepository.save(existSeller);
+//        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to update profile of: ");
+//        throw new UnauthorizedException(apiResponse);
     }
 
     @Override
@@ -88,12 +107,4 @@ public class SellerServiceImpl implements SellerService {
     public Seller deleteSeller(UUID id) {
         return null;
     }
-
-//    @Override
-//    public Seller updateSeller(Seller seller) {
-//        Seller existSeller = sellerRepository.findById(seller.getId())
-//                .orElseThrow(() -> new ResourceNotFoundException("seller", "seller not exist", seller));
-//        existSeller.setDescriptionBio(seller.getDescriptionBio());
-//        return sellerRepository.save(seller);
-//    }
 }

@@ -3,9 +3,11 @@ package com.jovinn.capstoneproject.controller;
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
@@ -43,18 +45,14 @@ public class UserController {
     private UserService userService;
     @Autowired
     private SellerService sellerService;
-    @Autowired
-    private ActivityTypeService activityTypeService;
     private final JavaMailSender mailSender;
 
     @GetMapping("/me")
     public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
         UserSummary userSummary = userService.getCurrentUser(currentUser);
-
         if(userSummary == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "User not found in database!!!");
         }
-
         return new ResponseEntity< >(userSummary, HttpStatus.OK);
     }
 
@@ -63,37 +61,30 @@ public class UserController {
         return userService.getByUserId(id);
     }
 
-    @GetMapping("/profileByName/{username}")
+    @GetMapping("/{username}")
     public ResponseEntity<UserProfile> getUSerProfileByUserName(@PathVariable String username) {
         UserProfile userProfile = userService.getUserProfile(username);
-
         return new ResponseEntity< >(userProfile, HttpStatus.OK);
     }
 
-    @GetMapping("")
-    public List<User> getListUsers() {
-        return userService.getUsers();
+    @GetMapping("/list")
+    public ResponseEntity<List<User>> getListUsers() {
+        List<User> users = userService.getUsers();
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @PutMapping("/profile/{id}")
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User newUser,
-                                           @PathVariable("id") UUID id, @CurrentUser UserPrincipal currentUser) {
-        User updatedUSer = userService.update(newUser, id, currentUser);
-
-        return new ResponseEntity< >(updatedUSer, HttpStatus.CREATED);
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User editUser,
+                                           @PathVariable("id") UUID id,
+                                           @CurrentUser UserPrincipal currentUser) {
+        User updatedUser = userService.update(editUser, id, currentUser);
+        return new ResponseEntity< >(updatedUser, HttpStatus.CREATED);
     }
+
     @PostMapping("/{id}/join-selling")
-    public Seller joinSelling(@PathVariable UUID id, @RequestBody Seller seller) {
-        User user = userService.getByUserId(id);
-        seller.setUser(user);
-        seller.setRankSeller(RankSeller.BEGINNER);
-        seller.setSellerNumber(getRandomNumberString());
-        seller.setVerifySeller(Boolean.FALSE);
-        seller.setTotalOrderFinish(0);
-        user.setSeller(seller);
-        user.setActivityType(activityTypeService.getByActivityType(UserActivityType.SELLER));
-        user.setJoinSellingAt(new Date());
-        return sellerService.saveSeller(seller);
+    public ResponseEntity<ApiResponse> joinSelling(@PathVariable UUID id, @RequestBody Seller seller, @CurrentUser UserPrincipal currentUser) {
+        ApiResponse apiResponse = sellerService.becomeSeller(id, seller, currentUser);
+        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
     @PostMapping("/forgot_password")
@@ -111,6 +102,7 @@ public class UserController {
         }
         return token;
     }
+
     public void sendEmail(String recipientEmail, String link) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);

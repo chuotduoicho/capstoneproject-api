@@ -35,5 +35,5 @@ public class Certificate extends BaseEntity {
     @JoinColumn(name = "sellerId", referencedColumnName = "id")
     //@JsonManagedReference
     @JsonBackReference
-Seller seller;
+    Seller seller;
 }

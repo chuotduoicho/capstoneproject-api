@@ -32,7 +32,7 @@ public class Skill extends BaseEntity {
     SkillLevel level;
     String shortDescribe;
 
-    @ManyToOne( fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sellerId", referencedColumnName = "id")
     //@JsonManagedReference
     @JsonBackReference
