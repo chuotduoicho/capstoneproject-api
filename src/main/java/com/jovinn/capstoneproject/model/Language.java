@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +12,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -33,4 +35,14 @@ public class Language extends BaseEntity {
 //    @JsonManagedReference
     @JsonBackReference
     Seller seller;
+
+    public Language(String language, Seller seller) {
+        this.language = language;
+        this.seller = seller;
+    }
+
+    @JsonIgnore
+    public Seller getSeller() {
+        return seller;
+    }
 }

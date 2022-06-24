@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,10 +28,10 @@ public class Education extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
+    String country;
     String universityName;
     String title;
     String major;
-    String country;
     @Temporal(TemporalType.TIMESTAMP)
     Date yearOfGraduation;
     @Temporal(TemporalType.TIMESTAMP)
@@ -44,4 +45,21 @@ public class Education extends BaseEntity {
     //@JsonManagedReference
     @JsonBackReference
     Seller seller;
+
+    public Education(String country, String universityName, String title, String major, Date yearOfGraduation, Date fromDate, Date toDate, Boolean opened, Seller seller) {
+        this.country = country;
+        this.universityName = universityName;
+        this.title = title;
+        this.major = major;
+        this.yearOfGraduation = yearOfGraduation;
+        this.fromDate = fromDate;
+        this.toDate = toDate;
+        this.opened = opened;
+        this.seller = seller;
+    }
+
+    @JsonIgnore
+    public Seller getSeller() {
+        return seller;
+    }
 }

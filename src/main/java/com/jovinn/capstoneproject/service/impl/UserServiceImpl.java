@@ -2,22 +2,28 @@ package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
+import com.jovinn.capstoneproject.dto.request.SignUpRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
+import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
+import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +35,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ActivityTypeService activityTypeService;
 
     @Override
     public UserSummary getCurrentUser(UserPrincipal currentUser) {
@@ -56,28 +63,25 @@ public class UserServiceImpl implements UserService {
 
         return new UserProfile(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(),
                 user.getEmail(), user.getPhoneNumber(), user.getGender(), user.getBirthDate(),
-                user.getAddress(), user.getProvince(), user.getCity(), user.getCountry(), user.getAvatar());
+                user.getCity(), user.getCountry(), user.getAvatar());
     }
 
     @Override
-    public User update(User newUser, UUID id, UserPrincipal currentUser) {
+    public User update(User editUser, UUID id, UserPrincipal currentUser) {
         User existUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "user not found ", id));
 
         if (existUser.getId().equals(currentUser.getId())) {
-            existUser.setFirstName(newUser.getFirstName());
-            existUser.setLastName(newUser.getLastName());
-            existUser.setPhoneNumber(newUser.getPhoneNumber());
-            existUser.setGender(newUser.getGender());
-            existUser.setBirthDate(newUser.getBirthDate());
-            existUser.setAddress(newUser.getAddress());
-            existUser.setProvince(newUser.getProvince());
-            existUser.setCity(newUser.getCity());
-            existUser.setCountry(newUser.getCountry());
-            existUser.setAvatar(newUser.getAvatar());
+            existUser.setFirstName(editUser.getFirstName());
+            existUser.setLastName(editUser.getLastName());
+            existUser.setPhoneNumber(editUser.getPhoneNumber());
+            existUser.setGender(editUser.getGender());
+            existUser.setBirthDate(editUser.getBirthDate());
+            existUser.setCity(editUser.getCity());
+            existUser.setCountry(editUser.getCountry());
+            existUser.setAvatar(editUser.getAvatar());
 
             return userRepository.save(existUser);
-
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to update profile of: " + existUser.getUsername());
@@ -121,5 +125,27 @@ public class UserServiceImpl implements UserService {
     public User getByUserId(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "Not found user by id", id));
+    }
+
+    @Override
+    public ApiResponse registerUser(SignUpRequest signUpRequest) {
+        if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại");
+        }
+
+        if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Email đã được đăng kí");
+        }
+
+        User user = new User();
+        user.setFirstName(signUpRequest.getFirstName());
+        user.setLastName(signUpRequest.getLastName());
+        user.setUsername(signUpRequest.getUsername().toLowerCase());
+        user.setEmail(signUpRequest.getEmail().toLowerCase());
+        user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+        user.setJoinedAt(new Date());
+        user.setActivityType(activityTypeService.getByActivityType(UserActivityType.BUYER));
+        userRepository.save(user);
+        return new ApiResponse(Boolean.TRUE, "Đăng ký tài khoản thành công");
     }
 }

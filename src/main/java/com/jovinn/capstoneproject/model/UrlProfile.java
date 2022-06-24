@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,4 +36,15 @@ public class UrlProfile extends BaseEntity {
     //@JsonManagedReference
     @JsonBackReference
     Seller seller;
+
+    public UrlProfile(String title, String url, Seller seller) {
+        this.title = title;
+        this.url = url;
+        this.seller = seller;
+    }
+
+    @JsonIgnore
+    public Seller getSeller() {
+        return seller;
+    }
 }

@@ -1,8 +1,8 @@
-package com.jovinn.capstoneproject.security;
+package com.jovinn.capstoneproject.config;
 
-import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.filter.JwtAuthenticationFilter;
 import com.jovinn.capstoneproject.repository.UserRepository;
+import com.jovinn.capstoneproject.security.JwtAuthenticationEntryPoint;
 import com.jovinn.capstoneproject.service.impl.CustomUserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

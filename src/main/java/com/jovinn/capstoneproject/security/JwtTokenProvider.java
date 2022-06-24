@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.security;
 
 
+import com.jovinn.capstoneproject.model.ActivityType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -15,7 +16,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Map;
 
 @Component
 public class JwtTokenProvider {
@@ -35,6 +40,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(userPrincipal.getId().toString())
+                .claim("activity_type", userPrincipal.getAuthorities())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)

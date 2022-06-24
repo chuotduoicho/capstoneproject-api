@@ -62,16 +62,11 @@ public class CapstoneprojectApplication {
         };
 
     }
-
+//
     @PostConstruct
     void init() {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
-
-//    @Bean
-//    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-//        return new JwtAuthenticationFilter();
-//    }
 
     @Bean
     public ModelMapper modelMapper() {
