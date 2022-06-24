@@ -47,13 +47,23 @@ public class UserController {
     private SellerService sellerService;
     private final JavaMailSender mailSender;
 
+//    @GetMapping("/me")
+//    public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+//        UserSummary userSummary = userService.getCurrentUser(currentUser);
+//        if(userSummary == null) {
+//            throw new ApiException(HttpStatus.BAD_REQUEST, "User not found in database!!!");
+//        }
+//        return new ResponseEntity< >(userSummary, HttpStatus.OK);
+//    }
+
     @GetMapping("/me")
-    public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
-        UserSummary userSummary = userService.getCurrentUser(currentUser);
-        if(userSummary == null) {
+    public ResponseEntity<User> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+        UUID id = currentUser.getId();
+        User user = userService.getByUserId(id);
+        if (user == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "User not found in database!!!");
         }
-        return new ResponseEntity< >(userSummary, HttpStatus.OK);
+        return new ResponseEntity< >(user, HttpStatus.OK);
     }
 
     @GetMapping("/profile/{id}")
@@ -82,7 +92,9 @@ public class UserController {
     }
 
     @PostMapping("/{id}/join-selling")
-    public ResponseEntity<ApiResponse> joinSelling(@PathVariable UUID id, @RequestBody Seller seller, @CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<ApiResponse> joinSelling(@PathVariable UUID id,
+                                                   @RequestBody Seller seller,
+                                                   @CurrentUser UserPrincipal currentUser) {
         ApiResponse apiResponse = sellerService.becomeSeller(id, seller, currentUser);
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
