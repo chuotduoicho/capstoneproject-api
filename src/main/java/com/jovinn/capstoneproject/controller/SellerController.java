@@ -40,17 +40,11 @@ public class SellerController {
     }
 
     //Using for update seller all information - But fuckin error
-    @PutMapping("/profile/{id}")
-    public ResponseEntity<Seller> updateInfo(@PathVariable("id") UUID id,
-                                             @Valid @RequestBody Seller editSeller
-                                             ) {
-        Seller updateSeller = sellerService.updateSeller(id, editSeller);
-        return new ResponseEntity< >(updateSeller, HttpStatus.CREATED);
-    }
-
-    @PutMapping("{id}")
-    public ResponseEntity<Seller> update(@PathVariable("id") UUID id) {
-        Seller seller = sellerService.getSellerById(id);
-        return null;
-    }
+//    @PutMapping("/profile/{id}")
+//    public ResponseEntity<Seller> updateInfo(@PathVariable("id") UUID id,
+//                                             @Valid @RequestBody Seller editSeller
+//                                             ) {
+//        Seller updateSeller = sellerService.updateSeller(id, editSeller);
+//        return new ResponseEntity< >(updateSeller, HttpStatus.CREATED);
+//    }
 }

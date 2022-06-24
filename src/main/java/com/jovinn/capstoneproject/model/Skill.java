@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -37,4 +38,16 @@ public class Skill extends BaseEntity {
     //@JsonManagedReference
     @JsonBackReference
     Seller seller;
+
+    public Skill(String name, SkillLevel level, String shortDescribe, Seller seller) {
+        this.name = name;
+        this.level = level;
+        this.shortDescribe = shortDescribe;
+        this.seller = seller;
+    }
+
+    @JsonIgnore
+    public Seller getSeller() {
+        return seller;
+    }
 }
