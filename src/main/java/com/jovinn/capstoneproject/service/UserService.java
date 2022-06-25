@@ -32,4 +32,5 @@ public interface UserService {
     User getByUserId(UUID id);
 
     ApiResponse registerUser(SignUpRequest signUpRequest);
+    User verifyRegistration(String verificationCode);
 }

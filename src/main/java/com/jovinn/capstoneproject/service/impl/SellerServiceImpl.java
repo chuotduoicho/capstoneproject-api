@@ -58,7 +58,7 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public ApiResponse becomeSeller(UUID id, Seller seller, UserPrincipal currentUser) {
+    public Seller becomeSeller(UUID id, Seller seller, UserPrincipal currentUser) {
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("", "", id));
@@ -73,8 +73,8 @@ public class SellerServiceImpl implements SellerService {
         user.setSeller(seller);
         user.setActivityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER));
         user.setJoinSellingAt(new Date());
-        sellerRepository.save(seller);
-        return new ApiResponse(Boolean.TRUE, user.getFirstName() + " Bạn đã trở thành người làm việc");
+        return sellerRepository.save(seller);
+        //return new ApiResponse(Boolean.TRUE, user.getFirstName() + " Bạn đã trở thành người làm việc");
     }
 
     @Override

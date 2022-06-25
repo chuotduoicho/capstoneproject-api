@@ -1,41 +1,32 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
-import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.enumerable.RankSeller;
-import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
-import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
-import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.SellerService;
 import com.jovinn.capstoneproject.service.UserService;
+import com.jovinn.capstoneproject.util.EmailSender;
 import com.jovinn.capstoneproject.util.RequestUtility;
 import lombok.RequiredArgsConstructor;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static com.jovinn.capstoneproject.util.GenerateRandomNumber.getRandomNumberString;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,8 +36,7 @@ public class UserController {
     private UserService userService;
     @Autowired
     private SellerService sellerService;
-    private final JavaMailSender mailSender;
-
+    private final EmailSender emailSender;
 //    @GetMapping("/me")
 //    public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
 //        UserSummary userSummary = userService.getCurrentUser(currentUser);
@@ -91,22 +81,22 @@ public class UserController {
         return new ResponseEntity< >(updatedUser, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{id}/join-selling")
-    public ResponseEntity<ApiResponse> joinSelling(@PathVariable UUID id,
+    @PostMapping("/join-selling/{id}")
+    public ResponseEntity<Seller> joinSelling(@PathVariable UUID id,
                                                    @RequestBody Seller seller,
                                                    @CurrentUser UserPrincipal currentUser) {
-        ApiResponse apiResponse = sellerService.becomeSeller(id, seller, currentUser);
-        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
+        Seller sellerInfo = sellerService.becomeSeller(id, seller, currentUser);
+        return new ResponseEntity<>(sellerInfo, HttpStatus.CREATED);
     }
 
     @PostMapping("/forgot_password")
     public String processForgotPassword(HttpServletRequest request) {
         String email = request.getParameter("email");
         String token = RandomString.make(10);
-        try{
+        try {
             userService.updateResetPasswordToken(token, email);
             String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
-            sendEmail(email, resetPasswordLink);
+            emailSender.sendEmailResetPassword(email, resetPasswordLink);
         } catch (ResourceNotFoundException ex) {
             return "User not found with email: " + email;
         } catch (UnsupportedEncodingException | MessagingException e) {
@@ -115,27 +105,6 @@ public class UserController {
         return token;
     }
 
-    public void sendEmail(String recipientEmail, String link) throws MessagingException, UnsupportedEncodingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
-        helper.setFrom("duc24600@gmail.com", "Jovinn support");
-        helper.setTo(recipientEmail);
-        String subject = "Here's the link to reset your password";
-
-        String content = "<p>Hello,</p>"
-                + "<p>You have requested to reset your password.</p>"
-                + "<p>Click the link below to change your password:</p>"
-                + "<p><a href=\"" + link + "\">Change my password</a></p>"
-                + "<br>"
-                + "<p>Ignore this email if you do remember your password, "
-                + "or you have not made the request.</p>";
-
-        helper.setSubject(subject);
-
-        helper.setText(content, true);
-
-        mailSender.send(message);
-    }
     @PostMapping("/reset_password")
     public String processResetPassword(@RequestBody ResetPasswordRequest request) {
         String token = request.getToken();

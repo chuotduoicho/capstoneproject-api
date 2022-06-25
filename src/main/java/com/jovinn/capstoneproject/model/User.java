@@ -38,17 +38,22 @@ public class User extends BaseEntity {
     @Column(length = 15)
     String phoneNumber;
 
+    @JsonIgnore
+    String verificationCode;
+    @JsonIgnore
+    Boolean isEnabled;
+
     @Enumerated(EnumType.STRING)
     Gender gender;
 
     @Temporal(TemporalType.DATE)
     Date birthDate;
 
-//    String address;
-//    String province;
     String city;
     String country;
     String avatar;
+
+    @JsonIgnore
     @Size(max = 100)
     String password;
 
@@ -59,15 +64,17 @@ public class User extends BaseEntity {
     @Temporal(TemporalType.DATE)
     Date joinSellingAt;
 
+    @JsonIgnore
     @Enumerated(EnumType.STRING)
     AuthTypeUser authType;
 
+    @JsonIgnore
     String resetPasswordToken;
 //    @Enumerated(EnumType.STRING)
 //    UserActivityType activityType;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
+//    @JsonIgnore
     @JoinTable(
             name = "user_activity_type",
             joinColumns = @JoinColumn(name = "userId"),
@@ -101,7 +108,7 @@ public class User extends BaseEntity {
 //    Buyer buyer;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonManagedReference
+    @JsonManagedReference
     @JsonIgnore
     Seller seller;
 

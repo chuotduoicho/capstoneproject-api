@@ -21,12 +21,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Boolean existsByEmail(@NotBlank String email);
     Optional<User> findById(UUID id);
-    //User findByUserId(UUID id);
-//    default User getUser(UserPrincipal currentUser) {
-//        return getUserByName(currentUser.getUsername());
-//    }
-//    default User getUserByName(String username) {
-//        return findByUsername(username)
-//                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
-//    }
+    User findUserByVerificationCode(String code);
 }
