@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.service;
 
+import com.jovinn.capstoneproject.dto.response.ServiceResponse;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.model.Category;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,7 @@ public interface BoxService {
     List<Box> getListServiceBySellerId(UUID sellerId);
 
     //View All Service
-    List<Box> getAllService();
+    List<ServiceResponse> getAllService();
 
     //Get Service By id
     Box getServiceByID(UUID id);

@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
+import com.jovinn.capstoneproject.dto.response.ServiceResponse;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.model.Category;
 import com.jovinn.capstoneproject.model.Package;
@@ -9,6 +10,8 @@ import com.jovinn.capstoneproject.service.CategoryService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,8 +59,9 @@ public class BoxController {
 
     //Api get all Service
     @GetMapping("/listAllService")
-    public List<Box> getAllService(){
-        return boxService.getAllService();
+    public ResponseEntity<List<ServiceResponse>> getAllService(){
+        List<ServiceResponse> serviceResponses = boxService.getAllService();
+        return new ResponseEntity<>(serviceResponses, HttpStatus.OK);
     }
 
     //Api view detail Service

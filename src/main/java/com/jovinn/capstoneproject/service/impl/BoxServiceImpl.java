@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.service.impl;
 
+import com.jovinn.capstoneproject.dto.response.ServiceResponse;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.model.Category;
 import com.jovinn.capstoneproject.repository.BoxRepository;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.awt.print.Pageable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -77,8 +79,39 @@ public class BoxServiceImpl implements BoxService {
     }
 
     @Override
-    public List<Box> getAllService() {
-        return boxRepository.findAll();
+    public List<ServiceResponse> getAllService() {
+        List<Box> boxes = boxRepository.findAll();
+        ServiceResponse response = new ServiceResponse();
+        List<ServiceResponse> responses = new ArrayList<>();
+        for (Box box : boxes){
+            response.setId(box.getId());
+            response.setTitle(box.getTitle());
+            response.setDescription(box.getDescription());
+            response.setImpression(box.getImpression());
+            response.setInteresting(box.getInteresting());
+            response.setStatus(box.getStatus());
+            response.setSellerId(box.getSeller().getId());
+            response.setDescriptionBio(box.getSeller().getDescriptionBio());
+            response.setSellerNumber(box.getSeller().getSellerNumber());
+            response.setRankSeller(box.getSeller().getRankSeller());
+            response.setTotalOrderFinish(box.getSeller().getTotalOrderFinish());
+            response.setVerifySeller(box.getSeller().getVerifySeller());
+            response.setUserId(box.getSeller().getUser().getId());
+            response.setFirstName(box.getSeller().getUser().getFirstName());
+            response.setLastName(box.getSeller().getUser().getLastName());
+            response.setUsername(box.getSeller().getUser().getUsername());
+            response.setEmail(box.getSeller().getUser().getEmail());
+            response.setPhoneNumber(box.getSeller().getUser().getPhoneNumber());
+            response.setGender(box.getSeller().getUser().getGender());
+            response.setBirthDate(box.getSeller().getUser().getBirthDate());
+            response.setAddress(box.getSeller().getUser().getAddress());
+            response.setProvince(box.getSeller().getUser().getProvince());
+            response.setCity(box.getSeller().getUser().getCity());
+            response.setCountry(box.getSeller().getUser().getCountry());
+            response.setAvatar(box.getSeller().getUser().getAvatar());
+            responses.add(response);
+        }
+        return responses;
     }
 
     @Override
