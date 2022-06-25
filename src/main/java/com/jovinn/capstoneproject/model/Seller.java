@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import lombok.AccessLevel;
@@ -36,9 +37,9 @@ public class Seller extends BaseEntity {
     Integer totalOrderFinish;
     Boolean verifySeller;
 
-    @JsonBackReference
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "userId")
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+//    @JsonBackReference
     User user;
 
 //    @JsonIgnore
@@ -70,4 +71,9 @@ public class Seller extends BaseEntity {
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     List<UrlProfile> urlProfiles;
+
+    @OneToMany(mappedBy = "subCategory")
+//    @JsonManagedReference
+    @JsonIgnore
+    List<Box> boxes;
 }

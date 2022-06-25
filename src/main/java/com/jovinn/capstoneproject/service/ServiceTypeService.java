@@ -6,6 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ServiceTypeService {
-    List<ServiceType> getAllServiceType();
-    List<ServiceType> getServiceTypeBySubCategory(UUID subCategoryId);
+//    List<ServiceType> getAllServiceType();
+//    List<ServiceType> getServiceTypeBySubCategory(UUID subCategoryId);
 }

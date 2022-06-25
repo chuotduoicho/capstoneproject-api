@@ -76,8 +76,8 @@ public class BoxController {
         return  boxService.getAllServiceByCatIdPagination(page,catId);
     }
 
-    @GetMapping("/searchAllServiceByCatNameByServiceTypename/{name}/{page}")
-    public Page<Box> searchAllServiceByCatNameByServiceTypename(@PathVariable String name, @PathVariable int page){
-        return boxService.searchServiceByCatNameByServiceTypeName(page,name,name);
+    @GetMapping("/searchAllServiceByCatNameBySubCateName/{name}/{page}")
+    public Page<Box> searchAllServiceByCatNameByServiceTypeName(@PathVariable String name, @PathVariable int page){
+        return boxService.searchServiceByCatNameBySubCateName(page,name,name);
     }
 }

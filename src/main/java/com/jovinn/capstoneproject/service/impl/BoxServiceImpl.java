@@ -45,11 +45,11 @@ public class BoxServiceImpl implements BoxService {
                 if (box.getInteresting() != null){
                     boxExist.setInteresting(box.getInteresting());
                 }
-                if (box.getSellerId() != null){
-                    boxExist.setSellerId(box.getSellerId());
+                if (box.getSeller() != null){
+                    boxExist.setSeller(box.getSeller());
                 }
-                if(box.getServiceType() != null){
-                    boxExist.setServiceType(box.getServiceType());
+                if(box.getSubCategory() != null){
+                    boxExist.setSubCategory(box.getSubCategory());
                 }
 
 
@@ -94,11 +94,11 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public Page<Box> getAllServiceByCatIdPagination(int page,UUID categoryId) {
-        return boxRepository.findAllByServiceType_SubCategory_Category_Id(categoryId,PageRequest.of(page,8));
+        return boxRepository.findAllBySubCategory_Category_Id(categoryId,PageRequest.of(page,8));
     }
 
     @Override
-    public Page<Box> searchServiceByCatNameByServiceTypeName(int offset, String catName, String serviceTypeName) {
-        return boxRepository.findAllByServiceType_NameContainsOrServiceType_SubCategory_Category_NameContains(serviceTypeName,catName,PageRequest.of(offset,8));
+    public Page<Box> searchServiceByCatNameBySubCateName(int offset, String catName, String subCatName) {
+        return boxRepository.findAllBySubCategory_NameContainsOrSubCategory_Category_NameContains(subCatName,catName,PageRequest.of(offset,8));
     }
 }

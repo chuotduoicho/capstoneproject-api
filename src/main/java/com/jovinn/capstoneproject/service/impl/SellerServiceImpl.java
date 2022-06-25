@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EnumType;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -106,5 +107,10 @@ public class SellerServiceImpl implements SellerService {
     @Override
     public Seller deleteSeller(UUID id) {
         return null;
+    }
+
+    @Override
+    public List<Seller> getListTopSellerByRank() {
+        return sellerRepository.findTop3ByRankSeller();
     }
 }

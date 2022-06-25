@@ -35,6 +35,6 @@ public interface BoxService {
     //Get Service By Category ID Pagination
     Page<Box> getAllServiceByCatIdPagination(int offset, UUID categoryId);
 
-    //Search Service by Category Name, Service Type Name
-    Page<Box> searchServiceByCatNameByServiceTypeName(int offset, String catName, String serviceTypeName);
+    //Search Service by Category Name, Sub Category Name
+    Page<Box> searchServiceByCatNameBySubCateName(int offset, String catName, String serviceTypeName);
 }

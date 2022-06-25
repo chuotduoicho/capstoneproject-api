@@ -1,10 +1,12 @@
 package com.jovinn.capstoneproject.service;
 
+import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
+import javax.persistence.EnumType;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,4 +21,7 @@ public interface SellerService {
     Seller getSellerByUserId(UUID userId);
     //Using for admin
     Seller deleteSeller(UUID id);
+
+    //View list seller buy rank
+    List<Seller> getListTopSellerByRank();
 }
