@@ -15,10 +15,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Data
@@ -47,8 +44,8 @@ public class User extends BaseEntity {
     @Temporal(TemporalType.DATE)
     Date birthDate;
 
-    String address;
-    String province;
+//    String address;
+//    String province;
     String city;
     String country;
     String avatar;
@@ -98,12 +95,16 @@ public class User extends BaseEntity {
     //    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
 //    @JsonManagedReference
 //    Buyer buyer;
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "buyerId")
-    Buyer buyer;
+
+//    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+//    @JoinColumn(name = "buyerId")
+//    Buyer buyer;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @JsonManagedReference
     @JsonIgnore
     Seller seller;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<PostRequest> postRequests;
 }

@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,4 +37,16 @@ public class Certificate extends BaseEntity {
     //@JsonManagedReference
     @JsonBackReference
     Seller seller;
+
+    public Certificate(String title, String name, String linkCer, Seller seller) {
+        this.title = title;
+        this.name = name;
+        this.linkCer = linkCer;
+        this.seller = seller;
+    }
+
+    @JsonIgnore
+    public Seller getSeller() {
+        return seller;
+    }
 }

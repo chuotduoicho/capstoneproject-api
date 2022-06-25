@@ -3,15 +3,14 @@ package com.jovinn.capstoneproject.controller;
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
-import com.jovinn.capstoneproject.model.ActivityType;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
-import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
@@ -25,9 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
@@ -35,7 +31,6 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -50,19 +45,25 @@ public class UserController {
     private UserService userService;
     @Autowired
     private SellerService sellerService;
-    @Autowired
-    private ActivityTypeService activityTypeService;
     private final JavaMailSender mailSender;
 
-    @GetMapping("/me")
-    public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
-        UserSummary userSummary = userService.getCurrentUser(currentUser);
+//    @GetMapping("/me")
+//    public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+//        UserSummary userSummary = userService.getCurrentUser(currentUser);
+//        if(userSummary == null) {
+//            throw new ApiException(HttpStatus.BAD_REQUEST, "User not found in database!!!");
+//        }
+//        return new ResponseEntity< >(userSummary, HttpStatus.OK);
+//    }
 
-        if(userSummary == null) {
+    @GetMapping("/me")
+    public ResponseEntity<User> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+        UUID id = currentUser.getId();
+        User user = userService.getByUserId(id);
+        if (user == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "User not found in database!!!");
         }
-
-        return new ResponseEntity< >(userSummary, HttpStatus.OK);
+        return new ResponseEntity< >(user, HttpStatus.OK);
     }
 
     @GetMapping("/profile/{id}")
@@ -70,37 +71,32 @@ public class UserController {
         return userService.getByUserId(id);
     }
 
-    @GetMapping("/profileByName/{username}")
+    @GetMapping("/{username}")
     public ResponseEntity<UserProfile> getUSerProfileByUserName(@PathVariable String username) {
         UserProfile userProfile = userService.getUserProfile(username);
-
         return new ResponseEntity< >(userProfile, HttpStatus.OK);
     }
 
-    @GetMapping("")
-    public List<User> getListUsers() {
-        return userService.getUsers();
+    @GetMapping("/list")
+    public ResponseEntity<List<User>> getListUsers() {
+        List<User> users = userService.getUsers();
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @PutMapping("/profile/{id}")
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User newUser,
-                                           @PathVariable("id") UUID id, @CurrentUser UserPrincipal currentUser) {
-        User updatedUSer = userService.update(newUser, id, currentUser);
-
-        return new ResponseEntity< >(updatedUSer, HttpStatus.CREATED);
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User editUser,
+                                           @PathVariable("id") UUID id,
+                                           @CurrentUser UserPrincipal currentUser) {
+        User updatedUser = userService.update(editUser, id, currentUser);
+        return new ResponseEntity< >(updatedUser, HttpStatus.CREATED);
     }
+
     @PostMapping("/{id}/join-selling")
-    public Seller joinSelling(@PathVariable UUID id, @RequestBody Seller seller) {
-        User user = userService.getByUserId(id);
-        seller.setUser(user);
-        seller.setRankSeller(RankSeller.BEGINNER);
-        seller.setSellerNumber(getRandomNumberString());
-        seller.setVerifySeller(Boolean.FALSE);
-        seller.setTotalOrderFinish(0);
-        user.setSeller(seller);
-        user.setActivityType(activityTypeService.getByActivityType(UserActivityType.SELLER));
-        user.setJoinSellingAt(new Date());
-        return sellerService.saveSeller(seller);
+    public ResponseEntity<ApiResponse> joinSelling(@PathVariable UUID id,
+                                                   @RequestBody Seller seller,
+                                                   @CurrentUser UserPrincipal currentUser) {
+        ApiResponse apiResponse = sellerService.becomeSeller(id, seller, currentUser);
+        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
     @PostMapping("/forgot_password")
@@ -118,6 +114,7 @@ public class UserController {
         }
         return token;
     }
+
     public void sendEmail(String recipientEmail, String link) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);

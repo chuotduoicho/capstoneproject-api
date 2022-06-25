@@ -1,7 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -21,24 +21,32 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class Buyer extends BaseEntity {
+public class PostRequest extends BaseEntity {
     @Id
-    @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
+    @GeneratedValue( strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-//    @Type(type = "uuid-char")
-//    UUID userId;
-    Integer successContract;
-    String buyerNumber;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    //@JsonManagedReference
+    @Type(type = "uuid-char")
+    UUID categoryId;
+    @Type(type = "uuid-char")
+    UUID subCategoryId;
+
+    String jobTitle;
+    String shortRequirement;
+    String attachFile;
+    Integer numberOfApplicants;
+
+    @Temporal(TemporalType.DATE)
+    Date termRecord;
+
+    String recruitLevel;
+    Integer expectDelivery;
+    Float budget;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", referencedColumnName = "id")
+    @JsonBackReference
     User user;
-//    @OneToOne(fetch = FetchType.LAZY,
-//            cascade = CascadeType.ALL)
-//    @JoinColumn(name = "UserId")
-//    User user;
 }
