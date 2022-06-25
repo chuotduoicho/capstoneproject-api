@@ -108,7 +108,7 @@ public class User extends BaseEntity {
 //    Buyer buyer;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    //@JsonManagedReference
     @JsonIgnore
     Seller seller;
 

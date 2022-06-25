@@ -32,7 +32,7 @@ public class SubCategory extends  BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "category_id",referencedColumnName = "id")
-    @JsonBackReference
+    //@JsonBackReference
     Category category;
 
     String name;

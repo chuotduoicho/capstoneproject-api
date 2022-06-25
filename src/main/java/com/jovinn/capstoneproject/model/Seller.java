@@ -39,7 +39,7 @@ public class Seller extends BaseEntity {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @JsonBackReference
+    //@JsonBackReference
     User user;
 
 //    @JsonIgnore
