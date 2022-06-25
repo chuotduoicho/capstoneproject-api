@@ -8,21 +8,23 @@ import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
-import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
-import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
+import com.jovinn.capstoneproject.util.EmailSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import javax.transaction.Transactional;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -32,10 +34,10 @@ import java.util.UUID;
 @Transactional
 @Slf4j
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ActivityTypeService activityTypeService;
+    private final EmailSender emailSender;
 
     @Override
     public UserSummary getCurrentUser(UserPrincipal currentUser) {
@@ -136,7 +138,7 @@ public class UserServiceImpl implements UserService {
         if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Email đã được đăng kí");
         }
-
+        String verificationCode = RandomString.make(15);
         User user = new User();
         user.setFirstName(signUpRequest.getFirstName());
         user.setLastName(signUpRequest.getLastName());
@@ -144,8 +146,26 @@ public class UserServiceImpl implements UserService {
         user.setEmail(signUpRequest.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setJoinedAt(new Date());
+        user.setVerificationCode(verificationCode);
+        user.setIsEnabled(Boolean.FALSE);
         user.setActivityType(activityTypeService.getByActivityType(UserActivityType.BUYER));
+        String link = "http://localhost:3000/auth/verifyAccount/" + verificationCode;
+        try {
+            emailSender.sendEmailVerify(signUpRequest.getEmail(), link);
+        } catch (UnsupportedEncodingException | MessagingException exception){
+            return null;
+        }
         userRepository.save(user);
-        return new ApiResponse(Boolean.TRUE, "Đăng ký tài khoản thành công");
+        return new ApiResponse(Boolean.TRUE, "Liên kết xác thực đã được gửi vào hòm thư của bạn, vui lòng xác nhận");
+    }
+
+    @Override
+    public User verifyRegistration(String verificationCode) throws ResourceNotFoundException {
+        User user = userRepository.findUserByVerificationCode(verificationCode);
+        if (user == null){
+            throw new ResourceNotFoundException("User", "Verification code", verificationCode);
+        }
+        user.setIsEnabled(Boolean.TRUE);
+        return userRepository.save(user);
     }
 }
