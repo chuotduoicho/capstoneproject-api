@@ -15,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/seller-details")
+@CrossOrigin(origins = "*")
 public class SellerDetailsInfoController {
     @Autowired
     private CertificateService certificateService;
