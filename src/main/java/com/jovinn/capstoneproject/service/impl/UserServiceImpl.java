@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfile getUserProfile(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Username not found", username));
 
         return new UserProfile(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(),
                 user.getEmail(), user.getPhoneNumber(), user.getGender(), user.getBirthDate(),

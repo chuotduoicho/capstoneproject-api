@@ -29,20 +29,19 @@ public class SubCategory extends  BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
+    String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id",referencedColumnName = "id")
     @JsonBackReference
     Category category;
-
-    String name;
 
 //    @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @JsonManagedReference
 //    @PrimaryKeyJoinColumn
 //    List<ServiceType> serviceTypes;
 
-    @OneToMany(mappedBy = "subCategory")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "subCategory")
 //    @JsonManagedReference
     @JsonIgnore
     List<Box> boxes;

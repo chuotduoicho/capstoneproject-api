@@ -1,14 +1,13 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.BadRequestException;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
-import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
-import com.jovinn.capstoneproject.repository.CertificateRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.repository.auth.ActivityTypeRepository;
@@ -18,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EnumType;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -61,25 +58,34 @@ public class SellerServiceImpl implements SellerService {
     public Seller becomeSeller(UUID id, Seller seller, UserPrincipal currentUser) {
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("", "", id));
+                        new ResourceNotFoundException("User", "Not found user ", id));
         if (Boolean.TRUE.equals(sellerRepository.existsByUserId(user.getId()))) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Bạn đã đăng ky là seller");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Bạn đã đăng ký là seller");
         }
-        seller.setUser(user);
-        seller.setRankSeller(RankSeller.BEGINNER);
-        seller.setSellerNumber(getRandomNumberString());
-        seller.setVerifySeller(Boolean.TRUE);
-        seller.setTotalOrderFinish(0);
-        user.setSeller(seller);
-        user.setActivityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER));
-        user.setJoinSellingAt(new Date());
-        return sellerRepository.save(seller);
-        //return new ApiResponse(Boolean.TRUE, user.getFirstName() + " Bạn đã trở thành người làm việc");
-    }
 
-    @Override
-    public Seller getSellerBySellerNumber(String sellerNumber) {
-        return sellerRepository.findBySellerNumber(sellerNumber);
+        String randomNumber;
+        do {
+            randomNumber = getRandomNumberString();
+        } while (Boolean.TRUE.equals(sellerRepository.existsBySellerNumber(randomNumber)));
+
+        try {
+            if (user.getIsEnabled().equals(Boolean.TRUE)) {
+                seller.setUser(user);
+                seller.setRankSeller(RankSeller.BEGINNER);
+                seller.setSellerNumber(randomNumber);
+                seller.setVerifySeller(Boolean.TRUE);
+                seller.setTotalOrderFinish(0);
+                user.setSeller(seller);
+                user.setActivityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER));
+                user.setJoinSellingAt(new Date());
+
+                return sellerRepository.save(seller);
+            } else {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Cần xác thực tài khoản trước khi trở thành người bán");
+            }
+        } catch (BadRequestException e) {
+            throw new JovinnException(HttpStatus.BAD_REQUEST, "Đã xảy ra lỗi");
+        }
     }
 
     @Override
