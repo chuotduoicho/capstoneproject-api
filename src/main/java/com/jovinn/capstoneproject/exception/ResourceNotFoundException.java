@@ -11,9 +11,9 @@ public class ResourceNotFoundException extends RuntimeException {
 
     private transient ApiResponse apiResponse;
 
-    private String resourceName;
-    private String fieldName;
-    private Object fieldValue;
+    private final String resourceName;
+    private final String fieldName;
+    private final Object fieldValue;
 
     public ResourceNotFoundException(String resourceName, String fieldName, Object fieldValue) {
         super();
