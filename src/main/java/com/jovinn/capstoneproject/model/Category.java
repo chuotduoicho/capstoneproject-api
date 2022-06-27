@@ -1,7 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +21,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
+//@JsonIdentityInfo(
+//        generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property = "id")
 public class Category extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
@@ -30,9 +32,9 @@ public class Category extends BaseEntity {
     UUID id;
     String name;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL,fetch =  FetchType.EAGER, orphanRemoval = true)
-    @PrimaryKeyJoinColumn
-    @JsonIgnore
-//    @JsonManagedReference
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    //@PrimaryKeyJoinColumn
+//    @JsonIgnore
+    @JsonManagedReference
     List<SubCategory> subCategories;
 }
