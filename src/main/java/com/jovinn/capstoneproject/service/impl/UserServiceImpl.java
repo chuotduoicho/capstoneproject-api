@@ -8,7 +8,9 @@ import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
+import com.jovinn.capstoneproject.model.Buyer;
 import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
@@ -28,6 +30,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import static com.jovinn.capstoneproject.util.GenerateRandomNumber.getRandomNumberString;
 
 @Service
 @RequiredArgsConstructor
@@ -149,6 +153,18 @@ public class UserServiceImpl implements UserService {
         user.setVerificationCode(verificationCode);
         user.setIsEnabled(Boolean.FALSE);
         user.setActivityType(activityTypeService.getByActivityType(UserActivityType.BUYER));
+
+        Buyer buyer = new Buyer();
+        user.setBuyer(buyer);
+        buyer.setUser(user);
+        buyer.setBuyerNumber(getRandomNumberString());
+
+        Wallet wallet = new Wallet();
+        wallet.setUser(user);
+        wallet.setWithdraw((float) 0);
+        wallet.setIncome((float) 0);
+        user.setWallet(wallet);
+
         String link = "http://localhost:3000/auth/verifyAccount/" + verificationCode;
         try {
             emailSender.sendEmailVerify(signUpRequest.getEmail(), link);

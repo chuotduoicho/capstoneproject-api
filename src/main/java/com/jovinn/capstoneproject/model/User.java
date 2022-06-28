@@ -83,12 +83,20 @@ public class User extends BaseEntity {
     Set<ActivityType> activityType = new HashSet<>();
 
     //    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
-//    @JsonManagedReference
-//    Buyer buyer;
+    //    @JsonManagedReference
+    //    Buyer buyer;
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "buyerId", referencedColumnName = "id")
+    Buyer buyer;
 
 //    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "buyerId")
-//    Buyer buyer;
+//    @JoinColumn(name = "walletId", referencedColumnName = "id")
+//    Wallet wallet;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @JsonIgnore
+    Wallet wallet;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

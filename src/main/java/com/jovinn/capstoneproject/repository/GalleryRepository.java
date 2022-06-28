@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 @Repository
-public interface GalleryRespository extends JpaRepository<Gallery, UUID> {
+public interface GalleryRepository extends JpaRepository<Gallery, UUID> {
 }

@@ -35,11 +35,19 @@ public class Orders extends BaseEntity {
     String requirement;
     Integer quantity;
     Integer totalDeliveryTime;
-    float totalPrice;
+    Float totalPrice;
     @Temporal(TemporalType.DATE)
     Date expectCompleteDate;
     @Enumerated(EnumType.STRING)
     DeliveryStatus deliveryStatus;
     @Enumerated(EnumType.STRING)
     OrderStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "buyerId", referencedColumnName = "id")
+    Buyer buyer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "selleId", referencedColumnName = "id")
+    Seller seller;
 }

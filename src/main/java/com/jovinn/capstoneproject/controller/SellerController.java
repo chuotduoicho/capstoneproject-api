@@ -1,22 +1,13 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.model.Seller;
-import com.jovinn.capstoneproject.model.Skill;
 import com.jovinn.capstoneproject.repository.SkillRepository;
-import com.jovinn.capstoneproject.security.CurrentUser;
-import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.SellerService;
-import com.jovinn.capstoneproject.service.UserService;
-import org.aspectj.internal.lang.reflect.StringToType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EnumType;
-import java.util.Collections;
-import java.util.Date;
-import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 

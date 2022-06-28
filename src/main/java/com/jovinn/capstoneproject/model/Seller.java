@@ -76,4 +76,7 @@ public class Seller extends BaseEntity {
     @JsonManagedReference
     //@JsonIgnore
     List<Box> boxes;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    List<Orders> orders;
 }
