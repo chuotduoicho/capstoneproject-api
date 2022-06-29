@@ -39,7 +39,7 @@ public class Seller extends BaseEntity {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @JsonBackReference
+//    @JsonBackReference
     User user;
 
 //    @JsonIgnore
@@ -73,7 +73,7 @@ public class Seller extends BaseEntity {
     List<UrlProfile> urlProfiles;
 
     @OneToMany(mappedBy = "seller", fetch = FetchType.EAGER)
-    @JsonManagedReference
-    //@JsonIgnore
+//    @JsonManagedReference
+    @JsonIgnore
     List<Box> boxes;
 }

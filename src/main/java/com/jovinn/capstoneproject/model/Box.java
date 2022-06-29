@@ -63,11 +63,11 @@ public class Box extends  BaseEntity {
 
     @ManyToOne(fetch =  FetchType.EAGER)
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
-    @JsonBackReference
+//    @JsonBackReference
     Seller seller;
 
     @ManyToOne(fetch =  FetchType.EAGER)
-    @JoinColumn(name = "sub_category_id", referencedColumnName = "id")
+    @JoinColumn(name = "sub_cat_service_id", referencedColumnName = "id")
 //    @JsonBackReference
     SubCategory subCategory;
 
