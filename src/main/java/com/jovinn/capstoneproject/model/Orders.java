@@ -43,11 +43,11 @@ public class Orders extends BaseEntity {
     @Enumerated(EnumType.STRING)
     OrderStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyerId", referencedColumnName = "id")
-    Buyer buyer;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "selleId", referencedColumnName = "id")
-    Seller seller;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "buyerId", referencedColumnName = "id")
+//    Buyer buyer;
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "selleId", referencedColumnName = "id")
+//    Seller seller;
 }

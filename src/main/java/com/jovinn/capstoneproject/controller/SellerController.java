@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/seller")
+@CrossOrigin(origins = "*")
 public class SellerController {
     @Autowired
     private SellerService sellerService;
@@ -33,6 +34,11 @@ public class SellerController {
     @GetMapping("/profile/{id}")
     public Seller getSellerProfile(@PathVariable UUID id) {
         return sellerService.getSellerById(id);
+    }
+
+    @GetMapping("/{brandName}")
+    public Seller getSellerByBrandName(@PathVariable String brandName) {
+        return sellerService.getSellerByBrandName(brandName);
     }
     // @PutMapping("/profile/{id}")
     // public ResponseEntity<Seller> updateInfo(@PathVariable("id") UUID id,

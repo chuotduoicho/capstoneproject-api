@@ -8,11 +8,11 @@ import javax.validation.constraints.Size;
 @Data
 public class SignUpRequest {
     @NotBlank
-    @Size(min = 4, max = 40)
+    @Size(min = 1, max = 40)
     private String firstName;
 
     @NotBlank
-    @Size(min = 4, max = 40)
+    @Size(min = 1, max = 40)
     private String lastName;
 
     @NotBlank
@@ -20,7 +20,7 @@ public class SignUpRequest {
     private String username;
 
     @NotBlank
-    @Size(max = 40)
+    @Size(max = 70)
     @Email
     private String email;
 

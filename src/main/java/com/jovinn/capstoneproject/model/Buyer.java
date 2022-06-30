@@ -1,11 +1,9 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
@@ -16,7 +14,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,11 +32,18 @@ public class Buyer extends BaseEntity {
     Integer successContract;
     String buyerNumber;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+//    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+//    User user;
+
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JsonBackReference
     User user;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    List<Orders> orders;
+    @OneToMany(mappedBy = "buyer", fetch = FetchType.LAZY)
+    //@JsonManagedReference
+    List<Contract> contracts;
 
 //    @OneToOne(fetch = FetchType.LAZY,
 //            cascade = CascadeType.ALL)

@@ -15,6 +15,7 @@ public interface SellerService {
     List<Seller> getSellers();
     List<Seller> getListInfoBySellerId(UUID sellerId);
     Seller getSellerById(UUID id);
+    Seller getSellerByBrandName(String brandName);
     Seller updateSeller(UUID id, Seller seller);
     Seller becomeSeller(UUID id, Seller seller, UserPrincipal currentUser);
     Seller getSellerByUserId(UUID userId);

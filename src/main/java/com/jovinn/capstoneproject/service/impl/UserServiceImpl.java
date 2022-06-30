@@ -119,10 +119,10 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Email", "Email not present ", email));
 
-        if(user != null){
+        if (user != null){
             user.setResetPasswordToken(token);
             userRepository.save(user);
-        }else{
+        } else {
             throw new ResourceNotFoundException("User", "email", email);
         }
     }
@@ -155,17 +155,17 @@ public class UserServiceImpl implements UserService {
         user.setActivityType(activityTypeService.getByActivityType(UserActivityType.BUYER));
 
         Buyer buyer = new Buyer();
-        user.setBuyer(buyer);
         buyer.setUser(user);
         buyer.setBuyerNumber(getRandomNumberString());
+        user.setBuyer(buyer);
 
-        Wallet wallet = new Wallet();
-        wallet.setUser(user);
-        wallet.setWithdraw((float) 0);
-        wallet.setIncome((float) 0);
-        user.setWallet(wallet);
+//        Wallet wallet = new Wallet();
+//        wallet.setUser(user);
+//        wallet.setWithdraw((double) 0);
+//        wallet.setIncome((double) 0);
+//        user.setWallet(wallet);
 
-        String link = "http://localhost:3000/auth/verifyAccount/" + verificationCode;
+        String link = "http://localhost:8080/api/auth/verifyAccount/" + verificationCode;
         try {
             emailSender.sendEmailVerify(signUpRequest.getEmail(), link);
         } catch (UnsupportedEncodingException | MessagingException exception){
@@ -182,6 +182,11 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("User", "Verification code", verificationCode);
         }
         user.setIsEnabled(Boolean.TRUE);
+        Wallet wallet = new Wallet();
+        wallet.setUser(user);
+        wallet.setWithdraw((double) 50);
+        wallet.setIncome((double) 0);
+        user.setWallet(wallet);
         return userRepository.save(user);
     }
 }

@@ -26,25 +26,25 @@ public class WalletController {
     @Autowired
     private WalletRepository walletRepository;
 
-    @PostMapping("/pay-jcoin/{id}")
-    public String buyJCoin(@PathVariable("id") UUID id,
-                           @ModelAttribute("wallet") WalletRequest request,
-                           UserPrincipal currentUser) {
-//        try {
-//            Payment payment = paymentService.createPayment(request.getWithdraw(), request.getCurrency(),
-//                    request.getMethod(), request.getIntent(), request.getDescription(),
-//                    "http://localhost:8080/", "http://localhost:8080/");
-//
-//            Wallet wallet = walletRepository.findWalletByUserId(currentUser.getId());
-//
-//            for(Links link:payment.getLinks()) {
-//                if(link.getRel().equals("approval_url")) {
-//                    return "redirect:" + link.getHref();
-//                }
-//            }
-//        } catch (PayPalRESTException e) {
-//            e.printStackTrace();
-//        }
-        return "redirect:/";
-    }
+//    @PostMapping("/pay-jcoin/{id}")
+//    public String buyJCoin(@PathVariable("id") UUID id,
+//                           @ModelAttribute("wallet") WalletRequest request,
+//                           UserPrincipal currentUser) {
+////        try {
+////            Payment payment = paymentService.createPayment(request.getWithdraw(), request.getCurrency(),
+////                    request.getMethod(), request.getIntent(), request.getDescription(),
+////                    "http://localhost:8080/", "http://localhost:8080/");
+////
+////            Wallet wallet = walletRepository.findWalletByUserId(currentUser.getId());
+////
+////            for(Links link:payment.getLinks()) {
+////                if(link.getRel().equals("approval_url")) {
+////                    return "redirect:" + link.getHref();
+////                }
+////            }
+////        } catch (PayPalRESTException e) {
+////            e.printStackTrace();
+////        }
+//        return null;
+//    }
 }

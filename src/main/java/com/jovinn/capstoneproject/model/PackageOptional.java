@@ -1,9 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
@@ -13,7 +11,8 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,8 +24,11 @@ public class PackageOptional extends  BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-    UUID packageId;
     String title;
-    float optionPrice;
+    Double optionPrice;
     Integer extraTime;
+
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "package_id", referencedColumnName = "id")
+//    Package pack;
 }

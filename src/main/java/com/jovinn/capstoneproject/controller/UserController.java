@@ -89,22 +89,6 @@ public class UserController {
         return new ResponseEntity<>(sellerInfo, HttpStatus.CREATED);
     }
 
-    @PostMapping("/forgot_password")
-    public String processForgotPassword(HttpServletRequest request) {
-        String email = request.getParameter("email");
-        String token = RandomString.make(10);
-        try {
-            userService.updateResetPasswordToken(token, email);
-            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
-            emailSender.sendEmailResetPassword(email, resetPasswordLink);
-        } catch (ResourceNotFoundException ex) {
-            return "User not found with email: " + email;
-        } catch (UnsupportedEncodingException | MessagingException e) {
-            return "Error while sending email";
-        }
-        return token;
-    }
-
     @PostMapping("/reset_password")
     public String processResetPassword(@RequestBody ResetPasswordRequest request) {
         String token = request.getToken();

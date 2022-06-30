@@ -55,6 +55,11 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
+    public Seller getSellerByBrandName(String brandName) {
+        return sellerRepository.findSellerByBrandName(brandName);
+    }
+
+    @Override
     public Seller becomeSeller(UUID id, Seller seller, UserPrincipal currentUser) {
         User user = userRepository.findById(id)
                 .orElseThrow(() ->

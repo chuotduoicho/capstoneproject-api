@@ -46,6 +46,6 @@ public class WalletServiceImpl implements WalletService {
         } catch (PayPalRESTException e) {
             e.printStackTrace();
         }
-        return walletRepository.save(wallet);
+        return null;
     }
 }
