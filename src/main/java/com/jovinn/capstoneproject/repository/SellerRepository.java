@@ -1,17 +1,15 @@
 package com.jovinn.capstoneproject.repository;
 
-import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.model.Seller;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import javax.persistence.EnumType;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface SellerRepository extends JpaRepository<Seller, UUID> {
-    Seller findBySellerNumber(String sellerNumber);
+    Boolean existsBySellerNumber(String sellerNumber);
     Optional<Seller> findSellerByUserId(UUID userId);
     Boolean existsByUserId(UUID userId);
     List<Seller> findAllById(UUID sellerId);

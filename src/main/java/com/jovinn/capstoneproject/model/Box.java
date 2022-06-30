@@ -65,6 +65,7 @@ public class Box extends  BaseEntity {
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
 //    @JsonBackReference
     Seller seller;
+
     @ManyToOne(fetch =  FetchType.EAGER)
     @JoinColumn(name = "sub_cat_service_id", referencedColumnName = "id")
 //    @JsonBackReference
@@ -88,5 +89,4 @@ public class Box extends  BaseEntity {
     @OneToOne(mappedBy = "box", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     Gallery gallery;
-
 }

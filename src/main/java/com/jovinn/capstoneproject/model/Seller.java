@@ -72,7 +72,7 @@ public class Seller extends BaseEntity {
     @JsonManagedReference
     List<UrlProfile> urlProfiles;
 
-    @OneToMany(mappedBy = "subCategory")
+    @OneToMany(mappedBy = "seller", fetch = FetchType.EAGER)
 //    @JsonManagedReference
     @JsonIgnore
     List<Box> boxes;

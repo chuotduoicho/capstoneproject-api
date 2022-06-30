@@ -35,7 +35,7 @@ public class User extends BaseEntity {
     String username;
     @Column(unique = true, length = 55, nullable = false)
     String email;
-    @Column(length = 15)
+    @Column(unique = true, length = 15)
     String phoneNumber;
 
     @JsonIgnore
@@ -81,23 +81,6 @@ public class User extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "activityTypeId")
     )
     Set<ActivityType> activityType = new HashSet<>();
-//
-//    public void addActivityType(ActivityType activityType) {
-//        activityTypes.add(activityType);
-//        activityType.getUsers().add(this);
-//    }
-//
-//    public void removeActivityType(ActivityType activityType) {
-//        activityTypes.remove(activityType);
-//        activityType.getUsers().remove(this);
-//    }
-//    public Set<ActivityType> getActivityTypes() {
-//        return activityTypes;
-//    }
-
-//    public void setActivityTypes(Set<ActivityType> activityTypes) {
-//        this.activityTypes = activityTypes;
-//    }
 
     //    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
 //    @JsonManagedReference

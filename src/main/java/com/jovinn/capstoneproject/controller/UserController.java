@@ -31,6 +31,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
+@CrossOrigin(origins = "*")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -81,12 +82,12 @@ public class UserController {
         return new ResponseEntity< >(updatedUser, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{id}/join-selling")
-    public ResponseEntity<ApiResponse> joinSelling(@PathVariable UUID id,
+    @PostMapping("/join-selling/{id}")
+    public ResponseEntity<Seller> joinSelling(@PathVariable UUID id,
                                                    @RequestBody Seller seller,
                                                    @CurrentUser UserPrincipal currentUser) {
-        ApiResponse apiResponse = sellerService.becomeSeller(id, seller, currentUser);
-        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
+        Seller sellerInfo = sellerService.becomeSeller(id, seller, currentUser);
+        return new ResponseEntity<>(sellerInfo, HttpStatus.CREATED);
     }
 
     @PostMapping("/forgot_password")
