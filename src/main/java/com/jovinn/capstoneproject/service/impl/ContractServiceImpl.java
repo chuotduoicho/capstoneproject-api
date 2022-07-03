@@ -232,7 +232,7 @@ public class ContractServiceImpl implements ContractService {
         Contract contract = contractRepository.findById(id)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found"));
         Wallet walletBuyer = walletRepository.findWalletByUserId(contract.getBuyer().getUser().getId());
-        Wallet walletSeller = walletRepository.findWalletByUserId(contract.getBuyer().getUser().getId());
+        Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
 
         double buyerReceiveAfterCancel = contract.getTotalPrice() - contract.getServiceDeposit();
         double sellerReceiveAfterCancel = contract.getServiceDeposit() + contract.getServiceDeposit() * 90/100;
@@ -241,6 +241,9 @@ public class ContractServiceImpl implements ContractService {
             if (contract.getDeliveryStatus().equals(DeliveryStatus.PROCESSING)) {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw() + buyerReceiveAfterCancel);
                 walletSeller.setWithdraw(walletSeller.getWithdraw() + sellerReceiveAfterCancel);
+            } else if (contract.getDeliveryStatus().equals(DeliveryStatus.REJECT)
+                    || contract.getStatus().equals(OrderStatus.CANCEL)) {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể từ chối do hợp đồng đã kết thúc");
             } else {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw() + contract.getTotalPrice());
             }
