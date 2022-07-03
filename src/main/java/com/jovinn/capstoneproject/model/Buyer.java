@@ -27,16 +27,10 @@ public class Buyer extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-    //    @Type(type = "uuid-char")
-//    UUID userId;
     Integer successContract;
     String buyerNumber;
 
-//    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    User user;
-
-
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @JsonBackReference
     User user;
@@ -44,9 +38,4 @@ public class Buyer extends BaseEntity {
     @OneToMany(mappedBy = "buyer", fetch = FetchType.LAZY)
     //@JsonManagedReference
     List<Contract> contracts;
-
-//    @OneToOne(fetch = FetchType.LAZY,
-//            cascade = CascadeType.ALL)
-//    @JoinColumn(name = "UserId")
-//    User user;
 }

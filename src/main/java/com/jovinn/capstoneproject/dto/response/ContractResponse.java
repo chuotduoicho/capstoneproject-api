@@ -23,8 +23,7 @@ public class ContractResponse {
     String contractNumber;
     String requirement;
     Integer quantity;
-    Double serviceFee;
-    Double subTotal;
+    Integer contractCancelFee;
     Double serviceDeposit;
     Double totalPrice;
     Integer totalDeliveryTime;
@@ -36,8 +35,8 @@ public class ContractResponse {
     UUID sellerId;
 
     public ContractResponse(UUID id, UUID packageId, String contractNumber,
-                            String requirement, Integer quantity, Double serviceFee,
-                            Double subTotal, Double serviceDeposit, Double totalPrice,
+                            String requirement, Integer quantity, Integer contractCancelFee,
+                            Double serviceDeposit, Double totalPrice,
                             Integer totalDeliveryTime, Date expectCompleteDate,
                             DeliveryStatus deliveryStatus, OrderStatus status,
                             UUID buyerId, UUID sellerId) {
@@ -46,8 +45,7 @@ public class ContractResponse {
         this.contractNumber = contractNumber;
         this.requirement = requirement;
         this.quantity = quantity;
-        this.serviceFee = serviceFee;
-        this.subTotal = subTotal;
+        this.contractCancelFee = contractCancelFee;
         this.serviceDeposit = serviceDeposit;
         this.totalPrice = totalPrice;
         this.totalDeliveryTime = totalDeliveryTime;

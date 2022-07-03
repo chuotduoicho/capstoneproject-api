@@ -1,7 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jovinn.capstoneproject.enumerable.ContractType;
 import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
 import com.jovinn.capstoneproject.enumerable.OrderStatus;
@@ -13,6 +13,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -34,8 +35,7 @@ public class Contract extends BaseEntity {
     String contractCode;
     String requirement;
     Integer quantity;
-    Double serviceFee;
-    Double subTotal;
+    Integer contractCancelFee;
     Double serviceDeposit;
     Double totalPrice;
     Integer totalDeliveryTime;
@@ -50,25 +50,32 @@ public class Contract extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id", referencedColumnName = "id")
-    //@JsonBackReference
     Buyer buyer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
-    //@JsonBackReference
     Seller seller;
 
+    @OneToMany(fetch = FetchType.EAGER)
+    List<ExtraOffer> extraOffers;
+
+//    @OneToOne(fetch = FetchType.EAGER, mappedBy = "contract")
+//    @JsonManagedReference
+//    Delivery delivery;
+//
+//    @OneToMany(mappedBy = "contract", fetch = FetchType.EAGER)
+//    List<MilestoneContract> milestoneContracts;
+
     public Contract(UUID packageId, String contractCode, String requirement,
-                    Integer quantity, Double serviceFee, Double subTotal,
-                    Double serviceDeposit, Double totalPrice, Integer totalDeliveryTime,
+                    Integer quantity, Integer contractCancelFee, Double serviceDeposit,
+                    Double totalPrice, Integer totalDeliveryTime,
                     Date expectCompleteDate, DeliveryStatus deliveryStatus,
                     OrderStatus status, ContractType type, Buyer buyer, Seller seller) {
         this.packageId = packageId;
         this.contractCode = contractCode;
         this.requirement = requirement;
         this.quantity = quantity;
-        this.serviceFee = serviceFee;
-        this.subTotal = subTotal;
+        this.contractCancelFee = contractCancelFee;
         this.serviceDeposit = serviceDeposit;
         this.totalPrice = totalPrice;
         this.totalDeliveryTime = totalDeliveryTime;

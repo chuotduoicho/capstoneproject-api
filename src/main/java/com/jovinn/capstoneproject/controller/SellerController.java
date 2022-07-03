@@ -2,6 +2,8 @@ package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.repository.SkillRepository;
+import com.jovinn.capstoneproject.security.CurrentUser;
+import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,13 +42,12 @@ public class SellerController {
     public Seller getSellerByBrandName(@PathVariable String brandName) {
         return sellerService.getSellerByBrandName(brandName);
     }
-    // @PutMapping("/profile/{id}")
-    // public ResponseEntity<Seller> updateInfo(@PathVariable("id") UUID id,
-    //                                          @RequestBody Seller seller,
-    //                                          @CurrentUser UserPrincipal currentUser) {
-    //     Seller updateSeller = sellerService.updateSeller(id, seller, currentUser);
-    //     return new ResponseEntity< >(updateSeller, HttpStatus.CREATED);
-    // }
+     @PutMapping("/profile")
+     public ResponseEntity<Seller> updateInfo(@RequestBody Seller seller,
+                                              @CurrentUser UserPrincipal currentUser) {
+         Seller updateSeller = sellerService.updateSeller(seller, currentUser);
+         return new ResponseEntity< >(updateSeller, HttpStatus.CREATED);
+     }
     @GetMapping("/getTop3SellerByRank")
     public List<Seller> getTop3SellerByRank(){
         return sellerService.getListTopSellerByRank();

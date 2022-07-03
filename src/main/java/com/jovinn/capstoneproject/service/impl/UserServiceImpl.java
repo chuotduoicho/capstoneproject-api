@@ -12,6 +12,7 @@ import com.jovinn.capstoneproject.model.Buyer;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.repository.UserRepository;
+import com.jovinn.capstoneproject.repository.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
@@ -41,6 +42,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ActivityTypeService activityTypeService;
+    private final WalletRepository walletRepository;
     private final EmailSender emailSender;
 
     @Override
@@ -176,10 +178,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User verifyRegistration(String verificationCode) throws ResourceNotFoundException {
+    public User verifyRegistration(String verificationCode) throws ApiException {
         User user = userRepository.findUserByVerificationCode(verificationCode);
         if (user == null){
-            throw new ResourceNotFoundException("User", "Verification code", verificationCode);
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Verification code not found");
         }
         user.setIsEnabled(Boolean.TRUE);
         Wallet wallet = new Wallet();
@@ -187,6 +189,7 @@ public class UserServiceImpl implements UserService {
         wallet.setWithdraw((double) 50);
         wallet.setIncome((double) 0);
         user.setWallet(wallet);
+        walletRepository.save(wallet);
         return userRepository.save(user);
     }
 }

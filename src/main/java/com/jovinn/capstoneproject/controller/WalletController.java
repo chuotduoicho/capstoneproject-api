@@ -4,13 +4,15 @@ import com.jovinn.capstoneproject.dto.request.WalletRequest;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.repository.WalletRepository;
+import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.UserService;
+import com.jovinn.capstoneproject.service.WalletService;
 import com.jovinn.capstoneproject.service.payment.PaymentService;
-import com.paypal.api.payments.Links;
-import com.paypal.api.payments.Payment;
-import com.paypal.base.rest.PayPalRESTException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -25,6 +27,8 @@ public class WalletController {
     private UserService userService;
     @Autowired
     private WalletRepository walletRepository;
+    @Autowired
+    private WalletService walletService;
 
 //    @PostMapping("/pay-jcoin/{id}")
 //    public String buyJCoin(@PathVariable("id") UUID id,
@@ -47,4 +51,9 @@ public class WalletController {
 ////        }
 //        return null;
 //    }
+    @GetMapping("/wallet")
+    public ResponseEntity<Wallet> getWallet(@CurrentUser UserPrincipal currentUser) {
+        Wallet response = walletService.getWallet(currentUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

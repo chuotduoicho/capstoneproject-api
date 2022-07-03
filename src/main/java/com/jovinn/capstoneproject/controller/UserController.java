@@ -81,11 +81,10 @@ public class UserController {
         return new ResponseEntity< >(updatedUser, HttpStatus.CREATED);
     }
 
-    @PostMapping("/join-selling/{id}")
-    public ResponseEntity<Seller> joinSelling(@PathVariable UUID id,
-                                                   @RequestBody Seller seller,
+    @PostMapping("/join-selling")
+    public ResponseEntity<Seller> joinSelling(@RequestBody Seller seller,
                                                    @CurrentUser UserPrincipal currentUser) {
-        Seller sellerInfo = sellerService.becomeSeller(id, seller, currentUser);
+        Seller sellerInfo = sellerService.becomeSeller(seller, currentUser);
         return new ResponseEntity<>(sellerInfo, HttpStatus.CREATED);
     }
 

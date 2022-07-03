@@ -1,8 +1,10 @@
 package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.request.WalletRequest;
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.WalletResponse;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
+import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.repository.UserRepository;
@@ -47,5 +49,15 @@ public class WalletServiceImpl implements WalletService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public Wallet getWallet(UserPrincipal currentUser) {
+        if (currentUser.getId() != null) {
+            return walletRepository.findWalletByUserId(currentUser.getId());
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
     }
 }

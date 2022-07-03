@@ -1,42 +1,42 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.jovinn.capstoneproject.enumerable.MilestoneStatus;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class Wallet extends BaseEntity {
+public class MilestoneContract extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-
-    Double income;
-    Double withdraw;
-
-    String currency;
-    String method;
-    String intent;
     String description;
+    @Temporal(TemporalType.DATE)
+    Date startDate;
+    @Temporal(TemporalType.DATE)
+    Date endDate;
+    @Enumerated(EnumType.STRING)
+    MilestoneStatus status;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    User user;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "contractId", referencedColumnName = "id")
+//    Contract contract;
+//
+//    @OneToOne(fetch = FetchType.EAGER)
+//    Delivery delivery;
 }
-

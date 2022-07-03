@@ -20,23 +20,17 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class Wallet extends BaseEntity {
+public class Delivery extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-
-    Double income;
-    Double withdraw;
-
-    String currency;
-    String method;
-    String intent;
+    String file;
     String description;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    User user;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contractId", referencedColumnName = "id")
+    @JsonBackReference
+    Contract contract;
 }
-
