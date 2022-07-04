@@ -1,14 +1,23 @@
 package com.jovinn.capstoneproject.service.impl;
 
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.model.Category;
+import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.repository.BoxRepository;
 import com.jovinn.capstoneproject.repository.CategoryRepository;
+import com.jovinn.capstoneproject.repository.SellerRepository;
+import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.awt.print.Pageable;
@@ -21,14 +30,21 @@ public class BoxServiceImpl implements BoxService {
 
     @Autowired
     private BoxRepository boxRepository;
+    @Autowired
+    private SellerRepository sellerRepository;
 
     @Override
-    public Box saveBox(Box box) {
-       // box.setCategory(category);
-        if (box != null){
-            return boxRepository.save(box);
-        }
-        return null;
+    public Box saveBox(Box box, UserPrincipal currentUser) {
+        Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản user"));
+
+       if (seller.getUser().getId().equals(currentUser.getId())) {
+           box.setSeller(seller);
+           return boxRepository.save(box);
+       }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
     }
 
     @Override

@@ -54,7 +54,7 @@ public class CertificateServiceImpl implements CertificateService {
            certificate.setUpdatedAt(new Date());
            certificate.setSeller(seller);
            Certificate update = certificateRepository.save(certificate);
-            return new CertificateResponse(update.getId(), update.getTitle(),
+           return new CertificateResponse(update.getId(), update.getTitle(),
                     update.getName(), update.getLinkCer(), update.getSeller().getId());
         }
 

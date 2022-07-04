@@ -1,11 +1,9 @@
 package com.jovinn.capstoneproject.service.impl;
 
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
-import com.jovinn.capstoneproject.exception.ApiException;
-import com.jovinn.capstoneproject.exception.BadRequestException;
-import com.jovinn.capstoneproject.exception.JovinnException;
-import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
+import com.jovinn.capstoneproject.exception.*;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.SellerRepository;
@@ -55,12 +53,18 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public Seller becomeSeller(UUID id, Seller seller, UserPrincipal currentUser) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User", "Not found user ", id));
+    public Seller getSellerByBrandName(String brandName) {
+        return sellerRepository.findSellerByBrandName(brandName);
+    }
+
+    @Override
+    public Seller becomeSeller(Seller seller, UserPrincipal currentUser) {
+        User user = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản của bạn: " + currentUser.getId()));
         if (Boolean.TRUE.equals(sellerRepository.existsByUserId(user.getId()))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Bạn đã đăng ký là seller");
+        } else if (user.getPhoneNumber().isBlank() || user.getCity().isBlank() || user.getCountry().isBlank()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Bạn cần hoàn tất thông tin cơ bản trước");
         }
 
         String randomNumber;
@@ -89,25 +93,23 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public Seller updateSeller(UUID id, Seller editSeller) {
-        Seller existSeller = sellerRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Seller", "Seller Not found by ", id));
-//        User user = currentUser.getId();
-//        if(existSeller.getId().equals(currentUser.getId())) {
-//        }
-        existSeller.setDescriptionBio(editSeller.getDescriptionBio());
+    public Seller updateSeller(Seller editSeller, UserPrincipal currentUser) {
+        Seller existSeller = sellerRepository.findSellerByUserId(currentUser.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy tài khoản người bán"));
 
-        return sellerRepository.save(existSeller);
-//        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to update profile of: ");
-//        throw new UnauthorizedException(apiResponse);
+        if (existSeller.getUser().getId().equals(currentUser.getId())) {
+            existSeller.setDescriptionBio(editSeller.getDescriptionBio());
+            existSeller.setBrandName(editSeller.getBrandName());
+            return sellerRepository.save(existSeller);
+        }
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to update");
+        throw new UnauthorizedException(apiResponse);
     }
 
     @Override
     public Seller getSellerByUserId(UUID userId) {
         return sellerRepository.findSellerByUserId(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Seller", "UserId can't duplicate", userId));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Not found"));
     }
 
     @Override

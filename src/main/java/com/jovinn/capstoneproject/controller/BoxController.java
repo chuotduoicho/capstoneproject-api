@@ -4,11 +4,15 @@ import com.fasterxml.jackson.annotation.JsonMerge;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.model.Category;
 import com.jovinn.capstoneproject.model.Package;
+import com.jovinn.capstoneproject.security.CurrentUser;
+import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
 import com.jovinn.capstoneproject.service.CategoryService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,20 +25,11 @@ public class BoxController {
     @Autowired
     private BoxService boxService;
 
-    @Autowired
-    private CategoryService categoryService;
-
     //API add Service
     @PostMapping("/addService")
-    public Box addService(@RequestBody Box box){
-//        Category category = categoryService.deleteServiceCategoryById()
-//        Box temp = new Box();
-//        temp.setId(box.getId());
-//        for(Package pack : box.getPackages()){
-//            pack.setBox(temp);
-//        }
-//        box.setCategory(categoryService.getServiceCategoryById(category.getId()));
-        return boxService.saveBox(box);
+    public ResponseEntity<Box> addService(@RequestBody Box box, @CurrentUser UserPrincipal currentUser){
+        Box response = boxService.saveBox(box, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     //API update Service

@@ -1,7 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,7 +30,7 @@ public class Package extends  BaseEntity {
     String title;
     String shortDescription;
     Integer deliveryTime;
-    Float price;
+    Double price;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "box_service_id",referencedColumnName = "id")
@@ -39,4 +38,6 @@ public class Package extends  BaseEntity {
     @JsonBackReference
     Box box;
 
+//    @OneToMany(mappedBy = "pack", fetch = FetchType.EAGER)
+//    List<PackageOptional> packageOptionals;
 }

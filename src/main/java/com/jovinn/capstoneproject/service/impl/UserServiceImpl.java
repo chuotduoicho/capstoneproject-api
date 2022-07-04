@@ -8,8 +8,11 @@ import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
+import com.jovinn.capstoneproject.model.Buyer;
 import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.repository.UserRepository;
+import com.jovinn.capstoneproject.repository.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
@@ -29,6 +32,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static com.jovinn.capstoneproject.util.GenerateRandomNumber.getRandomNumberString;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -37,6 +42,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ActivityTypeService activityTypeService;
+    private final WalletRepository walletRepository;
     private final EmailSender emailSender;
 
     @Override
@@ -115,10 +121,10 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Email", "Email not present ", email));
 
-        if(user != null){
+        if (user != null){
             user.setResetPasswordToken(token);
             userRepository.save(user);
-        }else{
+        } else {
             throw new ResourceNotFoundException("User", "email", email);
         }
     }
@@ -149,7 +155,19 @@ public class UserServiceImpl implements UserService {
         user.setVerificationCode(verificationCode);
         user.setIsEnabled(Boolean.FALSE);
         user.setActivityType(activityTypeService.getByActivityType(UserActivityType.BUYER));
-        String link = "http://localhost:3000/auth/verifyAccount/" + verificationCode;
+
+        Buyer buyer = new Buyer();
+        buyer.setUser(user);
+        buyer.setBuyerNumber(getRandomNumberString());
+        user.setBuyer(buyer);
+
+//        Wallet wallet = new Wallet();
+//        wallet.setUser(user);
+//        wallet.setWithdraw((double) 0);
+//        wallet.setIncome((double) 0);
+//        user.setWallet(wallet);
+
+        String link = "http://localhost:8080/api/auth/verifyAccount/" + verificationCode;
         try {
             emailSender.sendEmailVerify(signUpRequest.getEmail(), link);
         } catch (UnsupportedEncodingException | MessagingException exception){
@@ -160,12 +178,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User verifyRegistration(String verificationCode) throws ResourceNotFoundException {
+    public User verifyRegistration(String verificationCode) throws ApiException {
         User user = userRepository.findUserByVerificationCode(verificationCode);
         if (user == null){
-            throw new ResourceNotFoundException("User", "Verification code", verificationCode);
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Verification code not found");
         }
         user.setIsEnabled(Boolean.TRUE);
+        Wallet wallet = new Wallet();
+        wallet.setUser(user);
+        wallet.setWithdraw((double) 50);
+        wallet.setIncome((double) 0);
+        user.setWallet(wallet);
+        walletRepository.save(wallet);
         return userRepository.save(user);
     }
 }

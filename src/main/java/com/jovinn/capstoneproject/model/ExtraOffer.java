@@ -27,6 +27,10 @@ public class ExtraOffer extends BaseEntity {
     UUID id;
     String title;
     String shortDescription;
-    float extraPrice;
+    Double extraPrice;
     Integer additionTime;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "contractId", referencedColumnName = "id")
+    Contract contract;
 }

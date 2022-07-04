@@ -82,28 +82,11 @@ public class UserController {
         return new ResponseEntity< >(updatedUser, HttpStatus.CREATED);
     }
 
-    @PostMapping("/join-selling/{id}")
-    public ResponseEntity<Seller> joinSelling(@PathVariable UUID id,
-                                                   @RequestBody Seller seller,
+    @PostMapping("/join-selling")
+    public ResponseEntity<Seller> joinSelling(@RequestBody Seller seller,
                                                    @CurrentUser UserPrincipal currentUser) {
-        Seller sellerInfo = sellerService.becomeSeller(id, seller, currentUser);
+        Seller sellerInfo = sellerService.becomeSeller(seller, currentUser);
         return new ResponseEntity<>(sellerInfo, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/forgot_password")
-    public String processForgotPassword(HttpServletRequest request) {
-        String email = request.getParameter("email");
-        String token = RandomString.make(10);
-        try {
-            userService.updateResetPasswordToken(token, email);
-            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
-            emailSender.sendEmailResetPassword(email, resetPasswordLink);
-        } catch (ResourceNotFoundException ex) {
-            return "User not found with email: " + email;
-        } catch (UnsupportedEncodingException | MessagingException e) {
-            return "Error while sending email";
-        }
-        return token;
     }
 
     @PostMapping("/reset_password")
