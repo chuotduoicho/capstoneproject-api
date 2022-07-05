@@ -11,6 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -27,8 +28,8 @@ public class Wallet extends BaseEntity {
     @Type(type = "uuid-char")
     UUID id;
 
-    Double income;
-    Double withdraw;
+    BigDecimal income;
+    BigDecimal withdraw;
 
     String currency;
     String method;

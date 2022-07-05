@@ -2,6 +2,7 @@ package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
+import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.model.User;
@@ -33,4 +34,5 @@ public interface UserService {
 
     ApiResponse registerUser(SignUpRequest signUpRequest);
     User verifyRegistration(String verificationCode);
+    ApiResponse changePassword(ChangePasswordRequest request, UserPrincipal currentUser);
 }

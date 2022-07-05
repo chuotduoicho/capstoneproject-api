@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.*;
-import java.util.Date;
 import java.util.UUID;
 
 @Data

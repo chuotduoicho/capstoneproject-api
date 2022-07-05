@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,8 +30,18 @@ public class Delivery extends BaseEntity {
     String file;
     String description;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "contractId", referencedColumnName = "id")
     @JsonBackReference
     Contract contract;
+
+    public Delivery(String file, String description, Contract contract) {
+        this.file = file;
+        this.description = description;
+        this.contract = contract;
+    }
+    @JsonIgnore
+    public Contract getContract() {
+        return contract;
+    }
 }

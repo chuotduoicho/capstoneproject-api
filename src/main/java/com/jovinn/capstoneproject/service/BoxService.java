@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.service;
 
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import org.springframework.data.domain.Page;
@@ -9,8 +10,7 @@ import java.util.UUID;
 
 public interface BoxService {
     //Add Service
-    Box saveBox(Box box, UserPrincipal currentUser);
-
+    ApiResponse saveBox(Box box, UserPrincipal currentUser);
     //Update Service
     Box updateBox(Box box, UUID id);
 

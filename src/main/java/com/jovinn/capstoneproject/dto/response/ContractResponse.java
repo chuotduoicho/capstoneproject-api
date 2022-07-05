@@ -5,13 +5,8 @@ import com.jovinn.capstoneproject.enumerable.OrderStatus;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.Type;
-
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 
@@ -24,8 +19,8 @@ public class ContractResponse {
     String requirement;
     Integer quantity;
     Integer contractCancelFee;
-    Double serviceDeposit;
-    Double totalPrice;
+    BigDecimal serviceDeposit;
+    BigDecimal totalPrice;
     Integer totalDeliveryTime;
     Date expectCompleteDate;
     DeliveryStatus deliveryStatus;
@@ -36,7 +31,7 @@ public class ContractResponse {
 
     public ContractResponse(UUID id, UUID packageId, String contractNumber,
                             String requirement, Integer quantity, Integer contractCancelFee,
-                            Double serviceDeposit, Double totalPrice,
+                            BigDecimal serviceDeposit, BigDecimal totalPrice,
                             Integer totalDeliveryTime, Date expectCompleteDate,
                             DeliveryStatus deliveryStatus, OrderStatus status,
                             UUID buyerId, UUID sellerId) {

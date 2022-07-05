@@ -74,7 +74,7 @@ public class AuthController {
         return ResponseEntity.created(location).body(new ApiResponse(Boolean.TRUE, "Đăng ký tài khoản thành công"));
     }
 
-    @PostMapping("/forgot_password")
+    @PostMapping("/forgot-password")
     public String processForgotPassword(HttpServletRequest request) {
         String email = request.getParameter("email");
         String token = RandomString.make(10);

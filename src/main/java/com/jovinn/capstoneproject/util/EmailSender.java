@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Component
@@ -33,7 +34,7 @@ public class EmailSender {
                 + "or you have not made the request.</p>";
     }
     //===================== SEND NOTI FOR B&S when Buyer create new Contract =======================
-    public String sendNotiContractSeller(String lastName, String link, Double totalPrice, Integer quantity) {
+    public String sendNotiContractSeller(String lastName, String link, BigDecimal totalPrice, Integer quantity) {
         return "<p>Hello," + lastName + "</p>"
                 + "<p>Happy to have new ORDER</p>"
                 + "<p>Click the link to view details this ORDER</p>"
@@ -42,7 +43,7 @@ public class EmailSender {
                 + "<p>Quantity: " + quantity + "<p>"
                 + "<br>";
     }
-    public String sendNotiContractBuyer(String lastName, String link, Double totalPrice, Integer quantity) {
+    public String sendNotiContractBuyer(String lastName, String link, BigDecimal totalPrice, Integer quantity) {
         return "<p>Hello," + lastName + "</p>"
                 + "<p>Happy to have new ORDER</p>"
                 + "<p>Click the link to view details this ORDER</p>"
@@ -54,7 +55,7 @@ public class EmailSender {
 
     //================================ ACCEPT CONTRACT BY SELLER =======================
     public String sendNotiAcceptToSeller(String lastName, String link, String contractCode,
-                                         Double totalPrice, Integer quantity, Date expectDeliveryTime) {
+                                         BigDecimal totalPrice, Integer quantity, Date expectDeliveryTime) {
         return "<p>Hello," + lastName + "</p>"
                 + "<p>Ready for working " + contractCode + "</p>"
                 + "<p>Total-Price: " + totalPrice + "$<p>"
@@ -65,7 +66,7 @@ public class EmailSender {
                 + "<br>";
     }
     public String sendNotiAcceptToBuyer(String lastName, String brandName, String link, String contractCode,
-                                        Double totalPrice, Integer quantity) {
+                                        BigDecimal totalPrice, Integer quantity) {
         return "<p>Hello," + lastName + "</p>"
                 + "<p>Happy to you " + brandName + " ready for working " + contractCode + "</p>"
                 + "<p>Total-Price: " + totalPrice + "$<p>"
@@ -83,7 +84,7 @@ public class EmailSender {
                 + "<br>";
     }
     public String sendNotiRejectToBuyer(String lastName, String brandName,
-                                        String link, String contractCode, Double totalPrice) {
+                                        String link, String contractCode, BigDecimal totalPrice) {
         return "<p>Hello," + lastName + "</p>"
                 + "<p>So sorry sir, "+ brandName + " was cancel the ORDER " + contractCode + "</p>"
                 + "<p>And we will refund: " + totalPrice + " for you<p>"
@@ -120,7 +121,7 @@ public class EmailSender {
     }
 
     public void sendEmailNotiContractSeller(String recipientEmail, String lastName,
-                                            String link, Double totalPrice, Integer quantity) throws MessagingException, UnsupportedEncodingException {
+                                            String link, BigDecimal totalPrice, Integer quantity) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setFrom("duc24600@gmail.com", "Jovinn support");
@@ -135,7 +136,7 @@ public class EmailSender {
     }
 
     public void sendEmailNotiContractBuyer(String recipientEmail, String lastName,
-                                           String link, Double totalPrice, Integer quantity) throws MessagingException, UnsupportedEncodingException {
+                                           String link, BigDecimal totalPrice, Integer quantity) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setFrom("duc24600@gmail.com", "Jovinn support");
@@ -151,7 +152,7 @@ public class EmailSender {
 
     public void sendEmailNotiAcceptContractToSeller(String recipientEmail, String lastName,
                                                     String link, String contractCode,
-                                                    Double totalPrice, Integer quantity, Date expectDeliveryTime) throws MessagingException, UnsupportedEncodingException {
+                                                    BigDecimal totalPrice, Integer quantity, Date expectDeliveryTime) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setFrom("duc24600@gmail.com", "Jovinn support");
@@ -168,7 +169,7 @@ public class EmailSender {
 
     public void sendEmailNotiAcceptContractToBuyer(String recipientEmail, String lastName, String brandName,
                                                    String link, String contractCode,
-                                                   Double totalPrice, Integer quantity) throws MessagingException, UnsupportedEncodingException {
+                                                   BigDecimal totalPrice, Integer quantity) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setFrom("duc24600@gmail.com", "Jovinn support");
@@ -199,7 +200,7 @@ public class EmailSender {
     }
 
     public void sendEmailNotiRejectContractToBuyer(String recipientEmail, String lastName, String brandName,
-                                                   String link, String contractCode, Double totalPrice) throws MessagingException, UnsupportedEncodingException {
+                                                   String link, String contractCode, BigDecimal totalPrice) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setFrom("duc24600@gmail.com", "Jovinn support");
