@@ -51,6 +51,9 @@ public class BoxServiceImpl implements BoxService {
                 if(box.getSubCategory() != null){
                     boxExist.setSubCategory(box.getSubCategory());
                 }
+                if (box.getStatus() != null){
+                    boxExist.setStatus(box.getStatus());
+                }
 
 
                 return boxRepository.save(boxExist);

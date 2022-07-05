@@ -2,21 +2,23 @@ package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jovinn.capstoneproject.enumerable.SkillLevel;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,6 +40,16 @@ public class Skill extends BaseEntity {
     //@JsonManagedReference
     @JsonBackReference
     Seller seller;
+
+
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(
+            name = "post_request_skill",
+            joinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id")
+    )
+    List<PostRequest> postRequests;
 
     public Skill(String name, SkillLevel level, String shortDescribe, Seller seller) {
         this.name = name;

@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.Gender;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
@@ -18,7 +15,8 @@ import javax.validation.constraints.Size;
 import java.util.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -82,9 +80,9 @@ public class User extends BaseEntity {
     )
     Set<ActivityType> activityType = new HashSet<>();
 
-    //    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
 //    @JsonManagedReference
-//    Buyer buyer;
+    Buyer buyer;
 
 //    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    @JoinColumn(name = "buyerId")

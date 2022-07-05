@@ -1,8 +1,13 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.response.SellerSkillResponse;
+import com.jovinn.capstoneproject.dto.response.SkillResponse;
+import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import com.jovinn.capstoneproject.model.Seller;
+import com.jovinn.capstoneproject.model.Skill;
 import com.jovinn.capstoneproject.repository.SkillRepository;
 import com.jovinn.capstoneproject.service.SellerService;
+import com.jovinn.capstoneproject.service.SkillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +24,9 @@ public class SellerController {
     private SellerService sellerService;
     @Autowired
     private SkillRepository skillRepository;
+
+    @Autowired
+    private SkillService skillService;
 
     @GetMapping("/sellers")
     public List<Seller> getListSellers() {
@@ -45,5 +53,15 @@ public class SellerController {
     @GetMapping("/getTop3SellerByRank")
     public List<Seller> getTop3SellerByRank(){
         return sellerService.getListTopSellerByRank();
+    }
+
+    @GetMapping("/getSellerBySkillNameAndLevelOrderBySellerId/{names}/{level}")
+    public List<SellerSkillResponse> getSellerBySkillNameAndLevelOrderBySellerId(@PathVariable List<String> names, @PathVariable SkillLevel level){
+        return skillService.getSellerBySkillNameAndSkillLevelOrderBySellerId(names, level);
+    }
+
+    @GetMapping("/getSellerBySkillNameAndLevel/{names}/{level}")
+    public List<Skill> getSellerBySkillNameAndLevel(@PathVariable List<String> names, @PathVariable SkillLevel level){
+        return skillService.getSellerBySkillNameAndSkillLevel(names, level);
     }
 }
