@@ -1,7 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jovinn.capstoneproject.enumerable.ContractType;
 import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
 import com.jovinn.capstoneproject.enumerable.OrderStatus;
@@ -12,6 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -36,8 +36,8 @@ public class Contract extends BaseEntity {
     String requirement;
     Integer quantity;
     Integer contractCancelFee;
-    Double serviceDeposit;
-    Double totalPrice;
+    BigDecimal serviceDeposit;
+    BigDecimal totalPrice;
     Integer totalDeliveryTime;
     @Temporal(TemporalType.DATE)
     Date expectCompleteDate;
@@ -59,16 +59,15 @@ public class Contract extends BaseEntity {
     @OneToMany(fetch = FetchType.EAGER)
     List<ExtraOffer> extraOffers;
 
-//    @OneToOne(fetch = FetchType.EAGER, mappedBy = "contract")
-//    @JsonManagedReference
-//    Delivery delivery;
+    @OneToOne(fetch = FetchType.EAGER, mappedBy = "contract")
+    Delivery delivery;
 //
 //    @OneToMany(mappedBy = "contract", fetch = FetchType.EAGER)
 //    List<MilestoneContract> milestoneContracts;
 
     public Contract(UUID packageId, String contractCode, String requirement,
-                    Integer quantity, Integer contractCancelFee, Double serviceDeposit,
-                    Double totalPrice, Integer totalDeliveryTime,
+                    Integer quantity, Integer contractCancelFee, BigDecimal serviceDeposit,
+                    BigDecimal totalPrice, Integer totalDeliveryTime,
                     Date expectCompleteDate, DeliveryStatus deliveryStatus,
                     OrderStatus status, ContractType type, Buyer buyer, Seller seller) {
         this.packageId = packageId;

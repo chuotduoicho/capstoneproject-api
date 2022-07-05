@@ -9,19 +9,15 @@ import java.util.UUID;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DeliveryResponse {
+public class DeliveryNotMilestoneResponse {
     @NotNull UUID id;
     UUID contractId;
-    UUID milestoneId;
     String file;
     String description;
 
-    public DeliveryResponse(UUID id, UUID contractId,
-                            UUID milestoneId, String file,
-                            String description) {
+    public DeliveryNotMilestoneResponse(UUID id, UUID contractId, String file, String description) {
         this.id = id;
         this.contractId = contractId;
-        this.milestoneId = milestoneId;
         this.file = file;
         this.description = description;
     }

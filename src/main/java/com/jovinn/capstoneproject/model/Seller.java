@@ -1,8 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -63,8 +61,7 @@ public class Seller extends BaseEntity {
     @JsonManagedReference
     List<UrlProfile> urlProfiles;
 
-    @OneToMany(mappedBy = "seller", fetch = FetchType.EAGER)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)
     List<Box> boxes;
 
     @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)

@@ -16,12 +16,15 @@ import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ContractService;
 import com.jovinn.capstoneproject.util.DateDelivery;
 import com.jovinn.capstoneproject.util.EmailSender;
+import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -30,6 +33,7 @@ import static com.jovinn.capstoneproject.util.GenerateRandomNumber.getRandomCont
 
 @Service
 public class ContractServiceImpl implements ContractService {
+    private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
     @Autowired
     private WalletRepository walletRepository;
     @Autowired
@@ -60,15 +64,15 @@ public class ContractServiceImpl implements ContractService {
 
         //double extraPrice = packageOptional.getOptionPrice();
         Date expectCompleteDate = dateDelivery.expectDate(Calendar.DAY_OF_MONTH, pack.getDeliveryTime());
-        double totalPrice = pack.getPrice() * request.getQuantity();
-        double serviceDeposit = totalPrice * request.getContractCancelFee()/100;
+        BigDecimal totalPrice = scale2(pack.getPrice().multiply(new BigDecimal(request.getQuantity())));
+        BigDecimal serviceDeposit = totalPrice.multiply(new BigDecimal(request.getContractCancelFee())).divide(ONE_HUNDRED, RoundingMode.FLOOR);
         int totalDeliveryTime = pack.getDeliveryTime();
 
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
                 buyer.getUser().getIsEnabled().equals(Boolean.TRUE)) {
-            if (walletBuyer.getWithdraw() >= totalPrice) {
-                walletBuyer.setWithdraw(walletBuyer.getWithdraw() - totalPrice);
-                walletRepository.save(walletBuyer);
+            if (walletBuyer.getWithdraw().compareTo(totalPrice) >= 0) {
+                walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
+                saveWallet(walletBuyer);
 
                 Contract contract = new Contract(request.getPackageId(), contractCode,
                         request.getRequirement(), request.getQuantity(), request.getContractCancelFee(),
@@ -76,9 +80,8 @@ public class ContractServiceImpl implements ContractService {
                         DeliveryStatus.PENDING, OrderStatus.ACTIVE, request.getType(), buyer, seller);
                 Contract newContract = contractRepository.save(contract);
 
-                String linkOrderForSeller = "http://localhost:3000/dashboard/" + seller.getBrandName() + "/order/" + newContract.getId();
-                String linkOrderForBuyer = "http://localhost:3000/dashboard/" + currentUser.getId() + "/order/" + newContract.getId();
-
+                String linkOrderForSeller = WebConstant.DOMAIN + "/dashboard/" + seller.getBrandName() + "/order/" + newContract.getId();
+                String linkOrderForBuyer = WebConstant.DOMAIN + "/dashboard/" + currentUser.getId() + "/order/" + newContract.getId();
                 try {
                     emailSender.sendEmailNotiContractSeller(seller.getUser().getEmail(),
                             seller.getUser().getLastName(), linkOrderForSeller,
@@ -119,7 +122,7 @@ public class ContractServiceImpl implements ContractService {
         Wallet walletSeller = walletRepository.findWalletByUserId(currentUser.getId());
 
         Date expectCompleteDate = dateDelivery.expectDate(Calendar.DAY_OF_MONTH, contract.getTotalDeliveryTime());
-        double serviceDeposit = contract.getServiceDeposit();
+        BigDecimal serviceDeposit = contract.getServiceDeposit();
 
         if (contract.getSeller().getUser().getId().equals(currentUser.getId())) {
             if(contract.getDeliveryStatus().equals(DeliveryStatus.PROCESSING)) {
@@ -128,9 +131,9 @@ public class ContractServiceImpl implements ContractService {
                     || contract.getStatus().equals(OrderStatus.CANCEL)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể tiếp tục thực hiện hợp đồng do bạn hoặc người bán từ chối");
             } else {
-                if (walletSeller.getWithdraw() >= serviceDeposit) {
+                if (walletSeller.getWithdraw().compareTo(serviceDeposit) >= 0) {
                     //Need min withdraw to accept contract
-                    walletSeller.setWithdraw(walletSeller.getWithdraw() - serviceDeposit);
+                    walletSeller.setWithdraw(walletSeller.getWithdraw().subtract(serviceDeposit));
                     contract.setStatus(OrderStatus.ACTIVE);
                     contract.setDeliveryStatus(DeliveryStatus.PROCESSING);
                     //Khi accept order ngày nào thì từ ngày hiện tại + totalDeliveryTime ra ngày expectmpleteDate tren front-end
@@ -138,9 +141,9 @@ public class ContractServiceImpl implements ContractService {
                     contract.setUpdatedAt(new Date());
                     Delivery delivery = new Delivery();
                     delivery.setContract(contract);
+                    saveWallet(walletSeller);
 
-                    String linkOrder = "http://localhost:3000/dashboard/order/" + contract.getId();
-
+                    String linkOrder = WebConstant.DOMAIN + "/dashboard/order/" + contract.getId();
                     try {
                         emailSender.sendEmailNotiAcceptContractToSeller(seller.getUser().getEmail(),
                                 seller.getUser().getLastName(), linkOrder, contract.getContractCode(),
@@ -153,14 +156,16 @@ public class ContractServiceImpl implements ContractService {
                         throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi khi gửi thông báo tới email của bạn");
                     }
 
-                    Contract update = contractRepository.save(contract);
-                    return new ContractResponse(update.getId(), update.getPackageId(),
-                            update.getContractCode(), update.getRequirement(), update.getQuantity(), update.getContractCancelFee(),
-                            update.getServiceDeposit(), update.getTotalPrice(),
-                            update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
-                            DeliveryStatus.PROCESSING, OrderStatus.ACTIVE,
-                            update.getBuyer().getUser().getId(),
-                            update.getSeller().getUser().getId());
+                    getUpdateResponse(contract, DeliveryStatus.PROCESSING, OrderStatus.ACTIVE);
+
+//                    Contract update = contractRepository.save(contract);
+//                    return new ContractResponse(update.getId(), update.getPackageId(),
+//                            update.getContractCode(), update.getRequirement(), update.getQuantity(), update.getContractCancelFee(),
+//                            update.getServiceDeposit(), update.getTotalPrice(),
+//                            update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
+//                            DeliveryStatus.PROCESSING, OrderStatus.ACTIVE,
+//                            update.getBuyer().getUser().getId(),
+//                            update.getSeller().getUser().getId());
                 } else {
                     throw new JovinnException(HttpStatus.BAD_REQUEST, "Để tham gia hợp đồng bạn cần có một lượng JCoin ít nhất là: " + contract.getServiceDeposit());
                 }
@@ -179,27 +184,27 @@ public class ContractServiceImpl implements ContractService {
         Seller seller = sellerRepository.findById(contract.getSeller().getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
         Wallet walletBuyer = walletRepository.findWalletByUserId(contract.getBuyer().getUser().getId());
-        double buyerReceiveWhenProcessing = contract.getTotalPrice() + (contract.getServiceDeposit() * 90/100);
+        BigDecimal serviceDepositRefund = calculateRefund90PercentDeposit(contract.getServiceDeposit(), 90);
+        BigDecimal buyerReceiveWhenProcessing = contract.getTotalPrice().add(serviceDepositRefund);
 
         if (contract.getSeller().getUser().getId().equals(currentUser.getId())) {
             if (contract.getDeliveryStatus().equals(DeliveryStatus.PROCESSING)) {
-                walletBuyer.setWithdraw(walletBuyer.getWithdraw() + buyerReceiveWhenProcessing);
+                walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(buyerReceiveWhenProcessing));
             }  else if (contract.getDeliveryStatus().equals(DeliveryStatus.REJECT)
                     || contract.getStatus().equals(OrderStatus.CANCEL)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể từ chối do hợp đồng đã kết thúc");
             } else {
                 //Refund price for buyer not including serviceFee
-                walletBuyer.setWithdraw(walletBuyer.getWithdraw() + contract.getTotalPrice());
+                walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(contract.getTotalPrice()));
             }
 
             contract.setStatus(OrderStatus.CANCEL);
             contract.setDeliveryStatus(DeliveryStatus.REJECT);
             contract.setUpdatedAt(new Date());
             contract.setSeller(seller);
+            saveWallet(walletBuyer);
 
-            walletRepository.save(walletBuyer);
-
-            String linkOrder = "http://localhost:3000/dashboard/order" + contract.getId();
+            String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
             try {
                 emailSender.sendEmailNotiRejectContractToSeller(seller.getUser().getEmail(),
                         seller.getUser().getLastName(), linkOrder, contract.getContractCode());
@@ -211,14 +216,16 @@ public class ContractServiceImpl implements ContractService {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
             }
 
-            Contract update = contractRepository.save(contract);
-            return new ContractResponse(update.getId(), update.getPackageId(),
-                    update.getContractCode(), update.getRequirement(), update.getQuantity(),
-                    update.getContractCancelFee(), update.getServiceDeposit(), update.getTotalPrice(),
-                    update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
-                    DeliveryStatus.REJECT, OrderStatus.ACTIVE,
-                    update.getBuyer().getUser().getId(),
-                    update.getSeller().getUser().getId());
+            getUpdateResponse(contract, DeliveryStatus.REJECT, OrderStatus.ACTIVE);
+
+//            Contract update = contractRepository.save(contract);
+//            return new ContractResponse(update.getId(), update.getPackageId(),
+//                    update.getContractCode(), update.getRequirement(), update.getQuantity(),
+//                    update.getContractCancelFee(), update.getServiceDeposit(), update.getTotalPrice(),
+//                    update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
+//                    DeliveryStatus.REJECT, OrderStatus.ACTIVE,
+//                    update.getBuyer().getUser().getId(),
+//                    update.getSeller().getUser().getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -234,28 +241,29 @@ public class ContractServiceImpl implements ContractService {
         Wallet walletBuyer = walletRepository.findWalletByUserId(contract.getBuyer().getUser().getId());
         Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
 
-        double buyerReceiveAfterCancel = contract.getTotalPrice() - contract.getServiceDeposit();
-        double sellerReceiveAfterCancel = contract.getServiceDeposit() + contract.getServiceDeposit() * 90/100;
+        BigDecimal refundDeposit = calculateRefund90PercentDeposit(contract.getServiceDeposit(), 90);
+        BigDecimal buyerReceiveAfterCancel = contract.getTotalPrice().subtract(contract.getServiceDeposit());
+        BigDecimal sellerReceiveAfterCancel = contract.getServiceDeposit().add(refundDeposit);
 
         if (contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
             if (contract.getDeliveryStatus().equals(DeliveryStatus.PROCESSING)) {
-                walletBuyer.setWithdraw(walletBuyer.getWithdraw() + buyerReceiveAfterCancel);
-                walletSeller.setWithdraw(walletSeller.getWithdraw() + sellerReceiveAfterCancel);
+                walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(buyerReceiveAfterCancel));
+                walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
             } else if (contract.getDeliveryStatus().equals(DeliveryStatus.REJECT)
                     || contract.getStatus().equals(OrderStatus.CANCEL)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể từ chối do hợp đồng đã kết thúc");
             } else {
-                walletBuyer.setWithdraw(walletBuyer.getWithdraw() + contract.getTotalPrice());
+                walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(contract.getTotalPrice()));
             }
             contract.setStatus(OrderStatus.CANCEL);
             contract.setDeliveryStatus(DeliveryStatus.REJECT);
             contract.setUpdatedAt(new Date());
             contract.setBuyer(buyer);
 
-            walletRepository.save(walletBuyer);
-            walletRepository.save(walletSeller);
+            saveWallet(walletBuyer);
+            saveWallet(walletSeller);
 
-            String linkOrder = "http://localhost:3000/dashboard/order" + contract.getId();
+            String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
             try {
                 emailSender.sendEmailNotiRejectContractToSeller(contract.getSeller().getUser().getEmail(),
                         contract.getSeller().getUser().getLastName(), linkOrder, contract.getContractCode());
@@ -266,15 +274,65 @@ public class ContractServiceImpl implements ContractService {
             } catch (UnsupportedEncodingException | MessagingException exception) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
             }
+            getUpdateResponse(contract, DeliveryStatus.REJECT, OrderStatus.CANCEL);
 
-            Contract update = contractRepository.save(contract);
-            return new ContractResponse(update.getId(), update.getPackageId(),
-                    update.getContractCode(), update.getRequirement(), update.getQuantity(), update.getContractCancelFee(),
-                    update.getServiceDeposit(), update.getTotalPrice(),
-                    update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
-                    DeliveryStatus.REJECT, OrderStatus.CANCEL,
-                    update.getBuyer().getUser().getId(),
-                    update.getSeller().getUser().getId());
+//            Contract update = contractRepository.save(contract);
+//            return new ContractResponse(update.getId(), update.getPackageId(),
+//                    update.getContractCode(), update.getRequirement(), update.getQuantity(), update.getContractCancelFee(),
+//                    update.getServiceDeposit(), update.getTotalPrice(),
+//                    update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
+//                    DeliveryStatus.REJECT, OrderStatus.CANCEL,
+//                    update.getBuyer().getUser().getId(),
+//                    update.getSeller().getUser().getId());
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public ContractResponse updateStatusAcceptDeliveryFromBuyer(UUID id, ContractRequest request, UserPrincipal currentUser) {
+        Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+        Contract contract = contractRepository.findById(id)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found"));
+        Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
+
+        BigDecimal sellerReceiveAfterCancel = contract.getServiceDeposit().add(calculateRefund90PercentDeposit(contract.getTotalPrice(), 90));
+
+        if (contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
+            if (contract.getDeliveryStatus().equals(DeliveryStatus.DELIVERY)) {
+                walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
+                contract.setStatus(OrderStatus.COMPLETE);
+                contract.setDeliveryStatus(DeliveryStatus.COMPLETE);
+                contract.setUpdatedAt(new Date());
+                contract.setBuyer(buyer);
+                saveWallet(walletSeller);
+
+                String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
+                try {
+                    emailSender.sendEmailNotiRejectContractToSeller(contract.getSeller().getUser().getEmail(),
+                            contract.getSeller().getUser().getLastName(), linkOrder, contract.getContractCode());
+
+                    emailSender.sendEmailNotiRejectContractToBuyer(contract.getBuyer().getUser().getEmail(),
+                            contract.getBuyer().getUser().getLastName(), contract.getSeller().getBrandName(), linkOrder,
+                            contract.getContractCode(), contract.getTotalPrice());
+                } catch (UnsupportedEncodingException | MessagingException exception) {
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
+                }
+
+                //Contract update = contractRepository.save(contract);
+                getUpdateResponse(contract, DeliveryStatus.COMPLETE, OrderStatus.COMPLETE);
+//                return new ContractResponse(update.getId(), update.getPackageId(),
+//                        update.getContractCode(), update.getRequirement(), update.getQuantity(), update.getContractCancelFee(),
+//                        update.getServiceDeposit(), update.getTotalPrice(),
+//                        update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
+//                        DeliveryStatus.COMPLETE, OrderStatus.COMPLETE,
+//                        update.getBuyer().getUser().getId(),
+//                        update.getSeller().getUser().getId());
+            } else {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Đã xảy ra lỗi khi chấp nhận bàn giao");
+            }
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -285,5 +343,32 @@ public class ContractServiceImpl implements ContractService {
     public Contract getContractById(UUID id) {
         return contractRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contract", "Contract not found ", id));
+    }
+
+    private void getUpdateResponse(Contract contract, DeliveryStatus deliveryStatus, OrderStatus orderStatus) {
+        Contract update = contractRepository.save(contract);
+        new ContractResponse(update.getId(), update.getPackageId(),
+                update.getContractCode(), update.getRequirement(), update.getQuantity(), update.getContractCancelFee(),
+                update.getServiceDeposit(), update.getTotalPrice(),
+                update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
+                deliveryStatus, orderStatus,
+                update.getBuyer().getUser().getId(),
+                update.getSeller().getUser().getId());
+    }
+
+    private void saveWallet(Wallet wallet) {
+        walletRepository.save(wallet);
+    }
+
+    private static BigDecimal calculateRefund90PercentDeposit(BigDecimal serviceDeposit, Integer percent){
+        if (percent % 5 == 0) {
+            return serviceDeposit.multiply(new BigDecimal(percent)).divide(ONE_HUNDRED, RoundingMode.FLOOR);
+        } else {
+            throw new JovinnException(HttpStatus.BAD_REQUEST, "Percent need % 5");
+        }
+    }
+
+    private static BigDecimal scale2(BigDecimal value) {
+        return value.setScale(2, RoundingMode.HALF_EVEN);
     }
 }

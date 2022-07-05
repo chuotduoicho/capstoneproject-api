@@ -34,13 +34,14 @@ public class BoxServiceImpl implements BoxService {
     private SellerRepository sellerRepository;
 
     @Override
-    public Box saveBox(Box box, UserPrincipal currentUser) {
+    public ApiResponse saveBox(Box box, UserPrincipal currentUser) {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản user"));
 
        if (seller.getUser().getId().equals(currentUser.getId())) {
            box.setSeller(seller);
-           return boxRepository.save(box);
+           boxRepository.save(box);
+           return new ApiResponse(Boolean.TRUE, "" + box.getId());
        }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -67,7 +68,6 @@ public class BoxServiceImpl implements BoxService {
                 if(box.getSubCategory() != null){
                     boxExist.setSubCategory(box.getSubCategory());
                 }
-
 
                 return boxRepository.save(boxExist);
             }

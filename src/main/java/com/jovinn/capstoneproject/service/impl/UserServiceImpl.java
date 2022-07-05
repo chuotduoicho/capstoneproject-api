@@ -2,10 +2,13 @@ package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
+import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.response.ChangePasswordResponse;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Buyer;
@@ -17,10 +20,12 @@ import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
 import com.jovinn.capstoneproject.util.EmailSender;
+import com.jovinn.capstoneproject.util.WebConstant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,6 +33,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -119,20 +125,20 @@ public class UserServiceImpl implements UserService {
     public void updateResetPasswordToken(String token, String email) throws ResourceNotFoundException {
         User user = userRepository.findUserByEmail(email)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Email", "Email not present ", email));
+                        new ApiException(HttpStatus.BAD_REQUEST, "Email not present "));
 
         if (user != null){
             user.setResetPasswordToken(token);
             userRepository.save(user);
         } else {
-            throw new ResourceNotFoundException("User", "email", email);
+            throw new ApiException(HttpStatus.BAD_REQUEST, "email");
         }
     }
 
     @Override
     public User getByUserId(UUID id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "Not found user by id", id));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Not found user by id"));
     }
 
     @Override
@@ -167,7 +173,7 @@ public class UserServiceImpl implements UserService {
 //        wallet.setIncome((double) 0);
 //        user.setWallet(wallet);
 
-        String link = "http://localhost:8080/api/auth/verifyAccount/" + verificationCode;
+        String link = WebConstant.DOMAIN + "/auth/verifyAccount/" + verificationCode;
         try {
             emailSender.sendEmailVerify(signUpRequest.getEmail(), link);
         } catch (UnsupportedEncodingException | MessagingException exception){
@@ -186,10 +192,42 @@ public class UserServiceImpl implements UserService {
         user.setIsEnabled(Boolean.TRUE);
         Wallet wallet = new Wallet();
         wallet.setUser(user);
-        wallet.setWithdraw((double) 50);
-        wallet.setIncome((double) 0);
+        wallet.setWithdraw(new BigDecimal(50));
+        wallet.setIncome(new BigDecimal(0));
         user.setWallet(wallet);
         walletRepository.save(wallet);
         return userRepository.save(user);
+    }
+
+    @Override
+    public ApiResponse changePassword(ChangePasswordRequest request, UserPrincipal currentUser) {
+        User user = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Not found user"));
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String recentPass = user.getPassword();
+        String oldPass = request.getOldPass();
+        String newPass = request.getNewPass();
+        String rePass = request.getRePass();
+
+        if(user.getId().equals(currentUser.getId())) {
+            if (BCrypt.checkpw(oldPass, recentPass)) {
+                if (newPass.equals(oldPass)) {
+                    return new ApiResponse(Boolean.TRUE, "Mật khẩu trùng với mật khẩu cũ");
+                } else {
+                    if (newPass.equals(rePass)) {
+                        user.setPassword(passwordEncoder.encode(newPass));
+                        userRepository.save(user);
+                        return new ApiResponse(Boolean.TRUE, "Bạn đã đổi mật khẩu thành công");
+                    } else {
+                        return new ApiResponse(Boolean.TRUE, "Repass phải trùng với newPass");
+                    }
+                }
+            } else {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Mật khẩu hiện tại không chính xác");
+            }
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
     }
 }

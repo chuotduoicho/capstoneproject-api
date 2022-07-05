@@ -1,13 +1,9 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
@@ -17,13 +13,17 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class Box extends  BaseEntity {
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
+public class Box extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
@@ -38,9 +38,8 @@ public class Box extends  BaseEntity {
     @Enumerated(EnumType.STRING)
     BoxServiceStatus status;
 
-    @ManyToOne(fetch =  FetchType.EAGER)
+    @ManyToOne(fetch =  FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
-    @JsonBackReference
     Seller seller;
 
     @ManyToOne(fetch =  FetchType.EAGER)

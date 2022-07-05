@@ -1,11 +1,10 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
-import com.jovinn.capstoneproject.dto.request.DeliveryRequest;
+import com.jovinn.capstoneproject.dto.request.DeliveryNotMilestoneRequest;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
-import com.jovinn.capstoneproject.dto.response.DeliveryResponse;
+import com.jovinn.capstoneproject.dto.response.DeliveryNotMilestoneResponse;
 import com.jovinn.capstoneproject.model.Contract;
-import com.jovinn.capstoneproject.repository.DeliveryRepository;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ContractService;
@@ -13,7 +12,6 @@ import com.jovinn.capstoneproject.service.DeliveryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -63,11 +61,27 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PostMapping("/delivery/{id}")
+    public ResponseEntity<DeliveryNotMilestoneResponse> deliveryBySeller(@PathVariable("id") UUID id,
+                                                                         @Valid @RequestBody DeliveryNotMilestoneRequest request,
+                                                                         @CurrentUser UserPrincipal currentUser) {
+        DeliveryNotMilestoneResponse response = deliveryService.createDelivery(id, request, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
     @PutMapping("/delivery/{id}")
-    public ResponseEntity<DeliveryResponse> deliveryBySeller(@PathVariable("id") UUID id,
-                                                             @Valid @RequestBody DeliveryRequest request,
-                                                             @CurrentUser UserPrincipal currentUser) {
-        DeliveryResponse response = deliveryService.updateDelivery(id, request, currentUser);
+    public ResponseEntity<DeliveryNotMilestoneResponse> updateDelivery(@PathVariable("id") UUID id,
+                                                                         @Valid @RequestBody DeliveryNotMilestoneRequest request,
+                                                                         @CurrentUser UserPrincipal currentUser) {
+        DeliveryNotMilestoneResponse response = deliveryService.update(id, request, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/delivery-accept/{id}")
+    public ResponseEntity<ContractResponse> acceptDeliveryContractFromBuyer(@PathVariable("id") UUID id,
+                                                                       @Valid @RequestBody ContractRequest request,
+                                                                       @CurrentUser UserPrincipal currentUser) {
+        ContractResponse response = contractService.updateStatusAcceptDeliveryFromBuyer(id, request, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }

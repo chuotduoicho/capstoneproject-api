@@ -31,23 +31,23 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public String buyJCoin(UUID id, WalletRequest request, UserPrincipal currentUser) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "User not found ", request.getUserId()));
-        Wallet wallet = walletRepository.findWalletByUserId(id);
-        try {
-            Payment payment = paymentService.createPayment(request.getWithdraw(), request.getCurrency(),
-                    request.getMethod(), request.getIntent(), request.getDescription(),
-                    "http://localhost:8080/", "http://localhost:8080/");
-            wallet.setWithdraw(request.getWithdraw());
-            wallet.setDescription(request.getDescription());
-            for(Links link:payment.getLinks()) {
-                if (link.getRel().equals("approval_url")) {
-                    return "redirect:" + link.getHref();
-                }
-            }
-        } catch (PayPalRESTException e) {
-            e.printStackTrace();
-        }
+//        User user = userRepository.findById(request.getUserId())
+//                .orElseThrow(() -> new ResourceNotFoundException("User", "User not found ", request.getUserId()));
+//        Wallet wallet = walletRepository.findWalletByUserId(id);
+//        try {
+//            Payment payment = paymentService.createPayment(request.getWithdraw(), request.getCurrency(),
+//                    request.getMethod(), request.getIntent(), request.getDescription(),
+//                    "http://localhost:8080/", "http://localhost:8080/");
+//            wallet.setWithdraw(request.getWithdraw());
+//            wallet.setDescription(request.getDescription());
+//            for(Links link:payment.getLinks()) {
+//                if (link.getRel().equals("approval_url")) {
+//                    return "redirect:" + link.getHref();
+//                }
+//            }
+//        } catch (PayPalRESTException e) {
+//            e.printStackTrace();
+//        }
         return null;
     }
 
