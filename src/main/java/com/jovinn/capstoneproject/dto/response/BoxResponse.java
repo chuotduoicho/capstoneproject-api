@@ -5,6 +5,7 @@ import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.model.Package;
 import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class BoxResponse {
     UUID id;
     Date createAt;
@@ -28,6 +30,25 @@ public class BoxResponse {
     SubCategory subCategory;
     List<Package> packages;
     Gallery gallery;
+
+    public BoxResponse(UUID id, Date createAt, Date updatedAt,
+                       Seller seller, UUID sellerId, String title,
+                       String description, Integer impression, Integer interesting,
+                       BoxServiceStatus status, SubCategory subCategory, List<Package> packages, Gallery gallery) {
+        this.id = id;
+        this.createAt = createAt;
+        this.updatedAt = updatedAt;
+        this.seller = seller;
+        this.sellerId = sellerId;
+        this.title = title;
+        this.description = description;
+        this.impression = impression;
+        this.interesting = interesting;
+        this.status = status;
+        this.subCategory = subCategory;
+        this.packages = packages;
+        this.gallery = gallery;
+    }
 
     public UUID getId() {
         return id;

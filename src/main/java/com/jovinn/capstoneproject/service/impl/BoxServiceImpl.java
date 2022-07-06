@@ -1,15 +1,19 @@
 package com.jovinn.capstoneproject.service.impl;
 
+import com.jovinn.capstoneproject.dto.request.PackageRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.response.BoxResponse;
 import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.model.Category;
+import com.jovinn.capstoneproject.model.Package;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.repository.BoxRepository;
 import com.jovinn.capstoneproject.repository.CategoryRepository;
+import com.jovinn.capstoneproject.repository.PackageRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
@@ -31,6 +35,8 @@ public class BoxServiceImpl implements BoxService {
     @Autowired
     private BoxRepository boxRepository;
     @Autowired
+    private PackageRepository packageRepository;
+    @Autowired
     private SellerRepository sellerRepository;
 
     @Override
@@ -49,30 +55,29 @@ public class BoxServiceImpl implements BoxService {
     }
 
     @Override
-    public Box updateBox(Box box, UUID id) {
-        if (box != null){
-            Box boxExist = boxRepository.getReferenceById(id);
-            if (boxExist != null){
-                if (box.getDescription() != null) {
-                    boxExist.setDescription(box.getDescription());
-                }
-                if (box.getImpression() != null) {
-                    boxExist.setImpression(box.getImpression());
-                }
-                if (box.getInteresting() != null){
-                    boxExist.setInteresting(box.getInteresting());
-                }
-                if (box.getSeller() != null){
-                    boxExist.setSeller(box.getSeller());
-                }
-                if(box.getSubCategory() != null){
-                    boxExist.setSubCategory(box.getSubCategory());
+    public BoxResponse updateBox(Box box, UUID id, UserPrincipal currentUser) {
+        Box boxExist = boxRepository.findById(id)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Not found box"));
+        if (boxExist.getSeller().getUser().getId().equals(currentUser.getId())) {
+            if (box != null){
+                boxExist.setDescription(box.getDescription());
+                boxExist.setTitle(box.getTitle());
+                boxExist.setGallery(box.getGallery());
+                boxExist.setSubCategory(box.getSubCategory());
+                boxExist.setStatus(box.getStatus());
+                if (box.getPackages() != null) {
+                    boxExist.setPackages(box.getPackages());
                 }
 
-                return boxRepository.save(boxExist);
+                Box update = boxRepository.save(boxExist);
+                return new BoxResponse(update.getId(), update.getCreateAt(), update.getUpdatedAt(), update.getSeller(),
+                        update.getSeller().getId(), update.getTitle(), update.getDescription(), update.getImpression(),
+                        update.getInteresting(), update.getStatus(), update.getSubCategory(), update.getPackages(), update.getGallery());
             }
         }
-        return null;
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
     }
 
     @Override

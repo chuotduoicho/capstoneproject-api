@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.request.PackageRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.BoxResponse;
 import com.jovinn.capstoneproject.model.Box;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -35,8 +37,10 @@ public class BoxController {
 
     //API update Service
     @PutMapping("/update-service")
-    public Box updateService(@RequestParam("id")UUID id,@RequestBody Box box){
-        return boxService.updateBox(box,id);
+    public ResponseEntity<BoxResponse> updateService(@RequestParam("id")UUID id,
+                                                     @RequestBody Box box, @CurrentUser UserPrincipal currentUser){
+        BoxResponse response = boxService.updateBox(box, id, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //Api delete Service
