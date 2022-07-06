@@ -62,8 +62,6 @@ public class BoxServiceImpl implements BoxService {
             if (box != null){
                 boxExist.setDescription(box.getDescription());
                 boxExist.setTitle(box.getTitle());
-                boxExist.setGallery(box.getGallery());
-                boxExist.setSubCategory(box.getSubCategory());
                 boxExist.setStatus(box.getStatus());
                 if (box.getPackages() != null) {
                     boxExist.setPackages(box.getPackages());
