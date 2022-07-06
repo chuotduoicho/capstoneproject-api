@@ -69,8 +69,9 @@ public class BoxController {
     }
 
     @GetMapping("/list-services-by-cat/{catId}")
-    public List<Box> getAllServiceByCategoryId(@PathVariable("catId") UUID catId){
-        return boxService.getAllServiceByCategoryID(catId);
+    public List<BoxResponse> getAllServiceByCategoryId(@PathVariable("catId") UUID catId){
+        return boxService.getAllServiceByCategoryID(catId).stream().map(box -> modelMapper.map(box, BoxResponse.class))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/paginate-list-services-by-cat/{catId}/{page}")
