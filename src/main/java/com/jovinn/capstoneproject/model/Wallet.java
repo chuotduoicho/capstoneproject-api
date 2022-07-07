@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jovinn.capstoneproject.enumerable.PaymentConfirmStatus;
 import lombok.AccessLevel;
@@ -32,6 +33,8 @@ public class Wallet extends BaseEntity {
 
     BigDecimal income;
     BigDecimal withdraw;
+
+    @JsonIgnore
     @Enumerated(EnumType.STRING)
     PaymentConfirmStatus confirmPayStatus;
 
