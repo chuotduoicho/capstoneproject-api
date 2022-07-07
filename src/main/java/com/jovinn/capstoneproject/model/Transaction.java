@@ -1,7 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jovinn.capstoneproject.enumerable.TransactionType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,6 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -23,22 +22,26 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class Wallet extends BaseEntity {
+public class Transaction extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
+    @Type(type = "uuid-char")
+    UUID userId;
+    BigDecimal amount;
+    String description;
+    String intent;
+    String method;
+    String currency;
+    String paymentCode;
+    String message;
+    @Enumerated(EnumType.STRING)
+    TransactionType type;
 
-    BigDecimal income;
-    BigDecimal withdraw;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    User user;
-
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "wallet")
-    @JsonManagedReference
-    List<Transaction> transactions;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "walletId", referencedColumnName = "id")
+    @JsonBackReference
+    Wallet wallet;
 }
-

@@ -1,4 +1,4 @@
-package com.jovinn.capstoneproject.repository;
+package com.jovinn.capstoneproject.repository.payment;
 
 import com.jovinn.capstoneproject.model.Wallet;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.service.payment;
 
-import com.jovinn.capstoneproject.repository.UserRepository;
+import com.jovinn.capstoneproject.config.payment.PaypalPaymentIntent;
+import com.jovinn.capstoneproject.config.payment.PaypalPaymentMethod;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
@@ -11,7 +12,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class PaymentService {
@@ -21,16 +21,16 @@ public class PaymentService {
     //currentcy: is VND or USD
     //method
     public Payment createPayment(
-            Double total,
+            BigDecimal total,
             String currency,
-            String method,
-            String intent,
+            PaypalPaymentMethod method,
+            PaypalPaymentIntent intent,
             String description,
             String cancelUrl,
             String successUrl) throws PayPalRESTException {
         Amount amount = new Amount();
         amount.setCurrency(currency);
-        total = new BigDecimal(total).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        total = BigDecimal.valueOf(total.setScale(2, RoundingMode.HALF_UP).doubleValue());
         amount.setTotal(String.format("%.2f", total));
 
         Transaction transaction = new Transaction();
@@ -41,10 +41,10 @@ public class PaymentService {
         transactions.add(transaction);
 
         Payer payer = new Payer();
-        payer.setPaymentMethod(method.toString());
+        payer.setPaymentMethod(String.valueOf(method));
 
         Payment payment = new Payment();
-        payment.setIntent(intent.toString());
+        payment.setIntent(String.valueOf(intent));
         payment.setPayer(payer);
         payment.setTransactions(transactions);
 
