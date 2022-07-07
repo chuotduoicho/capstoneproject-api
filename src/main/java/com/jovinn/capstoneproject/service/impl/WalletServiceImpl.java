@@ -5,6 +5,7 @@ import com.jovinn.capstoneproject.config.payment.PaypalPaymentMethod;
 import com.jovinn.capstoneproject.dto.request.WalletRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.TransactionResponse;
+import com.jovinn.capstoneproject.enumerable.PaymentConfirmStatus;
 import com.jovinn.capstoneproject.enumerable.TransactionType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
@@ -41,13 +42,16 @@ public class WalletServiceImpl implements WalletService {
     public String buyJCoin(WalletRequest request, UserPrincipal currentUser) {
         User user = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "User not found "));
+        Wallet wallet = walletRepository.findWalletByUserId(user.getId());
         if (user.getId().equals(currentUser.getId())) {
             if(user.getIsEnabled().equals(Boolean.TRUE)) {
                 try {
                     Payment payment = paymentService.createPayment(request.getCharge(), request.getCurrency(),
-                            PaypalPaymentMethod.PAYPAL, PaypalPaymentIntent.ORDER, "BUY " + request.getCharge(),
+                            PaypalPaymentMethod.PAYPAL, PaypalPaymentIntent.SALE, "BUY " + request.getCharge() + " JCOIN",
                             "http://localhost:8080/api/v1/payment/cancel",  "http://localhost:8080/api/v1/payment/success");
                     System.out.println(payment.toJSON());
+                    wallet.setConfirmPayStatus(PaymentConfirmStatus.READY);
+                    walletRepository.save(wallet);
                     for(Links link:payment.getLinks()) {
                         if (link.getRel().equals("approval_url")) {
                             return "redirect:" + link.getHref();
@@ -78,7 +82,8 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public TransactionResponse saveWallet(String paymentId, String payerId, UserPrincipal currentUser) {
         Wallet wallet = walletRepository.findWalletByUserId(currentUser.getId());
-        if (wallet.getUser().getId().equals(currentUser.getId())) {
+        if (wallet.getUser().getId().equals(currentUser.getId())
+                && wallet.getConfirmPayStatus().equals(PaymentConfirmStatus.READY)) {
             try {
                 Payment payment = paymentService.executePayment(paymentId, payerId);
                 System.out.println(payment.toJSON());
@@ -102,6 +107,7 @@ public class WalletServiceImpl implements WalletService {
                     Transaction updatedTransaction = transactionRepository.save(transaction);
 
                     wallet.setWithdraw(wallet.getWithdraw().add(new BigDecimal(payment.getTransactions().get(0).getAmount().getTotal())));
+                    wallet.setConfirmPayStatus(PaymentConfirmStatus.VERIFY);
                     Wallet updatedWallet = walletRepository.save(wallet);
 
                     return new TransactionResponse(updatedTransaction.getId(), updatedWallet.getWithdraw(), updatedTransaction.getType(),
@@ -115,7 +121,7 @@ public class WalletServiceImpl implements WalletService {
             }
         }
 
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to payment");
         throw new UnauthorizedException(apiResponse);
     }
 

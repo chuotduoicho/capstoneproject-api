@@ -1,7 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jovinn.capstoneproject.enumerable.PaymentConfirmStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +32,8 @@ public class Wallet extends BaseEntity {
 
     BigDecimal income;
     BigDecimal withdraw;
+    @Enumerated(EnumType.STRING)
+    PaymentConfirmStatus confirmPayStatus;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
