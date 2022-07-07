@@ -3,6 +3,8 @@ package com.jovinn.capstoneproject.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
+import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -44,6 +46,8 @@ public class PostRequest extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "id")
     )
     List<Skill> skills;
+    @Enumerated(EnumType.STRING)
+    PostRequestStatus status;
     String recruitLevel;
     String jobTitle;
     String shortRequirement;

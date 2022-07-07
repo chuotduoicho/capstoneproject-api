@@ -87,4 +87,8 @@ public class PostRequestResponse {
         this.userCreateAt = userCreateAt;
         this.numberPostRequestCreated = numberPostRequestCreated;
     }
+
+    public PostRequestResponse(UUID postRequestId){
+        this.postRequestId = postRequestId;
+    }
 }

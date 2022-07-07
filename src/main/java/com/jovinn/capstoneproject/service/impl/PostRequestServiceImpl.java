@@ -3,13 +3,13 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
+import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
-import com.jovinn.capstoneproject.model.Buyer;
-import com.jovinn.capstoneproject.model.MilestoneContract;
-import com.jovinn.capstoneproject.model.PostRequest;
+import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.MilestoneContractService;
+import com.jovinn.capstoneproject.service.NotificationService;
 import com.jovinn.capstoneproject.service.PostRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,6 +38,9 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Autowired
     private MilestoneContractService milestoneContractService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Override
     public ApiResponse addPostRequest(PostRequestRequest request, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
@@ -54,16 +57,26 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequest.setJobTitle(request.getJobTitle());
             postRequest.setShortRequirement(request.getShortRequirement());
             postRequest.setAttachFile(request.getAttachFile());
-//            postRequest.setMilestoneContracts(request.getMilestoneContracts());
+            postRequest.setStatus(PostRequestStatus.OPEN);
             postRequest.setContractCancelFee(request.getContractCancelFee());
             postRequest.setBudget(request.getBudget());
             postRequest.setUser(userRepository.findUserById(currentUser.getId()));
+            Notification notification;
+            List<User> usersGetInvite = request.getInvitedUsers();
+            for (User userInvite: usersGetInvite){
+                notification = new Notification();
+                notification.setUser(userInvite);
+                notification.setLink("/getPostRequestDetails/"+buyer.getUser().getId().toString()+"");
+                notification.setShortContent("You have new invite from "+buyer.getUser().getFirstName()+" "+buyer.getUser().getLastName()+"");
+                notificationService.saveNotification(notification);
+            }
             savedPostRequest =  postRequestRepository.save(postRequest);
             List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
             for (MilestoneContract milestoneContract : milestoneContractList){
                 milestoneContract.setPostRequest(savedPostRequest);
                 milestoneContractService.addMilestoneContract(milestoneContract);
             }
+
         }
         return new ApiResponse(Boolean.TRUE, "Khởi tạo yêu cầu thành công");
     }

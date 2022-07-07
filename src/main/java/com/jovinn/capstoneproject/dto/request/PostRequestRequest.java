@@ -2,8 +2,10 @@ package com.jovinn.capstoneproject.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
 import com.jovinn.capstoneproject.model.MilestoneContract;
 import com.jovinn.capstoneproject.model.Skill;
+import com.jovinn.capstoneproject.model.User;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -37,5 +39,5 @@ public class PostRequestRequest {
     Integer contractCancelFee;
     @NotNull
     Double budget;
-    UUID userId;
+    List<User> invitedUsers;
 }
