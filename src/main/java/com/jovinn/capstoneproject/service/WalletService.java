@@ -1,12 +1,15 @@
 package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.request.WalletRequest;
+import com.jovinn.capstoneproject.dto.response.TransactionResponse;
+import com.jovinn.capstoneproject.model.Transaction;
 import com.jovinn.capstoneproject.model.Wallet;
+import com.jovinn.capstoneproject.repository.payment.TransactionRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
-import java.util.UUID;
-
 public interface WalletService {
-    String buyJCoin(UUID id, WalletRequest request, UserPrincipal currentUser);
+    String buyJCoin(WalletRequest request, UserPrincipal currentUser);
     Wallet getWallet(UserPrincipal currentUser);
+    TransactionResponse saveWallet(String paymentId, String payerId, UserPrincipal currentUser);
+    TransactionResponse getTransactionWallet(UserPrincipal currentUser);
 }

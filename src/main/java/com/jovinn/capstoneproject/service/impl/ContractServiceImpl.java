@@ -12,6 +12,7 @@ import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.model.Package;
 import com.jovinn.capstoneproject.repository.*;
+import com.jovinn.capstoneproject.repository.payment.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ContractService;
 import com.jovinn.capstoneproject.util.DateDelivery;
@@ -29,7 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
-import static com.jovinn.capstoneproject.util.GenerateRandomNumber.getRandomContractNumber;
+import static com.jovinn.capstoneproject.util.GenerateRandom.getRandomContractNumber;
 
 @Service
 public class ContractServiceImpl implements ContractService {
@@ -63,10 +64,10 @@ public class ContractServiceImpl implements ContractService {
         String contractCode = getRandomContractNumber();
 
         //double extraPrice = packageOptional.getOptionPrice();
-        Date expectCompleteDate = dateDelivery.expectDate(Calendar.DAY_OF_MONTH, pack.getDeliveryTime());
+        Integer countTotalDeliveryTime = pack.getDeliveryTime() * request.getQuantity();
+        Date expectCompleteDate = dateDelivery.expectDate(Calendar.DAY_OF_MONTH, countTotalDeliveryTime);
         BigDecimal totalPrice = scale2(pack.getPrice().multiply(new BigDecimal(request.getQuantity())));
         BigDecimal serviceDeposit = totalPrice.multiply(new BigDecimal(request.getContractCancelFee())).divide(ONE_HUNDRED, RoundingMode.FLOOR);
-        int totalDeliveryTime = pack.getDeliveryTime();
 
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
                 buyer.getUser().getIsEnabled().equals(Boolean.TRUE)) {
@@ -76,7 +77,7 @@ public class ContractServiceImpl implements ContractService {
 
                 Contract contract = new Contract(request.getPackageId(), contractCode,
                         request.getRequirement(), request.getQuantity(), request.getContractCancelFee(),
-                        serviceDeposit, totalPrice, totalDeliveryTime, expectCompleteDate,
+                        serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
                         DeliveryStatus.PENDING, OrderStatus.ACTIVE, request.getType(), buyer, seller);
                 Contract newContract = contractRepository.save(contract);
 
@@ -156,16 +157,7 @@ public class ContractServiceImpl implements ContractService {
                         throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi khi gửi thông báo tới email của bạn");
                     }
 
-                    getUpdateResponse(contract, DeliveryStatus.PROCESSING, OrderStatus.ACTIVE);
-
-//                    Contract update = contractRepository.save(contract);
-//                    return new ContractResponse(update.getId(), update.getPackageId(),
-//                            update.getContractCode(), update.getRequirement(), update.getQuantity(), update.getContractCancelFee(),
-//                            update.getServiceDeposit(), update.getTotalPrice(),
-//                            update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
-//                            DeliveryStatus.PROCESSING, OrderStatus.ACTIVE,
-//                            update.getBuyer().getUser().getId(),
-//                            update.getSeller().getUser().getId());
+                    return getUpdateResponse(contract, DeliveryStatus.PROCESSING, OrderStatus.ACTIVE);
                 } else {
                     throw new JovinnException(HttpStatus.BAD_REQUEST, "Để tham gia hợp đồng bạn cần có một lượng JCoin ít nhất là: " + contract.getServiceDeposit());
                 }
@@ -216,16 +208,7 @@ public class ContractServiceImpl implements ContractService {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
             }
 
-            getUpdateResponse(contract, DeliveryStatus.REJECT, OrderStatus.ACTIVE);
-
-//            Contract update = contractRepository.save(contract);
-//            return new ContractResponse(update.getId(), update.getPackageId(),
-//                    update.getContractCode(), update.getRequirement(), update.getQuantity(),
-//                    update.getContractCancelFee(), update.getServiceDeposit(), update.getTotalPrice(),
-//                    update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
-//                    DeliveryStatus.REJECT, OrderStatus.ACTIVE,
-//                    update.getBuyer().getUser().getId(),
-//                    update.getSeller().getUser().getId());
+            return getUpdateResponse(contract, DeliveryStatus.REJECT, OrderStatus.ACTIVE);
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -274,16 +257,8 @@ public class ContractServiceImpl implements ContractService {
             } catch (UnsupportedEncodingException | MessagingException exception) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
             }
-            getUpdateResponse(contract, DeliveryStatus.REJECT, OrderStatus.CANCEL);
 
-//            Contract update = contractRepository.save(contract);
-//            return new ContractResponse(update.getId(), update.getPackageId(),
-//                    update.getContractCode(), update.getRequirement(), update.getQuantity(), update.getContractCancelFee(),
-//                    update.getServiceDeposit(), update.getTotalPrice(),
-//                    update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
-//                    DeliveryStatus.REJECT, OrderStatus.CANCEL,
-//                    update.getBuyer().getUser().getId(),
-//                    update.getSeller().getUser().getId());
+            return getUpdateResponse(contract, DeliveryStatus.REJECT, OrderStatus.CANCEL);
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -298,11 +273,13 @@ public class ContractServiceImpl implements ContractService {
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found"));
         Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
 
-        BigDecimal sellerReceiveAfterCancel = contract.getServiceDeposit().add(calculateRefund90PercentDeposit(contract.getTotalPrice(), 90));
+        BigDecimal income = calculateRefund90PercentDeposit(contract.getTotalPrice(), 90);
+        BigDecimal sellerReceiveAfterCancel = contract.getServiceDeposit().add(income);
 
         if (contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
             if (contract.getDeliveryStatus().equals(DeliveryStatus.DELIVERY)) {
                 walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
+                walletSeller.setIncome(income);
                 contract.setStatus(OrderStatus.COMPLETE);
                 contract.setDeliveryStatus(DeliveryStatus.COMPLETE);
                 contract.setUpdatedAt(new Date());
@@ -321,15 +298,7 @@ public class ContractServiceImpl implements ContractService {
                     throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
                 }
 
-                //Contract update = contractRepository.save(contract);
-                getUpdateResponse(contract, DeliveryStatus.COMPLETE, OrderStatus.COMPLETE);
-//                return new ContractResponse(update.getId(), update.getPackageId(),
-//                        update.getContractCode(), update.getRequirement(), update.getQuantity(), update.getContractCancelFee(),
-//                        update.getServiceDeposit(), update.getTotalPrice(),
-//                        update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
-//                        DeliveryStatus.COMPLETE, OrderStatus.COMPLETE,
-//                        update.getBuyer().getUser().getId(),
-//                        update.getSeller().getUser().getId());
+                return getUpdateResponse(contract, DeliveryStatus.COMPLETE, OrderStatus.COMPLETE);
             } else {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Đã xảy ra lỗi khi chấp nhận bàn giao");
             }
@@ -345,9 +314,9 @@ public class ContractServiceImpl implements ContractService {
                 .orElseThrow(() -> new ResourceNotFoundException("Contract", "Contract not found ", id));
     }
 
-    private void getUpdateResponse(Contract contract, DeliveryStatus deliveryStatus, OrderStatus orderStatus) {
+    private ContractResponse getUpdateResponse(Contract contract, DeliveryStatus deliveryStatus, OrderStatus orderStatus) {
         Contract update = contractRepository.save(contract);
-        new ContractResponse(update.getId(), update.getPackageId(),
+        return new ContractResponse(update.getId(), update.getPackageId(),
                 update.getContractCode(), update.getRequirement(), update.getQuantity(), update.getContractCancelFee(),
                 update.getServiceDeposit(), update.getTotalPrice(),
                 update.getTotalDeliveryTime(), update.getExpectCompleteDate(),

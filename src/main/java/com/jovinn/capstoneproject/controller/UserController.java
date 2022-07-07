@@ -7,10 +7,12 @@ import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.SellerService;
 import com.jovinn.capstoneproject.service.UserService;
+import com.jovinn.capstoneproject.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +33,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private SellerService sellerService;
+    @Autowired
+    private WalletService walletService;
 
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
@@ -72,6 +76,12 @@ public class UserController {
                                                    @CurrentUser UserPrincipal currentUser) {
         Seller sellerInfo = sellerService.becomeSeller(seller, currentUser);
         return new ResponseEntity<>(sellerInfo, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/wallet")
+    public ResponseEntity<Wallet> getWallet(@CurrentUser UserPrincipal currentUser) {
+        Wallet response = walletService.getWallet(currentUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/reset-password")

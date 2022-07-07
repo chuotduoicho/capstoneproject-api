@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static com.jovinn.capstoneproject.util.GenerateRandomNumber.getRandomNumberString;
+import static com.jovinn.capstoneproject.util.GenerateRandom.getRandomNumberString;
 
 @Service
 public class SellerServiceImpl implements SellerService {

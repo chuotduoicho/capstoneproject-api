@@ -4,7 +4,7 @@ import net.bytebuddy.utility.RandomString;
 
 import java.util.Random;
 
-public class GenerateRandomNumber {
+public class GenerateRandom {
     public static String getRandomNumberString() {
         Random rnd = new Random();
         int number = rnd.nextInt(999999);
@@ -14,5 +14,10 @@ public class GenerateRandomNumber {
     public static String getRandomContractNumber() {
         String code = RandomString.make(8);
         return "JOV-" + code.toUpperCase();
+    }
+
+    public static String getRandomPaymentId() {
+        String code = RandomString.make(8);
+        return "PAYID-" + code.toUpperCase();
     }
 }

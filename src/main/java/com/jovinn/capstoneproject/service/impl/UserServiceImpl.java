@@ -5,7 +5,6 @@ import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ChangePasswordResponse;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
@@ -15,7 +14,7 @@ import com.jovinn.capstoneproject.model.Buyer;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.repository.UserRepository;
-import com.jovinn.capstoneproject.repository.WalletRepository;
+import com.jovinn.capstoneproject.repository.payment.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
@@ -38,7 +37,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static com.jovinn.capstoneproject.util.GenerateRandomNumber.getRandomNumberString;
+import static com.jovinn.capstoneproject.util.GenerateRandom.getRandomNumberString;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +49,6 @@ public class UserServiceImpl implements UserService {
     private final ActivityTypeService activityTypeService;
     private final WalletRepository walletRepository;
     private final EmailSender emailSender;
-
     @Override
     public UserSummary getCurrentUser(UserPrincipal currentUser) {
         return new UserSummary(currentUser.getId(), currentUser.getUsername(), currentUser.getFirstName(),
@@ -166,12 +164,6 @@ public class UserServiceImpl implements UserService {
         buyer.setUser(user);
         buyer.setBuyerNumber(getRandomNumberString());
         user.setBuyer(buyer);
-
-//        Wallet wallet = new Wallet();
-//        wallet.setUser(user);
-//        wallet.setWithdraw((double) 0);
-//        wallet.setIncome((double) 0);
-//        user.setWallet(wallet);
 
         String link = WebConstant.DOMAIN + "/auth/verifyAccount/" + verificationCode;
         try {
