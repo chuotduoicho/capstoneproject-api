@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jovinn.capstoneproject.enumerable.ContractType;
 import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
 import com.jovinn.capstoneproject.enumerable.OrderStatus;
@@ -61,6 +62,10 @@ public class Contract extends BaseEntity {
 
     @OneToOne(fetch = FetchType.EAGER, mappedBy = "contract")
     Delivery delivery;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "contract")
+    @JsonManagedReference
+    List<Comment> comments;
 //
 //    @OneToMany(mappedBy = "contract", fetch = FetchType.EAGER)
 //    List<MilestoneContract> milestoneContracts;

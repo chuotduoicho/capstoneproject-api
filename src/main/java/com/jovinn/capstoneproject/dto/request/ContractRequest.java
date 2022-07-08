@@ -15,7 +15,7 @@ public class ContractRequest {
     @NotNull ContractType type;
 
     @NotNull
-    @Min(1)
+    @Min(0)
     @Max(100)
     Integer contractCancelFee;
 

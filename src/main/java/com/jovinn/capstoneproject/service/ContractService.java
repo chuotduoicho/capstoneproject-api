@@ -9,9 +9,10 @@ import java.util.UUID;
 
 public interface ContractService {
     ContractResponse createContract(ContractRequest request, UserPrincipal currentUser);
+    ContractResponse updateContractInfo(UUID id, ContractRequest request, UserPrincipal currentUser);
     ContractResponse updateStatusAcceptFromSeller(UUID id, ContractRequest request, UserPrincipal currentUser);
     ContractResponse updateStatusRejectFromSeller(UUID id, ContractRequest request, UserPrincipal currentUser);
     ContractResponse updateStatusCancelFromBuyer(UUID id, ContractRequest request, UserPrincipal currentUser);
     ContractResponse updateStatusAcceptDeliveryFromBuyer(UUID id, ContractRequest request, UserPrincipal currentUser);
-    Contract getContractById(UUID id);
+    Contract getContractById(UUID id, UserPrincipal currentUser);
 }

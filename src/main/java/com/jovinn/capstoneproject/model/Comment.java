@@ -2,51 +2,55 @@ package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.jovinn.capstoneproject.enumerable.SkillLevel;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class Skill extends BaseEntity {
+public class Comment extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-    String name;
+    @Type(type = "uuid-char")
+    UUID userId;
     @Enumerated(EnumType.STRING)
-    SkillLevel level;
-    String shortDescribe;
+    UserActivityType type;
+    String name;
+    @Size(min = 1, max = 255)
+    String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sellerId", referencedColumnName = "id")
+    @JoinColumn(name = "contractId", referencedColumnName = "id")
     @JsonBackReference
-    Seller seller;
+    Contract contract;
 
-    public Skill(String name, SkillLevel level, String shortDescribe, Seller seller) {
+    public Comment(UUID userId, UserActivityType type, String name,
+                   String text, Contract contract) {
+        this.userId = userId;
+        this.type = type;
         this.name = name;
-        this.level = level;
-        this.shortDescribe = shortDescribe;
-        this.seller = seller;
+        this.text = text;
+        this.contract = contract;
     }
 
     @JsonIgnore
-    public Seller getSeller() {
-        return seller;
+    public Contract getContract() {
+        return contract;
     }
 }
