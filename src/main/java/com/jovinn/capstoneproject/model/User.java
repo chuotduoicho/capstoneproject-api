@@ -1,13 +1,12 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.Gender;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
@@ -18,12 +17,16 @@ import javax.validation.constraints.Size;
 import java.util.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class User extends BaseEntity {
     @Id
     @GeneratedValue( strategy = GenerationType.AUTO)
@@ -70,11 +73,8 @@ public class User extends BaseEntity {
 
     @JsonIgnore
     String resetPasswordToken;
-//    @Enumerated(EnumType.STRING)
-//    UserActivityType activityType;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JsonIgnore
     @JoinTable(
             name = "user_activity_type",
             joinColumns = @JoinColumn(name = "userId"),
@@ -82,17 +82,14 @@ public class User extends BaseEntity {
     )
     Set<ActivityType> activityType = new HashSet<>();
 
-    //    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
-//    @JsonManagedReference
-//    Buyer buyer;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    Buyer buyer;
 
-//    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "buyerId")
-//    Buyer buyer;
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonIgnore
+    Wallet wallet;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    @JsonIgnore
     Seller seller;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

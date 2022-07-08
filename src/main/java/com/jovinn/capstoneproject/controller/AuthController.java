@@ -5,10 +5,14 @@ import com.jovinn.capstoneproject.dto.response.JwtAuthenticationResponse;
 import com.jovinn.capstoneproject.dto.request.LoginRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
 import com.jovinn.capstoneproject.exception.JovinnException;
+import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
 import com.jovinn.capstoneproject.service.UserService;
+import com.jovinn.capstoneproject.util.EmailSender;
+import com.jovinn.capstoneproject.util.RequestUtility;
 import lombok.RequiredArgsConstructor;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +24,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 @RestController
@@ -34,6 +41,8 @@ public class AuthController {
     private UserService userService;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private EmailSender emailSender;
 
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> authenticateUser(@RequestBody LoginRequest loginRequest) throws Exception {
@@ -63,5 +72,21 @@ public class AuthController {
                 .buildAndExpand(user.getId()).toUri();
 
         return ResponseEntity.created(location).body(new ApiResponse(Boolean.TRUE, "Đăng ký tài khoản thành công"));
+    }
+
+    @PostMapping("/forgot-password")
+    public String processForgotPassword(HttpServletRequest request) {
+        String email = request.getParameter("email");
+        String token = RandomString.make(10);
+        try {
+            userService.updateResetPasswordToken(token, email);
+            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
+            emailSender.sendEmailResetPassword(email, resetPasswordLink);
+        } catch (ResourceNotFoundException ex) {
+            return "User not found with email: " + email;
+        } catch (UnsupportedEncodingException | MessagingException e) {
+            return "Error while sending email";
+        }
+        return token;
     }
 }

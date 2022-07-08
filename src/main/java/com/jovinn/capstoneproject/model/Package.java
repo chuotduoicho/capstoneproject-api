@@ -1,7 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -31,7 +31,7 @@ public class Package extends  BaseEntity {
     String title;
     String shortDescription;
     Integer deliveryTime;
-    Float price;
+    BigDecimal price;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "box_service_id",referencedColumnName = "id")
@@ -39,4 +39,6 @@ public class Package extends  BaseEntity {
     @JsonBackReference
     Box box;
 
+//    @OneToMany(mappedBy = "pack", fetch = FetchType.EAGER)
+//    List<PackageOptional> packageOptionals;
 }

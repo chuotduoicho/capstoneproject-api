@@ -1,78 +1,81 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.fasterxml.jackson.annotation.JsonMerge;
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.response.BoxResponse;
 import com.jovinn.capstoneproject.model.Box;
-import com.jovinn.capstoneproject.model.Category;
-import com.jovinn.capstoneproject.model.Package;
+import com.jovinn.capstoneproject.security.CurrentUser;
+import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
-import com.jovinn.capstoneproject.service.CategoryService;
-import lombok.Data;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
 @CrossOrigin(origins = "*")
 public class BoxController {
     @Autowired
-    private BoxService boxService;
-
+    private ModelMapper modelMapper;
     @Autowired
-    private CategoryService categoryService;
-
+    private BoxService boxService;
     //API add Service
-    @PostMapping("/addService")
-    public Box addService(@RequestBody Box box){
-//        Category category = categoryService.deleteServiceCategoryById()
-//        Box temp = new Box();
-//        temp.setId(box.getId());
-//        for(Package pack : box.getPackages()){
-//            pack.setBox(temp);
-//        }
-//        box.setCategory(categoryService.getServiceCategoryById(category.getId()));
-        return boxService.saveBox(box);
+    @PostMapping("/add-box-service")
+    public ResponseEntity<ApiResponse> addService(@RequestBody Box box, @CurrentUser UserPrincipal currentUser){
+        ApiResponse response = boxService.saveBox(box, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     //API update Service
-    @PutMapping("/updateService")
-    public Box updateService(@RequestParam("id")UUID id,@RequestBody Box box){
-        return boxService.updateBox(box,id);
+    @PutMapping("/update-service")
+    public ResponseEntity<BoxResponse> updateService(@RequestParam("id")UUID id,
+                                                     @RequestBody Box box, @CurrentUser UserPrincipal currentUser){
+        BoxResponse response = boxService.updateBox(box, id, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //Api delete Service
-    @DeleteMapping("/deleteService/{id}")
+    @DeleteMapping("/delete-service/{id}")
     public boolean deleteBox(@PathVariable UUID id){
         return boxService.deleteBox(id);
     }
 
     //Api get Service By Seller Id
-    @GetMapping("/listServiceBySellerId/{sellerId}")
+    @GetMapping("/list-service-by-sellerId/{sellerId}")
     public List<Box> getBoxServiceBySellerId(@PathVariable UUID sellerId){
         return boxService.getListServiceBySellerId(sellerId);
     }
 
     //Api get all Service
-    @GetMapping("/listAllService")
-    public List<Box> getAllService(){
-        return boxService.getAllService();
-    }
+//    @GetMapping("/list-service")
+//    public List<Box> getAllService(){
+//        return boxService.getAllService();
+//    }
 
+    @GetMapping("/box-services")
+    public List<BoxResponse> getAllPosts() {
+        return boxService.getAllService().stream().map(box -> modelMapper.map(box, BoxResponse.class))
+                .collect(Collectors.toList());
+    }
     //Api view detail Service
-    @GetMapping("/serviceDetail/{id}")
+    @GetMapping("/box-details/{id}")
     public Box getServiceById(@PathVariable UUID id){
         return boxService.getServiceByID(id);
     }
 
-    @GetMapping("/getAllServiceByCatId/{catId}")
-    public List<Box> getAllServiceByCategoryId(@PathVariable("catId") UUID catId){
-        return boxService.getAllServiceByCategoryID(catId);
+    @GetMapping("/list-services-by-cat/{catId}")
+    public List<BoxResponse> getAllServiceByCategoryId(@PathVariable("catId") UUID catId){
+        return boxService.getAllServiceByCategoryID(catId).stream().map(box -> modelMapper.map(box, BoxResponse.class))
+                .collect(Collectors.toList());
     }
 
-    @GetMapping("/getAllServiceByCatIdPagination/{catId}/{page}")
+    @GetMapping("/paginate-list-services-by-cat/{catId}/{page}")
     public Page<Box> getAllServiceByCategoryIdPagination(@PathVariable UUID catId,@PathVariable int page){
         return  boxService.getAllServiceByCatIdPagination(page,catId);
     }
