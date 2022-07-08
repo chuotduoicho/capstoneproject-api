@@ -48,12 +48,10 @@ public class PostRequestController {
         return postRequestService.getPostRequestDetails(postRequestId);
     }
 
-//    @GetMapping("/sendInviteSellerViewPost/{sellerId}")
-//    public String sendInviteSellerViewPost(@PathVariable UUID sellerId,@CurrentUser UserPrincipal currentUser){
-//        try{
-//
-//        }catch(UnsupportedEncodingException | MessagingException e){
-//
-//        }
-//    }
+    @PutMapping("/updatePostRequest/{postRequestId}")
+    public ResponseEntity<ApiResponse> updatePostRequest(@PathVariable UUID postRequestId,@CurrentUser UserPrincipal currentUser,
+                                           @RequestBody PostRequestRequest request){
+        ApiResponse apiResponse = postRequestService.updatePostRequest(request,postRequestId,currentUser);
+       return new ResponseEntity< >(apiResponse, HttpStatus.CREATED);
+    }
 }

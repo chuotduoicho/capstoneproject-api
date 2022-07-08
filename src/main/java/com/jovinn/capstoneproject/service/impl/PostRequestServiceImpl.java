@@ -5,6 +5,7 @@ import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
 import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.security.UserPrincipal;
@@ -82,8 +83,39 @@ public class PostRequestServiceImpl implements PostRequestService {
     }
 
     @Override
-    public PostRequest updatePostRequest(PostRequest postRequest, UUID id) {
-        return null;
+    public ApiResponse updatePostRequest(PostRequestRequest request, UUID id, UserPrincipal currentUser) {
+        Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+        PostRequest post = postRequestRepository.findById(id)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+        if (post.getUser().getId().equals(buyer.getUser().getId())){
+            PostRequest updatePostRequest = new PostRequest();
+            PostRequest savedPostRequest;
+            if (request != null){
+            updatePostRequest.setCategory(categoryRepository.findCategoryById(request.getCategoryId()));
+            updatePostRequest.setSubCategory(subCategoryRepository.findSubCategoryById(request.getSubcategoryId()));
+            updatePostRequest.setRecruitLevel(request.getRecruitLevel());
+            updatePostRequest.setSkills(skillRepository.findAllByNameIn(request.getSkillsName()));
+            updatePostRequest.setJobTitle(request.getJobTitle());
+            updatePostRequest.setShortRequirement(request.getShortRequirement());
+            updatePostRequest.setAttachFile(request.getAttachFile());
+            updatePostRequest.setStatus(PostRequestStatus.OPEN);
+            updatePostRequest.setContractCancelFee(request.getContractCancelFee());
+            updatePostRequest.setBudget(request.getBudget());
+            updatePostRequest.setUser(userRepository.findUserById(currentUser.getId()));
+                savedPostRequest =  postRequestRepository.save(updatePostRequest);
+                List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
+                if (milestoneContractList != null){
+                    for (MilestoneContract milestoneContract : milestoneContractList){
+                        milestoneContract.setPostRequest(savedPostRequest);
+                        milestoneContractService.addMilestoneContract(milestoneContract);
+                    }
+                }
+                return new ApiResponse(Boolean.TRUE, "Cập nhật yêu cầu thành công");
+            }
+        }
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
     }
 
     @Override

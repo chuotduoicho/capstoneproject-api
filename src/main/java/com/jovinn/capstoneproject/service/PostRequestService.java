@@ -16,7 +16,7 @@ public interface PostRequestService {
     ApiResponse addPostRequest(PostRequestRequest request, UserPrincipal currentUser);
 
     //Update Post Request
-    PostRequest updatePostRequest(PostRequest postRequest, UUID id);
+    ApiResponse updatePostRequest(PostRequestRequest postRequest, UUID id, UserPrincipal currentUser);
 
     //Delete Post Request
     Boolean deletePostRequest(UUID id);
