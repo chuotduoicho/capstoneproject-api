@@ -63,4 +63,12 @@ public class PostRequest extends BaseEntity {
     @JoinColumn(name = "userId", referencedColumnName = "id")
     @JsonBackReference
     User user;
+
+    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinTable(
+            name = "post_request_seller",
+            joinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "seller_id", referencedColumnName = "id")
+    )
+    List<Seller> sellersApplyRequest;
 }

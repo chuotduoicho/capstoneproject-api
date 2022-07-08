@@ -37,6 +37,9 @@ public class PostRequestServiceImpl implements PostRequestService {
     private UserRepository userRepository;
 
     @Autowired
+    private  SellerRepository sellerRepository;
+
+    @Autowired
     private MilestoneContractService milestoneContractService;
 
     @Autowired
@@ -87,23 +90,22 @@ public class PostRequestServiceImpl implements PostRequestService {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
         PostRequest post = postRequestRepository.findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Post Request not found "));
         if (post.getUser().getId().equals(buyer.getUser().getId())){
-            PostRequest updatePostRequest = new PostRequest();
             PostRequest savedPostRequest;
             if (request != null){
-            updatePostRequest.setCategory(categoryRepository.findCategoryById(request.getCategoryId()));
-            updatePostRequest.setSubCategory(subCategoryRepository.findSubCategoryById(request.getSubcategoryId()));
-            updatePostRequest.setRecruitLevel(request.getRecruitLevel());
-            updatePostRequest.setSkills(skillRepository.findAllByNameIn(request.getSkillsName()));
-            updatePostRequest.setJobTitle(request.getJobTitle());
-            updatePostRequest.setShortRequirement(request.getShortRequirement());
-            updatePostRequest.setAttachFile(request.getAttachFile());
-            updatePostRequest.setStatus(PostRequestStatus.OPEN);
-            updatePostRequest.setContractCancelFee(request.getContractCancelFee());
-            updatePostRequest.setBudget(request.getBudget());
-            updatePostRequest.setUser(userRepository.findUserById(currentUser.getId()));
-                savedPostRequest =  postRequestRepository.save(updatePostRequest);
+                post.setCategory(categoryRepository.findCategoryById(request.getCategoryId()));
+                post.setSubCategory(subCategoryRepository.findSubCategoryById(request.getSubcategoryId()));
+                post.setRecruitLevel(request.getRecruitLevel());
+                post.setSkills(skillRepository.findAllByNameIn(request.getSkillsName()));
+                post.setJobTitle(request.getJobTitle());
+                post.setShortRequirement(request.getShortRequirement());
+                post.setAttachFile(request.getAttachFile());
+                post.setStatus(PostRequestStatus.OPEN);
+                post.setContractCancelFee(request.getContractCancelFee());
+                post.setBudget(request.getBudget());
+                post.setUser(userRepository.findUserById(currentUser.getId()));
+                savedPostRequest =  postRequestRepository.save(post);
                 List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
                 if (milestoneContractList != null){
                     for (MilestoneContract milestoneContract : milestoneContractList){
@@ -164,5 +166,32 @@ public class PostRequestServiceImpl implements PostRequestService {
                 postRequest.getContractCancelFee(), postRequest.getBudget(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
                 postRequest.getUser().getCity(),postRequest.getUser().getCreateAt(),postRequestRepository.countPostRequestByUser_Id(postRequest.getUser().getId()));
 //        return postRequestRepository.findPostRequestById(postRequestId);
+    }
+
+    @Override
+    public ApiResponse sellerApplyRequest(UUID postRequestId, UserPrincipal currentUser) {
+        Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found "));
+        PostRequest post = postRequestRepository.findById(postRequestId)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Post Request not found "));
+        List<Seller> sellersApply ;
+        if (seller.getUser().getId().equals(currentUser.getId()) &&
+                seller.getUser().getIsEnabled().equals(Boolean.TRUE)){
+
+                sellersApply = sellerRepository.findAllByPostRequests_Id(postRequestId);
+                for (Seller sellerApply: sellersApply){
+                    if (sellerApply.getId().equals(seller.getId())){
+                        return new ApiResponse(Boolean.FALSE, "Bạn đã apply bài Post Request này");
+                    }
+                }
+                sellersApply.add(seller);
+                post.setSellersApplyRequest(sellersApply);
+                postRequestRepository.save(post);
+
+            return new ApiResponse(Boolean.TRUE,"Apply Post Request thành công");
+
+        }
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
     }
 }

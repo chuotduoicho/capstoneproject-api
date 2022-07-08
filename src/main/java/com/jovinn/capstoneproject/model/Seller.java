@@ -74,4 +74,8 @@ public class Seller extends BaseEntity {
 //    @JsonManagedReference
     @JsonIgnore
     List<Box> boxes;
+
+    @ManyToMany(mappedBy = "sellersApplyRequest")
+    @JsonIgnore
+    List<PostRequest> postRequests;
 }

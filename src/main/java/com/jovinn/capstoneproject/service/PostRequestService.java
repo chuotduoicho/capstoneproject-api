@@ -29,4 +29,7 @@ public interface PostRequestService {
 
     //View Post Request Detail
     PostRequestResponse getPostRequestDetails(UUID postRequestId);
+
+    //Seller Apply Request
+    ApiResponse sellerApplyRequest(UUID postRequestId, UserPrincipal currentUser);
 }

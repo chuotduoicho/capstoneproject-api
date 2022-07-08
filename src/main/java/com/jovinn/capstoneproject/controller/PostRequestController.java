@@ -54,4 +54,10 @@ public class PostRequestController {
         ApiResponse apiResponse = postRequestService.updatePostRequest(request,postRequestId,currentUser);
        return new ResponseEntity< >(apiResponse, HttpStatus.CREATED);
     }
+
+    @PutMapping("/sellerApplyRequest/{postRequestId}")
+    public ResponseEntity<ApiResponse> sellerApplyRequest(@PathVariable UUID postRequestId,@CurrentUser UserPrincipal currentUser){
+        ApiResponse apiResponse = postRequestService.sellerApplyRequest(postRequestId,currentUser);
+        return new ResponseEntity<>(apiResponse,HttpStatus.CREATED);
+    }
 }
