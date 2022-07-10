@@ -112,14 +112,6 @@ public class ContractServiceImpl implements ContractService {
         throw new UnauthorizedException(apiResponse);
     }
 
-    @Override
-    public ContractResponse updateContractInfo(UUID id, ContractRequest request, UserPrincipal currentUser) {
-        Contract contract = contractRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Contract", "Contract not found", id));
-        
-        return null;
-    }
-
     //ACCEPT ORDER BY SELLER => OrderStatus.ACTIVE && DeliveryStatus.PROCESSING
     //When seller accept order
     @Override
