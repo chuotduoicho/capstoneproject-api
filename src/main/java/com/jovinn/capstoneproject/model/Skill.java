@@ -37,7 +37,6 @@ public class Skill extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sellerId", referencedColumnName = "id")
-    //@JsonManagedReference
     @JsonBackReference
     Seller seller;
 

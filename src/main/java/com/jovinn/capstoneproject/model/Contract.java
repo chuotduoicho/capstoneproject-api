@@ -5,21 +5,22 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jovinn.capstoneproject.enumerable.ContractType;
 import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
 import com.jovinn.capstoneproject.enumerable.OrderStatus;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,8 +38,8 @@ public class Contract extends BaseEntity {
     String requirement;
     Integer quantity;
     Integer contractCancelFee;
-    Double serviceDeposit;
-    Double totalPrice;
+    BigDecimal serviceDeposit;
+    BigDecimal totalPrice;
     Integer totalDeliveryTime;
     @Temporal(TemporalType.DATE)
     Date expectCompleteDate;
@@ -51,27 +52,28 @@ public class Contract extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id", referencedColumnName = "id")
-    //@JsonBackReference
     Buyer buyer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
-    //@JsonBackReference
     Seller seller;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "contract")
     List<ExtraOffer> extraOffers;
 
-//    @OneToOne(fetch = FetchType.EAGER, mappedBy = "contract")
-//    @JsonManagedReference
-//    Delivery delivery;
+    @OneToOne(fetch = FetchType.EAGER, mappedBy = "contract")
+    Delivery delivery;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "contract")
+    @JsonManagedReference
+    List<Comment> comments;
 //
 //    @OneToMany(mappedBy = "contract", fetch = FetchType.EAGER)
 //    List<MilestoneContract> milestoneContracts;
 
     public Contract(UUID packageId, String contractCode, String requirement,
-                    Integer quantity, Integer contractCancelFee, Double serviceDeposit,
-                    Double totalPrice, Integer totalDeliveryTime,
+                    Integer quantity, Integer contractCancelFee, BigDecimal serviceDeposit,
+                    BigDecimal totalPrice, Integer totalDeliveryTime,
                     Date expectCompleteDate, DeliveryStatus deliveryStatus,
                     OrderStatus status, ContractType type, Buyer buyer, Seller seller) {
         this.packageId = packageId;

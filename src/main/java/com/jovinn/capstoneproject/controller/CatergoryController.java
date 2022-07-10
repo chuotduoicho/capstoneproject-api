@@ -10,18 +10,18 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1")
 @CrossOrigin(origins = "*")
 public class CatergoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @PostMapping("/addCategory")
+    @PostMapping("/category")
     public Category addCategory(@RequestBody Category category) {
         return categoryService.saveCategory(category);
     }
 
-    @PostMapping("/addCategories")
+    @PostMapping("/categories")
     public List<Category> addCategories(@RequestBody List<Category> serviceCategories) {
         return categoryService.saveCategories(serviceCategories);
     }
@@ -31,7 +31,7 @@ public class CatergoryController {
         return categoryService.getCategories();
     }
 
-    @GetMapping("/categoryById/{id}")
+    @GetMapping("/category/{id}")
     public Category findProductById(@PathVariable UUID id) {
         return categoryService.getCategoryById(id);
     }
@@ -42,7 +42,7 @@ public class CatergoryController {
     }
 
     @PutMapping("/update")
-    public Category updateProduct(@RequestBody Category category) {
+    public Category updateCategory(@RequestBody Category category) {
         return categoryService.updateCategory(category);
     }
 

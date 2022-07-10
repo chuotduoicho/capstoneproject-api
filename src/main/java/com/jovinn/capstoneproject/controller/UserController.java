@@ -1,29 +1,25 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
+import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
-import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.SellerService;
 import com.jovinn.capstoneproject.service.UserService;
-import com.jovinn.capstoneproject.util.EmailSender;
-import com.jovinn.capstoneproject.util.RequestUtility;
+import com.jovinn.capstoneproject.service.WalletService;
 import lombok.RequiredArgsConstructor;
-import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,15 +33,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private SellerService sellerService;
-    private final EmailSender emailSender;
-//    @GetMapping("/me")
-//    public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
-//        UserSummary userSummary = userService.getCurrentUser(currentUser);
-//        if(userSummary == null) {
-//            throw new ApiException(HttpStatus.BAD_REQUEST, "User not found in database!!!");
-//        }
-//        return new ResponseEntity< >(userSummary, HttpStatus.OK);
-//    }
+    @Autowired
+    private WalletService walletService;
 
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
@@ -82,31 +71,20 @@ public class UserController {
         return new ResponseEntity< >(updatedUser, HttpStatus.CREATED);
     }
 
-    @PostMapping("/join-selling/{id}")
-    public ResponseEntity<Seller> joinSelling(@PathVariable UUID id,
-                                                   @RequestBody Seller seller,
+    @PostMapping("/join-selling")
+    public ResponseEntity<Seller> joinSelling(@RequestBody Seller seller,
                                                    @CurrentUser UserPrincipal currentUser) {
-        Seller sellerInfo = sellerService.becomeSeller(id, seller, currentUser);
+        Seller sellerInfo = sellerService.becomeSeller(seller, currentUser);
         return new ResponseEntity<>(sellerInfo, HttpStatus.CREATED);
     }
 
-    @PostMapping("/forgot_password")
-    public String processForgotPassword(HttpServletRequest request) {
-        String email = request.getParameter("email");
-        String token = RandomString.make(10);
-        try {
-            userService.updateResetPasswordToken(token, email);
-            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
-            emailSender.sendEmailResetPassword(email, resetPasswordLink);
-        } catch (ResourceNotFoundException ex) {
-            return "User not found with email: " + email;
-        } catch (UnsupportedEncodingException | MessagingException e) {
-            return "Error while sending email";
-        }
-        return token;
+    @GetMapping("/wallet")
+    public ResponseEntity<Wallet> getWallet(@CurrentUser UserPrincipal currentUser) {
+        Wallet response = walletService.getWallet(currentUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/reset_password")
+    @PostMapping("/reset-password")
     public String processResetPassword(@RequestBody ResetPasswordRequest request) {
         String token = request.getToken();
         String password = request.getPassword();
@@ -117,5 +95,11 @@ public class UserController {
             userService.updatePassword(user, password);
             return "You have succcessfully changed your password.";
         }
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<ApiResponse> changePassword(@Valid @RequestBody ChangePasswordRequest request, @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = userService.changePassword(request, currentUser);
+        return new ResponseEntity< >(response, HttpStatus.CREATED);
     }
 }
