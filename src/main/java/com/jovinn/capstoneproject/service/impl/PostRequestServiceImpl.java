@@ -70,8 +70,8 @@ public class PostRequestServiceImpl implements PostRequestService {
             for (User userInvite: usersGetInvite){
                 notification = new Notification();
                 notification.setUser(userInvite);
-                notification.setLink("/getPostRequestDetails/"+buyer.getUser().getId().toString()+"");
-                notification.setShortContent("You have new invite from "+buyer.getUser().getFirstName()+" "+buyer.getUser().getLastName()+"");
+                notification.setLink("/getPostRequestDetails/" + buyer.getUser().getId().toString() + "");
+                notification.setShortContent("You have new invite from " + buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName()+"");
                 notificationService.saveNotification(notification);
             }
             savedPostRequest =  postRequestRepository.save(postRequest);
@@ -91,7 +91,7 @@ public class PostRequestServiceImpl implements PostRequestService {
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
         PostRequest post = postRequestRepository.findById(id)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Post Request not found "));
-        if (post.getUser().getId().equals(buyer.getUser().getId())){
+        if (post.getUser().getId().equals(buyer.getUser().getId()) && post.getUser().getId().equals(currentUser.getId())){
             PostRequest savedPostRequest;
             if (request != null){
                 post.setCategory(categoryRepository.findCategoryById(request.getCategoryId()));
@@ -136,8 +136,8 @@ public class PostRequestServiceImpl implements PostRequestService {
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
                 buyer.getUser().getIsEnabled().equals(Boolean.TRUE)) {
             postRequest = postRequestRepository.findAllByUser_Id(currentUser.getId());
-            for (PostRequest postRequest1 : postRequest) {
 
+            for (PostRequest postRequest1 : postRequest) {
                 postRequestResponses.add(new PostRequestResponse(postRequest1.getCategory().getId(), postRequest1.getSubCategory().getId(),
                         postRequest1.getRecruitLevel(), postRequest1.getSkills(), postRequest1.getJobTitle(), postRequest1.getShortRequirement(),
                         postRequest1.getAttachFile(), postRequest1.getMilestoneContracts(), postRequest1.getContractCancelFee(), postRequest1.getBudget()));
@@ -191,6 +191,7 @@ public class PostRequestServiceImpl implements PostRequestService {
             return new ApiResponse(Boolean.TRUE,"Apply Post Request thành công");
 
         }
+
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }

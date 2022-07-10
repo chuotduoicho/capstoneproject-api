@@ -81,7 +81,6 @@ public class User extends BaseEntity {
     Set<ActivityType> activityType = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-//    @JsonManagedReference
     Buyer buyer;
 
 //    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

@@ -30,7 +30,7 @@ public class Buyer extends BaseEntity {
     Integer successContract;
     String buyerNumber;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @JsonBackReference
     User user;

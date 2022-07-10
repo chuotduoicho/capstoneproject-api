@@ -22,7 +22,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class MilestoneContract extends BaseEntity{
+public class MilestoneContract extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
@@ -35,6 +35,7 @@ public class MilestoneContract extends BaseEntity{
     Date endDate;
     @Enumerated(EnumType.STRING)
     MilestoneStatus status;
+
     Integer totalFeePercent;
 
     @ManyToOne(fetch = FetchType.EAGER)
