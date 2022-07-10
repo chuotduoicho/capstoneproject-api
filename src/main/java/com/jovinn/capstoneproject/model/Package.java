@@ -11,6 +11,9 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -27,11 +30,20 @@ public class Package extends  BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-//    UUID boxServiceId;
     String title;
+
+    @Size(min = 20, max = 500)
     String shortDescription;
+
+    @Min(1)
     Integer deliveryTime;
+
+    @Min(1)
     BigDecimal price;
+
+    @Min(0)
+    @Max(100)
+    Integer contractCancelFee;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "box_service_id",referencedColumnName = "id")

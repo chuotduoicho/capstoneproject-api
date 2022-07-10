@@ -15,7 +15,7 @@ import java.util.UUID;
 public class ContractResponse {
     @NotNull UUID id;
     UUID packageId;
-    String contractNumber;
+    String contractCode;
     String requirement;
     Integer quantity;
     Integer contractCancelFee;
@@ -29,7 +29,7 @@ public class ContractResponse {
     UUID buyerId;
     UUID sellerId;
 
-    public ContractResponse(UUID id, UUID packageId, String contractNumber,
+    public ContractResponse(UUID id, UUID packageId, String contractCode,
                             String requirement, Integer quantity, Integer contractCancelFee,
                             BigDecimal serviceDeposit, BigDecimal totalPrice,
                             Integer totalDeliveryTime, Date expectCompleteDate,
@@ -37,7 +37,7 @@ public class ContractResponse {
                             UUID buyerId, UUID sellerId) {
         this.id = id;
         this.packageId = packageId;
-        this.contractNumber = contractNumber;
+        this.contractCode = contractCode;
         this.requirement = requirement;
         this.quantity = quantity;
         this.contractCancelFee = contractCancelFee;

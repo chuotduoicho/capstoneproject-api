@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
+import com.jovinn.capstoneproject.enumerable.ContractType;
 import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
 import com.jovinn.capstoneproject.enumerable.OrderStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
@@ -63,22 +64,28 @@ public class ContractServiceImpl implements ContractService {
         Wallet walletBuyer = walletRepository.findWalletByUserId(currentUser.getId());
         String contractCode = getRandomContractNumber();
 
+        Integer contractCancelFee;
+        if (pack.getContractCancelFee() == null) {
+            contractCancelFee = 0;
+        } else {
+            contractCancelFee = pack.getContractCancelFee();
+        }
         //double extraPrice = packageOptional.getOptionPrice();
         Integer countTotalDeliveryTime = pack.getDeliveryTime() * request.getQuantity();
         Date expectCompleteDate = dateDelivery.expectDate(Calendar.DAY_OF_MONTH, countTotalDeliveryTime);
         BigDecimal totalPrice = scale2(pack.getPrice().multiply(new BigDecimal(request.getQuantity())));
-        BigDecimal serviceDeposit = totalPrice.multiply(new BigDecimal(request.getContractCancelFee())).divide(ONE_HUNDRED, RoundingMode.FLOOR);
+        BigDecimal serviceDeposit = totalPrice.multiply(new BigDecimal(contractCancelFee)).divide(ONE_HUNDRED, RoundingMode.FLOOR);
 
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
                 buyer.getUser().getIsEnabled().equals(Boolean.TRUE)) {
-            if (walletBuyer.getWithdraw().compareTo(totalPrice) >= 0) {
+            if (walletBuyer.getWithdraw().compareTo(totalPrice.add(serviceDeposit)) >= 0) {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                 saveWallet(walletBuyer);
 
                 Contract contract = new Contract(request.getPackageId(), contractCode,
-                        request.getRequirement(), request.getQuantity(), request.getContractCancelFee(),
+                        request.getRequirement(), request.getQuantity(), contractCancelFee,
                         serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
-                        DeliveryStatus.PENDING, OrderStatus.ACTIVE, request.getType(), buyer, seller);
+                        DeliveryStatus.PENDING, OrderStatus.ACTIVE, ContractType.SERVICE, buyer, seller);
                 Contract newContract = contractRepository.save(contract);
 
                 String linkOrderForSeller = WebConstant.DOMAIN + "/dashboard/" + seller.getBrandName() + "/order/" + newContract.getId();
@@ -126,7 +133,7 @@ public class ContractServiceImpl implements ContractService {
         BigDecimal serviceDeposit = contract.getServiceDeposit();
 
         if (contract.getSeller().getUser().getId().equals(currentUser.getId())) {
-            if(contract.getDeliveryStatus().equals(DeliveryStatus.PROCESSING)) {
+            if (contract.getDeliveryStatus().equals(DeliveryStatus.PROCESSING)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn đang trong quá trình thực hiện hợp đồng");
             } else if(contract.getDeliveryStatus().equals(DeliveryStatus.REJECT)
                     || contract.getStatus().equals(OrderStatus.CANCEL)) {
@@ -230,8 +237,12 @@ public class ContractServiceImpl implements ContractService {
 
         if (contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
             if (contract.getDeliveryStatus().equals(DeliveryStatus.PROCESSING)) {
-                walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(buyerReceiveAfterCancel));
-                walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
+                if (walletBuyer.getWithdraw().compareTo(contract.getServiceDeposit()) >= 0) {
+                    walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(buyerReceiveAfterCancel));
+                    walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
+                } else {
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể thực hiện do số dư của bạn không đủ để huỷ hợp đồng");
+                }
             } else if (contract.getDeliveryStatus().equals(DeliveryStatus.REJECT)
                     || contract.getStatus().equals(OrderStatus.CANCEL)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể từ chối do hợp đồng đã kết thúc");
