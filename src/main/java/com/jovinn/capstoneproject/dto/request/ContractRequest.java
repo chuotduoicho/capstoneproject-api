@@ -1,6 +1,5 @@
 package com.jovinn.capstoneproject.dto.request;
 
-import com.jovinn.capstoneproject.enumerable.ContractType;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;

@@ -320,9 +320,15 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public Contract getContractById(UUID id) {
-        return contractRepository.findById(id)
+    public Contract getContractById(UUID id, UserPrincipal currentUser) {
+        Contract contract = contractRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contract", "Contract not found ", id));
+        if (contract.getBuyer().getUser().getId().equals(currentUser.getId())
+            || contract.getSeller().getUser().getId().equals(currentUser.getId())) {
+            return contract;
+        } else {
+            throw new JovinnException(HttpStatus.BAD_REQUEST, "You don't have permission");
+        }
     }
 
     private ContractResponse getUpdateResponse(Contract contract, DeliveryStatus deliveryStatus, OrderStatus orderStatus) {

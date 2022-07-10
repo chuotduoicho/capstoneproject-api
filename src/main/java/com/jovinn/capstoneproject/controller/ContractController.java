@@ -26,8 +26,8 @@ public class ContractController {
     @Autowired
     private DeliveryService deliveryService;
     @GetMapping("/{id}")
-    public ResponseEntity<Contract> getContractById(@PathVariable UUID id) {
-        Contract response = contractService.getContractById(id);
+    public ResponseEntity<Contract> getContractById(@PathVariable UUID id, @CurrentUser UserPrincipal currentUser) {
+        Contract response = contractService.getContractById(id, currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @PostMapping("")
