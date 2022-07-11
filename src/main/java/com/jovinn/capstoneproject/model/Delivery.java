@@ -30,7 +30,7 @@ public class Delivery extends BaseEntity {
     String file;
     String description;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contractId", referencedColumnName = "id")
     @JsonBackReference
     Contract contract;

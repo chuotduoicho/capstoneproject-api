@@ -18,7 +18,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/box")
 @CrossOrigin(origins = "*")
 public class BoxController {
     @Autowired

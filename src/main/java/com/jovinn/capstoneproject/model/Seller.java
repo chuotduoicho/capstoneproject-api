@@ -64,6 +64,10 @@ public class Seller extends BaseEntity {
     @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)
     List<Box> boxes;
 
+    @ManyToMany(mappedBy = "sellersApplyRequest")
+    @JsonIgnore
+    List<PostRequest> postRequests;
+
     @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)
     List<Contract> contracts;
 }

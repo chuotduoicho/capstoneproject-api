@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jovinn.capstoneproject.enumerable.MilestoneStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +33,13 @@ public class MilestoneContract extends BaseEntity {
     Date endDate;
     @Enumerated(EnumType.STRING)
     MilestoneStatus status;
+
+    Integer totalFeePercent;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "post_request_id", referencedColumnName = "id")
+    @JsonIgnore
+    PostRequest postRequest;
 
 //    @ManyToOne(fetch = FetchType.EAGER)
 //    @JoinColumn(name = "contractId", referencedColumnName = "id")
