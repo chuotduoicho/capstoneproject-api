@@ -3,9 +3,7 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
-import com.jovinn.capstoneproject.enumerable.ContractType;
-import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
-import com.jovinn.capstoneproject.enumerable.OrderStatus;
+import com.jovinn.capstoneproject.enumerable.*;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
@@ -53,6 +51,8 @@ public class ContractServiceImpl implements ContractService {
     private PostRequestRepository postRequestRepository;
     @Autowired
     private MilestoneContractRepository milestoneContractRepository;
+    @Autowired
+    private NotificationRepository notificationRepository;
     @Autowired
     private EmailSender emailSender;
     @Autowired
@@ -352,9 +352,61 @@ public class ContractServiceImpl implements ContractService {
                         DeliveryStatus.PROCESSING, OrderStatus.ACTIVE, ContractType.REQUEST, buyer, seller);
                 contract.setPostRequest(postRequest);
                 Contract newContract = contractRepository.save(contract);
+
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                 saveWallet(walletBuyer);
 
+                updateStatusAfterAcceptOffer(postRequest, offerRequest);
+                changeStatusAllOfferRejected(postRequest);
+                return new ContractResponse(newContract.getId(), newContract.getPackageId(),
+                        newContract.getContractCode(), newContract.getRequirement(),
+                        newContract.getQuantity(), newContract.getContractCancelFee(),
+                        newContract.getServiceDeposit(), newContract.getTotalPrice(),
+                        newContract.getTotalDeliveryTime(), newContract.getExpectCompleteDate(),
+                        DeliveryStatus.PROCESSING, OrderStatus.ACTIVE, postRequest,
+                        newContract.getBuyer().getUser().getId(),
+                        newContract.getSeller().getUser().getId());
+            } else {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Không đủ số dư để bắt đầu hợp đồng");
+            }
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public ContractResponse createContractFromSellerApply(UUID postRequestId, UUID sellerId, UserPrincipal currentUser) {
+        PostRequest postRequest = postRequestRepository.findById(postRequestId)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy postRequest"));
+        Seller seller = sellerRepository.findById(sellerId)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+        Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+        Wallet walletBuyer = walletRepository.findWalletByUserId(postRequest.getUser().getId());
+
+        String contractCode = getRandomContractNumber();
+        BigDecimal totalPrice = postRequest.getBudget();
+        Integer countTotalDeliveryTime = postRequest.getTotalDeliveryTime();
+        Date expectCompleteDate = dateDelivery.expectDate(Calendar.DAY_OF_MONTH, countTotalDeliveryTime);
+        BigDecimal serviceDeposit = postRequest.getBudget()
+                .multiply(new BigDecimal(postRequest.getContractCancelFee()))
+                .divide(ONE_HUNDRED, RoundingMode.FLOOR);
+
+        if (postRequest.getUser().getId().equals(currentUser.getId())) {
+            if (walletBuyer.getWithdraw().compareTo(totalPrice) >= 0 ) {
+                Contract contract = new Contract(null, contractCode,
+                        postRequest.getShortRequirement(), 1, postRequest.getContractCancelFee(),
+                        serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
+                        DeliveryStatus.PROCESSING, OrderStatus.ACTIVE, ContractType.REQUEST, buyer, seller);
+                contract.setPostRequest(postRequest);
+                Contract newContract = contractRepository.save(contract);
+
+                walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
+                saveWallet(walletBuyer);
+
+                updateStatusPostRequestAfterAccepted(postRequest);
+                changeStatusAllOfferRejected(postRequest);
                 return new ContractResponse(newContract.getId(), newContract.getPackageId(),
                         newContract.getContractCode(), newContract.getRequirement(),
                         newContract.getQuantity(), newContract.getContractCancelFee(),
@@ -409,5 +461,47 @@ public class ContractServiceImpl implements ContractService {
 
     private static BigDecimal scale2(BigDecimal value) {
         return value.setScale(2, RoundingMode.HALF_EVEN);
+    }
+
+    private void updateStatusAfterAcceptOffer(PostRequest postRequest, OfferRequest offerRequest) {
+        offerRequest.setOfferRequestStatus(OfferRequestStatus.ACCEPTED);
+        offerRequest.setUpdatedAt(new Date());
+        offerRequestRepository.save(offerRequest);
+        updateStatusPostRequestAfterAccepted(postRequest);
+    }
+
+    private void updateStatusPostRequestAfterAccepted(PostRequest postRequest) {
+        postRequest.setStatus(PostRequestStatus.CLOSE);
+        postRequest.setUpdatedAt(new Date());
+        postRequestRepository.save(postRequest);
+    }
+
+    private void changeStatusAllOfferRejected(PostRequest postRequest) {
+        List<OfferRequest> listOfferRequest = offerRequestRepository.findAllByPostRequestId(postRequest.getId());
+        for(OfferRequest offerRequest : listOfferRequest) {
+            if(offerRequest.getOfferRequestStatus().equals(OfferRequestStatus.ACCEPTED)) {
+                offerRequest.setOfferRequestStatus(OfferRequestStatus.REJECTED);
+                offerRequestRepository.save(offerRequest);
+                Notification notification = new Notification();
+                notification.setUser(offerRequest.getSeller().getUser());
+                notification.setLink("Link tới post request mới");
+                notification.setShortContent("Bạn đã bị từ chối " + offerRequest.getId()
+                        + " do bài đăng đã được ký kết hợp đồng."
+                        + " Đừng lo lắng! Hãy cố gắng tìm được việc làm ung ý tại đây");
+                notificationRepository.save(notification);
+            }
+        }
+
+        List<Seller> listSellerApply = sellerRepository.findAllByPostRequests_Id(postRequest.getId());
+        for(Seller seller : listSellerApply) {
+            Notification notification = new Notification();
+            notification.setUser(seller.getUser());
+            notification.setLink("Link tới post request mới");
+            notification.setShortContent("Bạn đã bị từ chối bài đăng của "
+                    + postRequest.getUser().getLastName() + postRequest.getUser().getFirstName()
+                    + " do đã được ký kết hợp đồng."
+                    + " Đừng lo lắng! Hãy cố gắng tìm được việc làm ung ý tại đây");
+            notificationRepository.save(notification);
+        }
     }
 }

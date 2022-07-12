@@ -1,8 +1,10 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
+import com.jovinn.capstoneproject.dto.request.DeliveryHaveMilestoneRequest;
 import com.jovinn.capstoneproject.dto.request.DeliveryNotMilestoneRequest;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
+import com.jovinn.capstoneproject.dto.response.DeliveryHaveMilestoneResponse;
 import com.jovinn.capstoneproject.dto.response.DeliveryNotMilestoneResponse;
 import com.jovinn.capstoneproject.model.Contract;
 import com.jovinn.capstoneproject.security.CurrentUser;
@@ -37,6 +39,21 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PostMapping("/{postRequestId}")
+    public ResponseEntity<ContractResponse> createContractFromOffer(@PathVariable("postRequestId") UUID postRequestId,
+                                                                    @CurrentUser UserPrincipal currentUser) {
+        ContractResponse response = contractService.createContractFromSellerOffer(postRequestId, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/{postRequestId}/{sellerId}")
+    public ResponseEntity<ContractResponse> createContractFromApply(@PathVariable("postRequestId") UUID postRequestId,
+                                                                    @PathVariable("sellerId") UUID sellerId,
+                                                                    @CurrentUser UserPrincipal currentUser) {
+        ContractResponse response = contractService.createContractFromSellerApply(postRequestId, sellerId, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
     @PutMapping("/seller/accept/{id}")
     public ResponseEntity<ContractResponse> acceptContractFromSeller(@PathVariable("id") UUID id,
                                                                      @Valid @RequestBody ContractRequest request,
@@ -66,6 +83,14 @@ public class ContractController {
                                                                          @Valid @RequestBody DeliveryNotMilestoneRequest request,
                                                                          @CurrentUser UserPrincipal currentUser) {
         DeliveryNotMilestoneResponse response = deliveryService.createDelivery(id, request, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/delivery-for-milestone/{id}")
+    public ResponseEntity<DeliveryHaveMilestoneResponse> deliveryBySeller(@PathVariable("id") UUID id,
+                                                                                            @Valid @RequestBody DeliveryHaveMilestoneRequest request,
+                                                                                            @CurrentUser UserPrincipal currentUser) {
+        DeliveryHaveMilestoneResponse response = deliveryService.createDeliveryMilestone(id, request, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

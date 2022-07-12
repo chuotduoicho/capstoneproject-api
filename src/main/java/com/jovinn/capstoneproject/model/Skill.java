@@ -11,9 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -39,7 +37,6 @@ public class Skill extends BaseEntity {
     @JoinColumn(name = "sellerId", referencedColumnName = "id")
     @JsonBackReference
     Seller seller;
-
 
     @ManyToMany
     @JsonIgnore

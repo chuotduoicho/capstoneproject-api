@@ -14,5 +14,6 @@ public interface ContractService {
     ContractResponse updateStatusCancelFromBuyer(UUID id, ContractRequest request, UserPrincipal currentUser);
     ContractResponse updateStatusAcceptDeliveryFromBuyer(UUID id, ContractRequest request, UserPrincipal currentUser);
     ContractResponse createContractFromSellerOffer(UUID offerRequestId, UserPrincipal currentUser);
+    ContractResponse createContractFromSellerApply(UUID postRequestId, UUID sellerId, UserPrincipal currentUser);
     Contract getContractById(UUID id, UserPrincipal currentUser);
 }

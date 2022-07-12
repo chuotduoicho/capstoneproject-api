@@ -10,6 +10,6 @@ import java.util.UUID;
 
 public interface DeliveryService {
     DeliveryNotMilestoneResponse createDelivery(UUID contractId, DeliveryNotMilestoneRequest request, UserPrincipal currentUser);
-    DeliveryNotMilestoneResponse createDeliveryMilestone(UUID contractId, DeliveryHaveMilestoneRequest request, UserPrincipal currentUser);
+    DeliveryHaveMilestoneResponse createDeliveryMilestone(UUID contractId, DeliveryHaveMilestoneRequest request, UserPrincipal currentUser);
     DeliveryNotMilestoneResponse update(UUID deliveryId, DeliveryNotMilestoneRequest request, UserPrincipal currentUser);
 }

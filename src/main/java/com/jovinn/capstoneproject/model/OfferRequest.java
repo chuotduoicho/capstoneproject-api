@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.jovinn.capstoneproject.enumerable.OfferRequestStatus;
 import com.jovinn.capstoneproject.enumerable.OfferType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -31,6 +32,9 @@ public class OfferRequest extends BaseEntity {
     BigDecimal offerPrice;
     @Enumerated(EnumType.STRING)
     OfferType offerType;
+
+    @Enumerated(EnumType.STRING)
+    OfferRequestStatus offerRequestStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "postRequestId", referencedColumnName = "id")

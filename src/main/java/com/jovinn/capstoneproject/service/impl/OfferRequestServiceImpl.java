@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.request.OfferRequestRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.OfferRequestResponse;
+import com.jovinn.capstoneproject.enumerable.OfferRequestStatus;
 import com.jovinn.capstoneproject.enumerable.OfferType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
@@ -42,6 +43,7 @@ public class OfferRequestServiceImpl implements OfferRequestService {
             offerRequest.setCancelFee(request.getCancelFee());
             offerRequest.setOfferPrice(request.getOfferPrice());
             offerRequest.setOfferType(OfferType.OFFER);
+            offerRequest.setOfferRequestStatus(OfferRequestStatus.PENDING);
             OfferRequest save = offerRequestRepository.save(offerRequest);
             String message = "Gửi đi offer thành công qua " + postRequest.getId();
             return new OfferRequestResponse(save.getId(), save.getPostRequest().getId(), save.getDescriptionBio(),
@@ -52,6 +54,7 @@ public class OfferRequestServiceImpl implements OfferRequestService {
         throw new UnauthorizedException(apiResponse);
     }
 
+    //Not using now
     @Override
     public OfferRequestResponse sendOfferApplyToBuyer(UUID postRequestId, OfferRequestRequest request, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
@@ -66,6 +69,7 @@ public class OfferRequestServiceImpl implements OfferRequestService {
             offerRequest.setCancelFee(postRequest.getContractCancelFee());
             offerRequest.setOfferPrice(postRequest.getBudget());
             offerRequest.setOfferType(OfferType.APPLY);
+            offerRequest.setOfferRequestStatus(OfferRequestStatus.PENDING);
             OfferRequest save = offerRequestRepository.save(offerRequest);
             String message = "Gửi đi offer thành công qua " + postRequest.getId();
             return new OfferRequestResponse(save.getId(), save.getPostRequest().getId(), save.getDescriptionBio(),
