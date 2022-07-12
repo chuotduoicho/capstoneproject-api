@@ -58,7 +58,7 @@ public class Contract extends BaseEntity {
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
     Seller seller;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "contract")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "contract")
     List<ExtraOffer> extraOffers;
 
     @OneToOne(fetch = FetchType.EAGER, mappedBy = "contract")

@@ -78,6 +78,6 @@ public class PostRequest extends BaseEntity {
     )
     List<Seller> sellersApplyRequest;
 
-    @OneToMany(mappedBy = "postRequest" ,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "postRequest" ,fetch = FetchType.LAZY)
     List<OfferRequest> offerRequests;
 }
