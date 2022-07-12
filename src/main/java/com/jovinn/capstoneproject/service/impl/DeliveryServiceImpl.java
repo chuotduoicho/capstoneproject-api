@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.service.impl;
 
+import com.jovinn.capstoneproject.dto.request.DeliveryHaveMilestoneRequest;
 import com.jovinn.capstoneproject.dto.request.DeliveryNotMilestoneRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.DeliveryNotMilestoneResponse;
@@ -56,6 +57,12 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public DeliveryNotMilestoneResponse createDeliveryMilestone(UUID contractId, DeliveryHaveMilestoneRequest request, UserPrincipal currentUser) {
+
+        return null;
     }
 
     @Override

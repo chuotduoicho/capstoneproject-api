@@ -64,6 +64,9 @@ public class Contract extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER, mappedBy = "contract")
     Delivery delivery;
 
+    @OneToOne(mappedBy = "contract", fetch = FetchType.EAGER)
+    PostRequest postRequest;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "contract")
     @JsonManagedReference
     List<Comment> comments;

@@ -13,6 +13,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 @Entity
@@ -29,41 +30,46 @@ public class PostRequest extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-    @ManyToOne(fetch =  FetchType.EAGER)
-    @JoinColumn(name = "cat_service_id", referencedColumnName = "id")
-//    @JsonBackReference
-    Category category;
 
-    @ManyToOne(fetch =  FetchType.EAGER)
-    @JoinColumn(name = "sub_cat_service_id", referencedColumnName = "id")
-//    @JsonBackReference
-    SubCategory subCategory;
-
-    @ManyToMany(fetch = FetchType.EAGER,cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-    @JoinTable(
-            name = "post_request_skill",
-            joinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "id")
-    )
-    List<Skill> skills;
     @Enumerated(EnumType.STRING)
     PostRequestStatus status;
     String recruitLevel;
     String jobTitle;
     String shortRequirement;
     String attachFile;
+    Integer contractCancelFee;
+    Integer totalDeliveryTime;
+    BigDecimal budget;
+
+    @ManyToOne(fetch =  FetchType.EAGER)
+    @JoinColumn(name = "cat_service_id", referencedColumnName = "id")
+    Category category;
+
+    @ManyToOne(fetch =  FetchType.EAGER)
+    @JoinColumn(name = "sub_cat_service_id", referencedColumnName = "id")
+    SubCategory subCategory;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinTable(
+            name = "post_request_skill",
+            joinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "id")
+    )
+    List<Skill> skills;
 
     @OneToMany(mappedBy = "postRequest",cascade = CascadeType.ALL, orphanRemoval = true)
     List<MilestoneContract> milestoneContracts;
 
-    Integer contractCancelFee;
-    Double budget;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contractId", referencedColumnName = "id")
+    Contract contract;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "id")
-    @JsonBackReference
+    //@JsonBackReference
     User user;
 
+    @JsonIgnore
     @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinTable(
             name = "post_request_seller",
@@ -71,4 +77,7 @@ public class PostRequest extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "seller_id", referencedColumnName = "id")
     )
     List<Seller> sellersApplyRequest;
+
+    @OneToMany(mappedBy = "postRequest" ,fetch = FetchType.EAGER)
+    List<OfferRequest> offerRequests;
 }

@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static com.jovinn.capstoneproject.util.GenerateRandom.getRandomContractNumber;
@@ -46,6 +47,12 @@ public class ContractServiceImpl implements ContractService {
     private SellerRepository sellerRepository;
     @Autowired
     private PackageRepository packageRepository;
+    @Autowired
+    private OfferRequestRepository offerRequestRepository;
+    @Autowired
+    private PostRequestRepository postRequestRepository;
+    @Autowired
+    private MilestoneContractRepository milestoneContractRepository;
     @Autowired
     private EmailSender emailSender;
     @Autowired
@@ -107,7 +114,7 @@ public class ContractServiceImpl implements ContractService {
                         newContract.getQuantity(), newContract.getContractCancelFee(),
                         newContract.getServiceDeposit(), newContract.getTotalPrice(),
                         newContract.getTotalDeliveryTime(), newContract.getExpectCompleteDate(),
-                        DeliveryStatus.PENDING, OrderStatus.ACTIVE,
+                        DeliveryStatus.PENDING, OrderStatus.ACTIVE, null,
                         newContract.getBuyer().getUser().getId(),
                         newContract.getSeller().getUser().getId());
             } else {
@@ -320,6 +327,52 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
+    public ContractResponse createContractFromSellerOffer(UUID offerRequestId, UserPrincipal currentUser) {
+        OfferRequest offerRequest = offerRequestRepository.findById(offerRequestId)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy offerRequest"));
+        PostRequest postRequest = postRequestRepository.findPostRequestById(offerRequest.getPostRequest().getId());
+        Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+        Seller seller = sellerRepository.findById(offerRequest.getSeller().getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found "));
+        Wallet walletBuyer = walletRepository.findWalletByUserId(postRequest.getUser().getId());
+
+        String contractCode = getRandomContractNumber();
+        Integer countTotalDeliveryTime = offerRequest.getTotalDeliveryTime();
+        Date expectCompleteDate = dateDelivery.expectDate(Calendar.DAY_OF_MONTH, countTotalDeliveryTime);
+        BigDecimal totalPrice = offerRequest.getOfferPrice();
+        BigDecimal serviceDeposit = totalPrice.multiply(new BigDecimal(offerRequest.getCancelFee())).divide(ONE_HUNDRED, RoundingMode.FLOOR);
+        List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(postRequest.getId());
+
+        if (postRequest.getUser().getId().equals(currentUser.getId())) {
+            if (walletBuyer.getWithdraw().compareTo(totalPrice) >= 0 ) {
+                Contract contract = new Contract(null, contractCode,
+                        postRequest.getShortRequirement(), 1, offerRequest.getCancelFee(),
+                        serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
+                        DeliveryStatus.PROCESSING, OrderStatus.ACTIVE, ContractType.REQUEST, buyer, seller);
+                contract.setPostRequest(postRequest);
+                Contract newContract = contractRepository.save(contract);
+                walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
+                saveWallet(walletBuyer);
+
+                return new ContractResponse(newContract.getId(), newContract.getPackageId(),
+                        newContract.getContractCode(), newContract.getRequirement(),
+                        newContract.getQuantity(), newContract.getContractCancelFee(),
+                        newContract.getServiceDeposit(), newContract.getTotalPrice(),
+                        newContract.getTotalDeliveryTime(), newContract.getExpectCompleteDate(),
+                        DeliveryStatus.PROCESSING, OrderStatus.ACTIVE, postRequest,
+                        newContract.getBuyer().getUser().getId(),
+                        newContract.getSeller().getUser().getId());
+            } else {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Không đủ số dư để bắt đầu hợp đồng");
+            }
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
     public Contract getContractById(UUID id, UserPrincipal currentUser) {
         Contract contract = contractRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contract", "Contract not found ", id));
@@ -337,7 +390,7 @@ public class ContractServiceImpl implements ContractService {
                 update.getContractCode(), update.getRequirement(), update.getQuantity(), update.getContractCancelFee(),
                 update.getServiceDeposit(), update.getTotalPrice(),
                 update.getTotalDeliveryTime(), update.getExpectCompleteDate(),
-                deliveryStatus, orderStatus,
+                deliveryStatus, orderStatus, null,
                 update.getBuyer().getUser().getId(),
                 update.getSeller().getUser().getId());
     }
