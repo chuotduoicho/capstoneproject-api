@@ -6,6 +6,7 @@ import com.jovinn.capstoneproject.dto.request.DeliveryNotMilestoneRequest;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
 import com.jovinn.capstoneproject.dto.response.DeliveryHaveMilestoneResponse;
 import com.jovinn.capstoneproject.dto.response.DeliveryNotMilestoneResponse;
+import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.model.Contract;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -88,25 +90,43 @@ public class ContractController {
 
     @PostMapping("/delivery-for-milestone/{id}")
     public ResponseEntity<DeliveryHaveMilestoneResponse> deliveryBySeller(@PathVariable("id") UUID id,
-                                                                                            @Valid @RequestBody DeliveryHaveMilestoneRequest request,
-                                                                                            @CurrentUser UserPrincipal currentUser) {
+                                                                          @Valid @RequestBody DeliveryHaveMilestoneRequest request,
+                                                                          @CurrentUser UserPrincipal currentUser) {
         DeliveryHaveMilestoneResponse response = deliveryService.createDeliveryMilestone(id, request, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/delivery/{id}")
     public ResponseEntity<DeliveryNotMilestoneResponse> updateDelivery(@PathVariable("id") UUID id,
-                                                                         @Valid @RequestBody DeliveryNotMilestoneRequest request,
-                                                                         @CurrentUser UserPrincipal currentUser) {
+                                                                       @Valid @RequestBody DeliveryNotMilestoneRequest request,
+                                                                       @CurrentUser UserPrincipal currentUser) {
         DeliveryNotMilestoneResponse response = deliveryService.update(id, request, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/delivery-accept/{id}")
     public ResponseEntity<ContractResponse> acceptDeliveryContractFromBuyer(@PathVariable("id") UUID id,
-                                                                       @Valid @RequestBody ContractRequest request,
                                                                        @CurrentUser UserPrincipal currentUser) {
-        ContractResponse response = contractService.updateStatusAcceptDeliveryFromBuyer(id, request, currentUser);
+        ContractResponse response = contractService.updateStatusAcceptDeliveryFromBuyer(id, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{status}")
+    public ResponseEntity<List<Contract>> getContractByStatus(@PathVariable ContractStatus status,
+                                                              @CurrentUser UserPrincipal currentUser) {
+        List<Contract> response = contractService.getContractByStatus(status, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/list-order")
+    public ResponseEntity<List<Contract>> getOrders(@CurrentUser UserPrincipal currentUser) {
+        List<Contract> response = contractService.getOrders(currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/list-contract")
+    public ResponseEntity<List<Contract>> getContracts(@CurrentUser UserPrincipal currentUser) {
+        List<Contract> response = contractService.getContracts(currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }
