@@ -2,6 +2,7 @@ package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.enumerable.ContractType;
 import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
 import com.jovinn.capstoneproject.enumerable.OrderStatus;
@@ -46,23 +47,27 @@ public class Contract extends BaseEntity {
     @Enumerated(EnumType.STRING)
     DeliveryStatus deliveryStatus;
     @Enumerated(EnumType.STRING)
-    OrderStatus status;
+    OrderStatus orderStatus;
+    @Enumerated(EnumType.STRING)
+    ContractStatus contractStatus;
     @Enumerated(EnumType.STRING)
     ContractType type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id", referencedColumnName = "id")
     Buyer buyer;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
     Seller seller;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "contract")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "contract")
     List<ExtraOffer> extraOffers;
 
     @OneToOne(fetch = FetchType.EAGER, mappedBy = "contract")
     Delivery delivery;
+
+    @OneToOne(mappedBy = "contract", fetch = FetchType.EAGER)
+    PostRequest postRequest;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "contract")
     @JsonManagedReference
@@ -75,7 +80,8 @@ public class Contract extends BaseEntity {
                     Integer quantity, Integer contractCancelFee, BigDecimal serviceDeposit,
                     BigDecimal totalPrice, Integer totalDeliveryTime,
                     Date expectCompleteDate, DeliveryStatus deliveryStatus,
-                    OrderStatus status, ContractType type, Buyer buyer, Seller seller) {
+                    OrderStatus orderStatus, ContractStatus contractStatus,
+                    ContractType type, Buyer buyer, Seller seller) {
         this.packageId = packageId;
         this.contractCode = contractCode;
         this.requirement = requirement;
@@ -86,7 +92,8 @@ public class Contract extends BaseEntity {
         this.totalDeliveryTime = totalDeliveryTime;
         this.expectCompleteDate = expectCompleteDate;
         this.deliveryStatus = deliveryStatus;
-        this.status = status;
+        this.orderStatus = orderStatus;
+        this.contractStatus = contractStatus;
         this.type = type;
         this.buyer = buyer;
         this.seller = seller;

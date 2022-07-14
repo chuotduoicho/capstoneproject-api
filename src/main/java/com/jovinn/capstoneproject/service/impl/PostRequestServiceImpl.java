@@ -2,6 +2,7 @@ package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
 import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
 import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
@@ -51,11 +52,9 @@ public class PostRequestServiceImpl implements PostRequestService {
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
                 buyer.getUser().getIsEnabled().equals(Boolean.TRUE)){
-//            milestoneContractRepository.saveAll(request.getMilestoneContracts());
             PostRequest postRequest = new PostRequest();
-            PostRequest savedPostRequest;
             postRequest.setCategory(categoryRepository.findCategoryById(request.getCategoryId()));
-            postRequest.setSubCategory(subCategoryRepository.findSubCategoryById(request.getSubcategoryId()));
+            postRequest.setSubCategory(subCategoryRepository.findSubCategoryById(request.getSubCategoryId()));
             postRequest.setRecruitLevel(request.getRecruitLevel());
             postRequest.setSkills(skillRepository.findAllByNameIn(request.getSkillsName()));
             postRequest.setJobTitle(request.getJobTitle());
@@ -74,13 +73,13 @@ public class PostRequestServiceImpl implements PostRequestService {
                 notification.setShortContent("You have new invite from " + buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName()+"");
                 notificationService.saveNotification(notification);
             }
-            savedPostRequest =  postRequestRepository.save(postRequest);
+            PostRequest savedPostRequest = postRequestRepository.save(postRequest);
+
             List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
             for (MilestoneContract milestoneContract : milestoneContractList){
                 milestoneContract.setPostRequest(savedPostRequest);
                 milestoneContractService.addMilestoneContract(milestoneContract);
             }
-
         }
         return new ApiResponse(Boolean.TRUE, "Khởi tạo yêu cầu thành công");
     }
@@ -95,7 +94,7 @@ public class PostRequestServiceImpl implements PostRequestService {
             PostRequest savedPostRequest;
             if (request != null){
                 post.setCategory(categoryRepository.findCategoryById(request.getCategoryId()));
-                post.setSubCategory(subCategoryRepository.findSubCategoryById(request.getSubcategoryId()));
+                post.setSubCategory(subCategoryRepository.findSubCategoryById(request.getSubCategoryId()));
                 post.setRecruitLevel(request.getRecruitLevel());
                 post.setSkills(skillRepository.findAllByNameIn(request.getSkillsName()));
                 post.setJobTitle(request.getJobTitle());
@@ -174,7 +173,7 @@ public class PostRequestServiceImpl implements PostRequestService {
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found "));
         PostRequest post = postRequestRepository.findById(postRequestId)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Post Request not found "));
-        List<Seller> sellersApply ;
+        List<Seller> sellersApply;
         if (seller.getUser().getId().equals(currentUser.getId()) &&
                 seller.getUser().getIsEnabled().equals(Boolean.TRUE)){
 
@@ -190,6 +189,20 @@ public class PostRequestServiceImpl implements PostRequestService {
 
             return new ApiResponse(Boolean.TRUE,"Apply Post Request thành công");
 
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public ListSellerApplyPostRequestResponse getListSellerApply(UUID postRequestId, UserPrincipal currentUser) {
+        PostRequest postRequest = postRequestRepository.findById(postRequestId)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "NOT FOUND"));
+
+//        List<Seller> sellers = postRequest.getSellersApplyRequest();
+        if (postRequest.getUser().getId().equals(currentUser.getId())) {
+            return new ListSellerApplyPostRequestResponse(postRequest.getId(),postRequest.getSellersApplyRequest());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");

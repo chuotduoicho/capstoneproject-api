@@ -1,7 +1,9 @@
 package com.jovinn.capstoneproject.dto.response;
 
+import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
 import com.jovinn.capstoneproject.enumerable.OrderStatus;
+import com.jovinn.capstoneproject.model.PostRequest;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -24,8 +26,9 @@ public class ContractResponse {
     Integer totalDeliveryTime;
     Date expectCompleteDate;
     DeliveryStatus deliveryStatus;
-    OrderStatus status;
-
+    OrderStatus orderStatus;
+    ContractStatus contractStatus;
+    PostRequest postRequest;
     UUID buyerId;
     UUID sellerId;
 
@@ -33,8 +36,8 @@ public class ContractResponse {
                             String requirement, Integer quantity, Integer contractCancelFee,
                             BigDecimal serviceDeposit, BigDecimal totalPrice,
                             Integer totalDeliveryTime, Date expectCompleteDate,
-                            DeliveryStatus deliveryStatus, OrderStatus status,
-                            UUID buyerId, UUID sellerId) {
+                            DeliveryStatus deliveryStatus, OrderStatus orderStatus, ContractStatus contractStatus,
+                            PostRequest postRequest, UUID buyerId, UUID sellerId) {
         this.id = id;
         this.packageId = packageId;
         this.contractCode = contractCode;
@@ -46,7 +49,9 @@ public class ContractResponse {
         this.totalDeliveryTime = totalDeliveryTime;
         this.expectCompleteDate = expectCompleteDate;
         this.deliveryStatus = deliveryStatus;
-        this.status = status;
+        this.orderStatus = orderStatus;
+        this.contractStatus = contractStatus;
+        this.postRequest = postRequest;
         this.buyerId = buyerId;
         this.sellerId = sellerId;
     }

@@ -1,5 +1,5 @@
 package com.jovinn.capstoneproject.enumerable;
 
-public enum PostRequestStatus {
-    OPEN, CLOSE
+public enum OfferType {
+    APPLY, OFFER
 }

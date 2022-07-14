@@ -5,9 +5,7 @@ import com.jovinn.capstoneproject.model.Skill;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -15,39 +13,28 @@ import java.util.UUID;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostRequestResponse {
-
     UUID postRequestId;
-
     UUID categoryId;
-
     String categoryName;
-
     UUID subcategoryId;
     String subCategoryName;
     String recruitLevel;
     List<Skill> skillsName;
-
     String jobTitle;
-
     String shortRequirement;
     String attachFile;
     List<MilestoneContract> milestoneContracts;
-
     Integer contractCancelFee;
-
-    Double budget;
-
+    BigDecimal budget;
     UUID buyerId;
     String buyerFirstName;
     String buyerLastname;
     String city;
     Date createdAt;
-
     Date userCreateAt;
-
     Integer numberPostRequestCreated;
 
-    public PostRequestResponse(UUID categoryId, UUID subcategoryId, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, String attachFile, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, Double budget) {
+    public PostRequestResponse(UUID categoryId, UUID subcategoryId, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, String attachFile, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, BigDecimal budget) {
         this.categoryId = categoryId;
         this.subcategoryId = subcategoryId;
         this.recruitLevel = recruitLevel;
@@ -60,7 +47,7 @@ public class PostRequestResponse {
         this.budget = budget;
     }
 
-    public PostRequestResponse(UUID postRequestId, String jobTitle, Double budget, UUID buyerId, String buyerFirstName,String buyerLastname, String city, Date createdAt) {
+    public PostRequestResponse(UUID postRequestId, String jobTitle, BigDecimal budget, UUID buyerId, String buyerFirstName,String buyerLastname, String city, Date createdAt) {
         this.postRequestId = postRequestId;
         this.jobTitle = jobTitle;
         this.budget = budget;
@@ -71,7 +58,7 @@ public class PostRequestResponse {
         this.createdAt = createdAt;
     }
 
-    public PostRequestResponse(String categoryName, String subCategoryName, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, Double budget, String buyerFirstName, String buyerLastname, String city, Date userCreateAt, Integer numberPostRequestCreated) {
+    public PostRequestResponse(String categoryName, String subCategoryName, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, BigDecimal budget, String buyerFirstName, String buyerLastname, String city, Date userCreateAt, Integer numberPostRequestCreated) {
         this.categoryName = categoryName;
         this.subCategoryName = subCategoryName;
         this.recruitLevel = recruitLevel;

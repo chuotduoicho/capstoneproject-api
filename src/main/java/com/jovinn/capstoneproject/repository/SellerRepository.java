@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.repository;
 
+import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.model.Seller;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,5 +20,5 @@ public interface SellerRepository extends JpaRepository<Seller, UUID> {
     List<Seller> findTop3ByRankSeller();
 
     List<Seller> findAllByPostRequests_Id(UUID postRequestId);
-
+    List<Seller> findSellerByRankSeller(RankSeller rankSeller);
 }

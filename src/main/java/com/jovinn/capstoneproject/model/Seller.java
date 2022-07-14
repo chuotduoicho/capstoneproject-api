@@ -70,4 +70,7 @@ public class Seller extends BaseEntity {
 
     @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)
     List<Contract> contracts;
+
+    @OneToOne(mappedBy = "seller", fetch = FetchType.EAGER)
+    OfferRequest offerRequest;
 }
