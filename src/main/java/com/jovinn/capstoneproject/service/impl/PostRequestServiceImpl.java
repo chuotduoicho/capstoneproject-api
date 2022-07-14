@@ -197,13 +197,13 @@ public class PostRequestServiceImpl implements PostRequestService {
 
     @Override
     public ListSellerApplyPostRequestResponse getListSellerApply(UUID postRequestId, UserPrincipal currentUser) {
-//        PostRequest postRequest = postRequestRepository.findById(postRequestId)
-//                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "NOT FOUND"));
-//
-//        List<Seller> sellers;
-//        if (postRequest.getUser().getId().equals(currentUser.getId())) {
-//
-//        }
+        PostRequest postRequest = postRequestRepository.findById(postRequestId)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "NOT FOUND"));
+
+//        List<Seller> sellers = postRequest.getSellersApplyRequest();
+        if (postRequest.getUser().getId().equals(currentUser.getId())) {
+            return new ListSellerApplyPostRequestResponse(postRequest.getId(),postRequest.getSellersApplyRequest());
+        }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);

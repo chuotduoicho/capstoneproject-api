@@ -86,4 +86,10 @@ public class PostRequestController {
         OfferRequestResponse response = offerRequestService.sendOfferApplyToBuyer(postRequestId, request, currentUser);
         return new ResponseEntity<>(response,HttpStatus.CREATED);
     }
+
+    @GetMapping("/getListSellerApply/{postRequestId}")
+    public  ResponseEntity<ListSellerApplyPostRequestResponse> getListSellerApply(@PathVariable UUID postRequestId, @CurrentUser UserPrincipal currentUser){
+        ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId,currentUser);
+        return new ResponseEntity<>(response,HttpStatus.CREATED);
+    }
 }

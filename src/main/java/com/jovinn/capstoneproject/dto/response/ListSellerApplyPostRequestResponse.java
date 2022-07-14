@@ -1,20 +1,22 @@
 package com.jovinn.capstoneproject.dto.response;
 
 import com.jovinn.capstoneproject.model.PostRequest;
+import com.jovinn.capstoneproject.model.Seller;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ListSellerApplyPostRequestResponse {
-    PostRequest postRequest;
-    UUID sellerId;
+    UUID postRequestId;
+    List<Seller> sellersApply;
 
-    public ListSellerApplyPostRequestResponse(PostRequest postRequest, UUID sellerId) {
-        this.postRequest = postRequest;
-        this.sellerId = sellerId;
+    public ListSellerApplyPostRequestResponse(UUID postRequestId, List<Seller> sellersApply) {
+        this.postRequestId = postRequestId;
+        this.sellersApply = sellersApply;
     }
 }

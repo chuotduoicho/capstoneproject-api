@@ -69,7 +69,7 @@ public class PostRequest extends BaseEntity {
     //@JsonBackReference
     User user;
 
-    @JsonIgnore
+//    @JsonIgnore
     @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinTable(
             name = "post_request_seller",
