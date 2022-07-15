@@ -35,4 +35,6 @@ public interface PostRequestService {
     ApiResponse sellerApplyRequest(UUID postRequestId, UserPrincipal currentUser);
 
     ListSellerApplyPostRequestResponse getListSellerApply(UUID postRequestId, UserPrincipal currentUser);
+
+    List<PostRequestResponse> getAllPostRequest();
 }

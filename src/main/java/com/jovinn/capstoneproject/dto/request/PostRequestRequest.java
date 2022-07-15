@@ -30,7 +30,7 @@ public class PostRequestRequest {
     List<MilestoneContract> milestoneContracts;
     @NotNull
     Integer contractCancelFee;
-    @NotNull
-    BigDecimal budget;
+//    @NotNull
+//    BigDecimal budget;
     List<User> invitedUsers;
 }

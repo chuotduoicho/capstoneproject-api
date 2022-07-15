@@ -34,7 +34,8 @@ public class PostRequestResponse {
     Date userCreateAt;
     Integer numberPostRequestCreated;
 
-    public PostRequestResponse(UUID categoryId, UUID subcategoryId, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, String attachFile, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, BigDecimal budget) {
+    public PostRequestResponse(UUID postRequestId, UUID categoryId, UUID subcategoryId, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, String attachFile, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, BigDecimal budget) {
+        this.postRequestId = postRequestId;
         this.categoryId = categoryId;
         this.subcategoryId = subcategoryId;
         this.recruitLevel = recruitLevel;
@@ -47,7 +48,7 @@ public class PostRequestResponse {
         this.budget = budget;
     }
 
-    public PostRequestResponse(UUID postRequestId, String jobTitle, BigDecimal budget, UUID buyerId, String buyerFirstName,String buyerLastname, String city, Date createdAt) {
+    public PostRequestResponse(UUID postRequestId, String jobTitle, BigDecimal budget, UUID buyerId, String buyerFirstName,String buyerLastname, String city, Date createdAt, String recruitLevel, List<Skill> skillsName, String shortRequirement, List<MilestoneContract> milestoneContracts, Integer contractCancelFee) {
         this.postRequestId = postRequestId;
         this.jobTitle = jobTitle;
         this.budget = budget;
@@ -56,6 +57,11 @@ public class PostRequestResponse {
         this.buyerLastname = buyerLastname;
         this.city = city;
         this.createdAt = createdAt;
+        this.recruitLevel = recruitLevel;
+        this.skillsName = skillsName;
+        this.shortRequirement = shortRequirement;
+        this.milestoneContracts = milestoneContracts;
+        this.contractCancelFee = contractCancelFee;
     }
 
     public PostRequestResponse(String categoryName, String subCategoryName, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, BigDecimal budget, String buyerFirstName, String buyerLastname, String city, Date userCreateAt, Integer numberPostRequestCreated) {
