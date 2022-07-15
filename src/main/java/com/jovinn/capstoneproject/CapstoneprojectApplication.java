@@ -1,11 +1,8 @@
 package com.jovinn.capstoneproject;
 
-import com.jovinn.capstoneproject.enumerable.UserActivityType;
-import com.jovinn.capstoneproject.model.*;
+import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.BoxService;
 import com.jovinn.capstoneproject.service.CategoryService;
-import com.jovinn.capstoneproject.model.User;
-import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;

@@ -11,9 +11,9 @@ import java.util.UUID;
 
 public interface ContractService {
     ContractResponse createContract(ContractRequest request, UserPrincipal currentUser);
-    ContractResponse updateStatusAcceptFromSeller(UUID id, ContractRequest request, UserPrincipal currentUser);
-    ContractResponse updateStatusRejectFromSeller(UUID id, ContractRequest request, UserPrincipal currentUser);
-    ContractResponse updateStatusCancelFromBuyer(UUID id, ContractRequest request, UserPrincipal currentUser);
+    ContractResponse updateStatusAcceptFromSeller(UUID id, UserPrincipal currentUser);
+    ContractResponse updateStatusRejectFromSeller(UUID id, UserPrincipal currentUser);
+    ContractResponse updateStatusCancelFromBuyer(UUID id, UserPrincipal currentUser);
     ContractResponse updateStatusAcceptDeliveryFromBuyer(UUID id, UserPrincipal currentUser);
     ContractResponse createContractFromSellerOffer(UUID offerRequestId, UserPrincipal currentUser);
     ContractResponse createContractFromSellerApply(UUID postRequestId, UUID sellerId, UserPrincipal currentUser);

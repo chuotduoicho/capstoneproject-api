@@ -129,7 +129,7 @@ public class ContractServiceImpl implements ContractService {
     //ACCEPT ORDER BY SELLER => OrderStatus.ACTIVE && DeliveryStatus.PROCESSING
     //When seller accept order
     @Override
-    public ContractResponse updateStatusAcceptFromSeller(UUID id, ContractRequest request, UserPrincipal currentUser) throws RuntimeException {
+    public ContractResponse updateStatusAcceptFromSeller(UUID id, UserPrincipal currentUser) throws RuntimeException {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Seller", "Seller not found", currentUser.getId()));
         Contract contract = contractRepository.findById(id)
@@ -185,7 +185,7 @@ public class ContractServiceImpl implements ContractService {
 
     //REJECT ORDER BY SELLER => OrderStatus.CANCEL && DeliveryStatus.REJECT
     @Override
-    public ContractResponse updateStatusRejectFromSeller(UUID id, ContractRequest request, UserPrincipal currentUser) throws RuntimeException {
+    public ContractResponse updateStatusRejectFromSeller(UUID id, UserPrincipal currentUser) throws RuntimeException {
         Contract contract = contractRepository.findById(id)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found"));
         Seller seller = sellerRepository.findById(contract.getSeller().getId())
@@ -236,7 +236,7 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public ContractResponse updateStatusCancelFromBuyer(UUID id, ContractRequest request, UserPrincipal currentUser) throws RuntimeException {
+    public ContractResponse updateStatusCancelFromBuyer(UUID id, UserPrincipal currentUser) throws RuntimeException {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
         Contract contract = contractRepository.findById(id)

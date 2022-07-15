@@ -58,25 +58,22 @@ public class ContractController {
 
     @PutMapping("/seller/accept/{id}")
     public ResponseEntity<ContractResponse> acceptContractFromSeller(@PathVariable("id") UUID id,
-                                                                     @Valid @RequestBody ContractRequest request,
                                                                      @CurrentUser UserPrincipal currentUser) {
-        ContractResponse response = contractService.updateStatusAcceptFromSeller(id, request, currentUser);
+        ContractResponse response = contractService.updateStatusAcceptFromSeller(id, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/seller/reject/{id}")
     public ResponseEntity<ContractResponse> rejectContractFromSeller(@PathVariable("id") UUID id,
-                                                                     @Valid @RequestBody ContractRequest request,
                                                                      @CurrentUser UserPrincipal currentUser) {
-        ContractResponse response = contractService.updateStatusRejectFromSeller(id, request, currentUser);
+        ContractResponse response = contractService.updateStatusRejectFromSeller(id, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/buyer/reject/{id}")
     public ResponseEntity<ContractResponse> rejectContractFromBuyer(@PathVariable("id") UUID id,
-                                                                     @Valid @RequestBody ContractRequest request,
                                                                      @CurrentUser UserPrincipal currentUser) {
-        ContractResponse response = contractService.updateStatusCancelFromBuyer(id, request, currentUser);
+        ContractResponse response = contractService.updateStatusCancelFromBuyer(id, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
