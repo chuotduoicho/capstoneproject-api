@@ -165,7 +165,8 @@ public class PostRequestServiceImpl implements PostRequestService {
         List<PostRequestResponse> postRequestResponses = new ArrayList<>();
         List<PostRequest> postRequests = postRequestRepository.findAllByCategory_Id(categoryId);
         for (PostRequest postRequest:postRequests){
-            postRequestResponses.add(new PostRequestResponse(postRequest.getId(),postRequest.getJobTitle(),postRequest.getBudget(),
+            postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
+                    postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
                     postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
                     postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkills(),
                     postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
@@ -230,7 +231,8 @@ public class PostRequestServiceImpl implements PostRequestService {
         List<PostRequestResponse> postRequestResponses = new ArrayList<>();
         List<PostRequest> postRequests = postRequestRepository.findAll();
         for (PostRequest postRequest:postRequests){
-            postRequestResponses.add(new PostRequestResponse(postRequest.getId(),postRequest.getJobTitle(),postRequest.getBudget(),
+            postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
+                    postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
                     postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
                     postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkills(),
                     postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
