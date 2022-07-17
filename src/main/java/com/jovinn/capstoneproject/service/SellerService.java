@@ -24,4 +24,6 @@ public interface SellerService {
 
     //View list seller buy rank
     List<Seller> getListTopSellerByRank();
+
+    List<Seller> getListSellerBuyPostRequestId(UUID postRequestId);
 }

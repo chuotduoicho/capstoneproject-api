@@ -121,4 +121,9 @@ public class SellerServiceImpl implements SellerService {
     public List<Seller> getListTopSellerByRank() {
         return sellerRepository.findTop3ByRankSeller();
     }
+
+    @Override
+    public List<Seller> getListSellerBuyPostRequestId(UUID postRequestId) {
+        return sellerRepository.findAllByPostRequests_Id(postRequestId);
+    }
 }

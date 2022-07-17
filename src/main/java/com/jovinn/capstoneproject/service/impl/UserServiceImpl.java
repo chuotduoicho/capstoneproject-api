@@ -12,18 +12,21 @@ import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Buyer;
+import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.repository.payment.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
+import com.jovinn.capstoneproject.service.SellerService;
 import com.jovinn.capstoneproject.service.UserService;
 import com.jovinn.capstoneproject.util.EmailSender;
 import com.jovinn.capstoneproject.util.WebConstant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.utility.RandomString;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,6 +37,7 @@ import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -50,6 +54,8 @@ public class UserServiceImpl implements UserService {
     private final ActivityTypeService activityTypeService;
     private final WalletRepository walletRepository;
     private final EmailSender emailSender;
+    @Autowired
+    private SellerService sellerService;
     @Override
     public UserSummary getCurrentUser(UserPrincipal currentUser) {
         return new UserSummary(currentUser.getId(), currentUser.getUsername(), currentUser.getFirstName(),
@@ -223,5 +229,17 @@ public class UserServiceImpl implements UserService {
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public List<UserProfile> getListUserInvitedByPostRequestId(UUID postRequest) {
+        List<Seller> invitedSeller = sellerService.getListSellerBuyPostRequestId(postRequest);
+        List<UserProfile> userProfiles = new ArrayList<>();
+        for (Seller seller:invitedSeller){
+            userProfiles.add(new UserProfile(seller.getUser().getId(),seller.getUser().getFirstName(),seller.getUser().getLastName(),seller.getUser().getUsername(),
+                    seller.getUser().getEmail(),seller.getUser().getPhoneNumber(),seller.getUser().getGender(),seller.getUser().getBirthDate(),seller.getUser().getCity(),
+                    seller.getUser().getCountry(),seller.getUser().getAvatar()));
+        }
+        return userProfiles;
     }
 }

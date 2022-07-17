@@ -13,6 +13,7 @@ import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.MilestoneContractService;
 import com.jovinn.capstoneproject.service.NotificationService;
 import com.jovinn.capstoneproject.service.PostRequestService;
+import com.jovinn.capstoneproject.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,9 @@ public class PostRequestServiceImpl implements PostRequestService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public ApiResponse addPostRequest(PostRequestRequest request, UserPrincipal currentUser) {
@@ -146,11 +150,11 @@ public class PostRequestServiceImpl implements PostRequestService {
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
                 buyer.getUser().getIsEnabled().equals(Boolean.TRUE)) {
             postRequest = postRequestRepository.findAllByUser_Id(currentUser.getId());
-
             for (PostRequest postRequest1 : postRequest) {
                 postRequestResponses.add(new PostRequestResponse(postRequest1.getId(), postRequest1.getCategory().getId(), postRequest1.getSubCategory().getId(),
                         postRequest1.getRecruitLevel(), postRequest1.getSkills(), postRequest1.getJobTitle(), postRequest1.getShortRequirement(),
-                        postRequest1.getAttachFile(), postRequest1.getMilestoneContracts(), postRequest1.getContractCancelFee(), postRequest1.getBudget()));
+                        postRequest1.getAttachFile(), postRequest1.getMilestoneContracts(), postRequest1.getContractCancelFee(), postRequest1.getBudget(),
+                        userService.getListUserInvitedByPostRequestId(postRequest1.getId())));
             }
         }
         return postRequestResponses;

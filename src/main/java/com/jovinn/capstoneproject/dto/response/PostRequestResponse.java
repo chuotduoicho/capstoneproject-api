@@ -1,7 +1,9 @@
 package com.jovinn.capstoneproject.dto.response;
 
+import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.model.MilestoneContract;
 import com.jovinn.capstoneproject.model.Skill;
+import com.jovinn.capstoneproject.model.User;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -34,7 +36,9 @@ public class PostRequestResponse {
     Date userCreateAt;
     Integer numberPostRequestCreated;
 
-    public PostRequestResponse(UUID postRequestId, UUID categoryId, UUID subcategoryId, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, String attachFile, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, BigDecimal budget) {
+    List<UserProfile> invitedUser;
+
+    public PostRequestResponse(UUID postRequestId, UUID categoryId, UUID subcategoryId, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, String attachFile, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, BigDecimal budget, List<UserProfile> invitedUser) {
         this.postRequestId = postRequestId;
         this.categoryId = categoryId;
         this.subcategoryId = subcategoryId;
@@ -46,6 +50,7 @@ public class PostRequestResponse {
         this.milestoneContracts = milestoneContracts;
         this.contractCancelFee = contractCancelFee;
         this.budget = budget;
+        this.invitedUser = invitedUser;
     }
 
     public PostRequestResponse(UUID postRequestId, String jobTitle, BigDecimal budget, UUID buyerId, String buyerFirstName,String buyerLastname, String city, Date createdAt, String recruitLevel, List<Skill> skillsName, String shortRequirement, List<MilestoneContract> milestoneContracts, Integer contractCancelFee) {
