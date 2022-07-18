@@ -27,10 +27,11 @@ public class Delivery extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
+    @Type(type = "uuid-char")
+    UUID milestoneId;
     String file;
     String description;
-
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contractId", referencedColumnName = "id")
     @JsonBackReference
     Contract contract;

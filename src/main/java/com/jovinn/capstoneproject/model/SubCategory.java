@@ -45,4 +45,9 @@ public class SubCategory extends  BaseEntity {
 //    @JsonManagedReference
     @JsonIgnore
     List<Box> boxes;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "subCategory")
+//    @JsonManagedReference
+    @JsonIgnore
+    List<PostRequest> postRequests;
 }

@@ -2,7 +2,9 @@ package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.request.SkillRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.response.SellerSkillResponse;
 import com.jovinn.capstoneproject.dto.response.SkillResponse;
+import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Seller;
@@ -14,7 +16,9 @@ import com.jovinn.capstoneproject.service.SkillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -82,5 +86,39 @@ public class SkillServiceImpl implements SkillService {
         }
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to delete this photo");
         throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public List<SellerSkillResponse> getSellerBySkillNameAndSkillLevelOrderBySellerId(List<String> name, SkillLevel level) {
+        List<Skill> skills = skillRepository.findAllByNameInAndLevelOrderBySeller_Id(name,level);
+        SellerSkillResponse sellerSkillResponse ;
+        List<SellerSkillResponse> sellerSkillResponses = new ArrayList<>();
+        UUID idTest = UUID.randomUUID();
+        List<Skill> skills1 ;
+        for (Skill skill : skills){
+            if (!idTest.toString().equals(skill.getSeller().getId().toString())){
+                sellerSkillResponse = new SellerSkillResponse();
+                idTest = skill.getSeller().getId();
+                skills1 = skillRepository.findAllBySeller_Id(skill.getSeller().getId());
+                sellerSkillResponse.setSellerId(skill.getSeller().getId());
+                sellerSkillResponse.setFirstName(skill.getSeller().getUser().getFirstName());
+                sellerSkillResponse.setLastName(skill.getSeller().getUser().getLastName());
+                sellerSkillResponse.setCity(skill.getSeller().getUser().getCity());
+                sellerSkillResponse.setAvatar(skill.getSeller().getUser().getAvatar());
+                sellerSkillResponse.setSkills(skills1);
+                sellerSkillResponses.add(sellerSkillResponse);
+            }
+        }
+        return sellerSkillResponses;
+    }
+
+    @Override
+    public List<Skill> getAllSkillBySellerId(UUID id) {
+        return skillRepository.findAllBySeller_Id(id);
+    }
+
+    @Override
+    public List<Skill> getSellerBySkillNameAndSkillLevel(List<String> name, SkillLevel level) {
+        return skillRepository.findAllByNameInAndLevelOrderBySeller_Id(name,level);
     }
 }

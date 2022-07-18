@@ -46,7 +46,11 @@ public class PackageServiceImpl implements PackageService {
                 pack.setShortDescription(request.getShortDescription());
                 pack.setPrice(request.getPrice());
                 pack.setDeliveryTime(request.getDeliveryTime());
-
+                if (pack.getContractCancelFee() == null) {
+                    pack.setContractCancelFee(0);
+                } else {
+                    pack.setContractCancelFee(request.getContractCancelFee());
+                }
                 return packageRepository.save(pack);
             } else {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Chỉ được phép tạo tối đa 3 packges");
@@ -66,6 +70,11 @@ public class PackageServiceImpl implements PackageService {
             pack.setShortDescription(request.getShortDescription());
             pack.setPrice(request.getPrice());
             pack.setDeliveryTime(request.getDeliveryTime());
+            if (pack.getContractCancelFee() == null) {
+                pack.setContractCancelFee(0);
+            } else {
+                pack.setContractCancelFee(request.getContractCancelFee());
+            }
             return packageRepository.save(pack);
         }
 

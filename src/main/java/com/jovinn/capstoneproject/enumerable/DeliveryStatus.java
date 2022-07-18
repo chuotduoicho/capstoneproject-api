@@ -6,5 +6,5 @@ public enum DeliveryStatus {
     //When Seller delivery -> DELIVERY
     //When Buyer accept delivery -> COMPLETE contract
     //When Seller reject request -> REJECT
-    PENDING, REJECT, PROCESSING, DELIVERY, COMPLETE, LATE
+    PENDING, SENDING
 }

@@ -34,4 +34,9 @@ public class Category extends BaseEntity {
     @PrimaryKeyJoinColumn
     @JsonManagedReference
     List<SubCategory> subCategories;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
+//    @JsonManagedReference
+    @JsonIgnore
+    List<PostRequest> postRequests;
 }

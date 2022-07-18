@@ -1,21 +1,24 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
+import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
+import com.jovinn.capstoneproject.enumerable.RankSeller;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.util.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,25 +31,53 @@ public class PostRequest extends BaseEntity {
     @Type(type = "uuid-char")
     UUID id;
 
-    @Type(type = "uuid-char")
-    UUID categoryId;
-    @Type(type = "uuid-char")
-    UUID subCategoryId;
-
+    @Enumerated(EnumType.STRING)
+    PostRequestStatus status;
+    String recruitLevel;
     String jobTitle;
     String shortRequirement;
     String attachFile;
-    Integer numberOfApplicants;
+    Integer contractCancelFee;
+    Integer totalDeliveryTime;
+    BigDecimal budget;
 
-    @Temporal(TemporalType.DATE)
-    Date termRecord;
+    @ManyToOne(fetch =  FetchType.EAGER)
+    @JoinColumn(name = "cat_service_id", referencedColumnName = "id")
+    Category category;
 
-    String recruitLevel;
-    Integer expectDelivery;
-    Float budget;
+    @ManyToOne(fetch =  FetchType.EAGER)
+    @JoinColumn(name = "sub_cat_service_id", referencedColumnName = "id")
+    SubCategory subCategory;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinTable(
+            name = "post_request_skill",
+            joinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "id")
+    )
+    List<Skill> skills;
+
+    @OneToMany(mappedBy = "postRequest",cascade = CascadeType.ALL, orphanRemoval = true)
+    List<MilestoneContract> milestoneContracts;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contractId", referencedColumnName = "id")
+    Contract contract;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "id")
-    @JsonBackReference
+    //@JsonBackReference
     User user;
+
+//    @JsonIgnore
+    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinTable(
+            name = "post_request_seller",
+            joinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "seller_id", referencedColumnName = "id")
+    )
+    List<Seller> sellersApplyRequest;
+
+    @OneToMany(mappedBy = "postRequest" ,fetch = FetchType.LAZY)
+    List<OfferRequest> offerRequests;
 }

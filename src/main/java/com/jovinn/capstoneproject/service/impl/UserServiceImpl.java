@@ -5,6 +5,7 @@ import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
@@ -158,6 +159,7 @@ public class UserServiceImpl implements UserService {
         user.setJoinedAt(new Date());
         user.setVerificationCode(verificationCode);
         user.setIsEnabled(Boolean.FALSE);
+        user.setAuthType(AuthTypeUser.LOCAL);
         user.setActivityType(activityTypeService.getByActivityType(UserActivityType.BUYER));
 
         Buyer buyer = new Buyer();
