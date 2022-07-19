@@ -35,4 +35,6 @@ public interface UserService {
     ApiResponse registerUser(SignUpRequest signUpRequest);
     User verifyRegistration(String verificationCode);
     ApiResponse changePassword(ChangePasswordRequest request, UserPrincipal currentUser);
+
+    List<UserProfile> getListUserInvitedByPostRequestId(UUID postRequest);
 }
