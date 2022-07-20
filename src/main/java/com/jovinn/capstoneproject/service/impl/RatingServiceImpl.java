@@ -60,6 +60,7 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     public List<Rating> getRatingsForContract(UUID contractId) {
+        ratingRepository.findAllByContractId(contractId);
         return ratingRepository.findAllByContractId(contractId);
     }
 }

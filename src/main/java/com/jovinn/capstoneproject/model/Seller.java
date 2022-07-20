@@ -75,7 +75,6 @@ public class Seller extends BaseEntity {
     @OneToOne(mappedBy = "seller", fetch = FetchType.EAGER)
     OfferRequest offerRequest;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
     List<Rating> ratings;
 }

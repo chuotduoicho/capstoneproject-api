@@ -1,13 +1,11 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.response.SellerSkillResponse;
-import com.jovinn.capstoneproject.dto.response.SkillResponse;
 import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import com.jovinn.capstoneproject.model.OfferRequest;
 import com.jovinn.capstoneproject.model.Rating;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.Skill;
-import com.jovinn.capstoneproject.repository.SkillRepository;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.OfferRequestService;

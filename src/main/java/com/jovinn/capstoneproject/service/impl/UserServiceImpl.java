@@ -165,6 +165,7 @@ public class UserServiceImpl implements UserService {
         Buyer buyer = new Buyer();
         buyer.setUser(user);
         buyer.setBuyerNumber(getRandomNumberString());
+        buyer.setSuccessContract(0);
         user.setBuyer(buyer);
 
         String link = WebConstant.DOMAIN + "/auth/verifyAccount/" + verificationCode;
