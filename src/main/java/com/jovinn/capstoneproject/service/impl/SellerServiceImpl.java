@@ -49,7 +49,7 @@ public class SellerServiceImpl implements SellerService {
     @Override
     public Seller getSellerById(UUID id) {
         return sellerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Seller", "Seller not found ", id ));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Seller not found "));
     }
 
     @Override

@@ -140,10 +140,10 @@ public class ContractServiceImpl implements ContractService {
         BigDecimal serviceDeposit = contract.getServiceDeposit();
 
         if (contract.getSeller().getUser().getId().equals(currentUser.getId())) {
-            if (contract.getDeliveryStatus().equals(DeliveryStatus.PENDING)) {
+            if (contract.getDeliveryStatus() != null && contract.getDeliveryStatus().equals(DeliveryStatus.PENDING)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn đang trong quá trình thực hiện hợp đồng");
-            } else if(contract.getContractStatus().equals(ContractStatus.CANCEL)
-                    || contract.getOrderStatus().equals(OrderStatus.CANCEL)) {
+            } else if(contract.getContractStatus() != null && contract.getContractStatus().equals(ContractStatus.CANCEL)
+                    || contract.getOrderStatus() != null && contract.getOrderStatus().equals(OrderStatus.CANCEL)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể tiếp tục thực hiện hợp đồng do bạn hoặc người bán từ chối");
             } else {
                 if (walletSeller.getWithdraw().compareTo(serviceDeposit) >= 0) {
@@ -195,11 +195,11 @@ public class ContractServiceImpl implements ContractService {
         BigDecimal buyerReceiveWhenProcessing = contract.getTotalPrice().add(serviceDepositRefund);
 
         if (contract.getSeller().getUser().getId().equals(currentUser.getId())) {
-            if (contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
+            if (contract.getContractStatus() != null && contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(buyerReceiveWhenProcessing));
                 contract.setContractStatus(ContractStatus.CANCEL);
-            }  else if (contract.getContractStatus().equals(ContractStatus.CANCEL)
-                    || contract.getOrderStatus().equals(OrderStatus.CANCEL)) {
+            }  else if (contract.getContractStatus() != null && contract.getContractStatus().equals(ContractStatus.CANCEL)
+                    || contract.getOrderStatus() != null && contract.getOrderStatus().equals(OrderStatus.CANCEL)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể từ chối do hợp đồng đã kết thúc");
             } else {
                 //Refund price for buyer not including serviceFee
@@ -249,12 +249,12 @@ public class ContractServiceImpl implements ContractService {
         BigDecimal sellerReceiveAfterCancel = contract.getServiceDeposit().add(refundDeposit);
 
         if (contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
-            if (contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
+            if (contract.getContractStatus() != null && contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(buyerReceiveAfterCancel));
                 walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
                 contract.setContractStatus(ContractStatus.CANCEL);
-            } else if (contract.getContractStatus().equals(ContractStatus.CANCEL)
-                    || contract.getOrderStatus().equals(OrderStatus.CANCEL)) {
+            } else if (contract.getContractStatus() != null && contract.getContractStatus().equals(ContractStatus.CANCEL)
+                    || contract.getOrderStatus() != null && contract.getOrderStatus().equals(OrderStatus.CANCEL)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể từ chối do hợp đồng đã kết thúc");
             } else {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(contract.getTotalPrice()));
@@ -301,25 +301,31 @@ public class ContractServiceImpl implements ContractService {
         BigDecimal sellerReceiveAfterCancel = contract.getServiceDeposit().add(income);
 
         if (contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
-            if (contract.getDeliveryStatus().equals(DeliveryStatus.SENDING)) {
+            if (contract.getDeliveryStatus() != null && contract.getDeliveryStatus().equals(DeliveryStatus.SENDING)
+                && contract.getContractStatus() != null && !contract.getContractStatus().equals(ContractStatus.COMPLETE)) {
                 walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
-                walletSeller.setIncome(income);
+                walletSeller.setIncome(walletSeller.getIncome().add(income));
                 contract.setContractStatus(ContractStatus.COMPLETE);
                 contract.setUpdatedAt(new Date());
                 contract.setBuyer(buyer);
                 saveWallet(walletSeller);
+                buyer.setSuccessContract(buyer.getSuccessContract() + 1);
+                buyerRepository.save(buyer);
+                Seller seller = contract.getSeller();
+                seller.setTotalOrderFinish(seller.getTotalOrderFinish() + 1);
+                sellerRepository.save(seller);
 
-                String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
-                try {
-                    emailSender.sendEmailNotiRejectContractToSeller(contract.getSeller().getUser().getEmail(),
-                            contract.getSeller().getUser().getLastName(), linkOrder, contract.getContractCode());
-
-                    emailSender.sendEmailNotiRejectContractToBuyer(contract.getBuyer().getUser().getEmail(),
-                            contract.getBuyer().getUser().getLastName(), contract.getSeller().getBrandName(), linkOrder,
-                            contract.getContractCode(), contract.getTotalPrice());
-                } catch (UnsupportedEncodingException | MessagingException exception) {
-                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
-                }
+//                String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
+//                try {
+//                    emailSender.sendEmailNotiRejectContractToSeller(contract.getSeller().getUser().getEmail(),
+//                            contract.getSeller().getUser().getLastName(), linkOrder, contract.getContractCode());
+//
+//                    emailSender.sendEmailNotiRejectContractToBuyer(contract.getBuyer().getUser().getEmail(),
+//                            contract.getBuyer().getUser().getLastName(), contract.getSeller().getBrandName(), linkOrder,
+//                            contract.getContractCode(), contract.getTotalPrice());
+//                } catch (UnsupportedEncodingException | MessagingException exception) {
+//                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
+//                }
 
                 return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
             } else {
@@ -445,14 +451,14 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public List<Contract> getContractByStatus(ContractStatus status, UserPrincipal currentUser) {
-        Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
-        if (buyer.getUser().getId().equals(currentUser.getId())) {
+        if(buyer.getUser().getSeller() == null) {
             return contractRepository.findAllByContractStatusAndBuyerId(status, buyer.getId());
-        } else if (seller.getUser().getId().equals(currentUser.getId())) {
-            return contractRepository.findAllByContractStatusAndSellerId(status, seller.getId());
+        } else if(buyer.getUser().getSeller() != null) {
+            Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+            return contractRepository.findAllByContractStatusAndSellerIdOrBuyerId(status, seller.getId(), buyer.getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -461,32 +467,31 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public List<Contract> getOrders(UserPrincipal currentUser) {
-        Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
 
-        if (buyer.getUser().getId().equals(currentUser.getId())) {
+        if(buyer.getUser().getSeller() == null) {
             return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.PENDING, buyer.getId());
-        } else if (seller.getUser().getId().equals(currentUser.getId())) {
-            return contractRepository.findAllByOrderStatusAndSellerId(OrderStatus.PENDING, buyer.getId());
+        } else if(buyer.getUser().getSeller() != null) {
+            Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+            return contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.PENDING, buyer.getId(), seller.getId());
         }
-
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }
 
     @Override
     public List<Contract> getContracts(UserPrincipal currentUser) {
-        Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
 
-        if (buyer.getUser().getId().equals(currentUser.getId())) {
+        if(buyer.getUser().getSeller() == null) {
             return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.TO_CONTRACT, buyer.getId());
-        } else if (seller.getUser().getId().equals(currentUser.getId())) {
-            return contractRepository.findAllByOrderStatusAndSellerId(OrderStatus.TO_CONTRACT, buyer.getId());
+        } else if(buyer.getUser().getSeller() != null) {
+            Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+            return contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.TO_CONTRACT, buyer.getId(), seller.getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
