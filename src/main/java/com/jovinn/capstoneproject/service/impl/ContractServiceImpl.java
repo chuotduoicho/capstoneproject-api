@@ -309,17 +309,17 @@ public class ContractServiceImpl implements ContractService {
                 contract.setBuyer(buyer);
                 saveWallet(walletSeller);
 
-                String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
-                try {
-                    emailSender.sendEmailNotiRejectContractToSeller(contract.getSeller().getUser().getEmail(),
-                            contract.getSeller().getUser().getLastName(), linkOrder, contract.getContractCode());
-
-                    emailSender.sendEmailNotiRejectContractToBuyer(contract.getBuyer().getUser().getEmail(),
-                            contract.getBuyer().getUser().getLastName(), contract.getSeller().getBrandName(), linkOrder,
-                            contract.getContractCode(), contract.getTotalPrice());
-                } catch (UnsupportedEncodingException | MessagingException exception) {
-                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
-                }
+//                String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
+//                try {
+//                    emailSender.sendEmailNotiRejectContractToSeller(contract.getSeller().getUser().getEmail(),
+//                            contract.getSeller().getUser().getLastName(), linkOrder, contract.getContractCode());
+//
+//                    emailSender.sendEmailNotiRejectContractToBuyer(contract.getBuyer().getUser().getEmail(),
+//                            contract.getBuyer().getUser().getLastName(), contract.getSeller().getBrandName(), linkOrder,
+//                            contract.getContractCode(), contract.getTotalPrice());
+//                } catch (UnsupportedEncodingException | MessagingException exception) {
+//                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
+//                }
 
                 return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
             } else {

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -74,6 +75,19 @@ public class OfferRequestServiceImpl implements OfferRequestService {
             String message = "Gửi đi offer thành công qua " + postRequest.getId();
             return new OfferRequestResponse(save.getId(), save.getPostRequest().getId(), save.getDescriptionBio(),
                     save.getTotalDeliveryTime(), save.getOfferPrice(), save.getCancelFee(), message);
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public List<OfferRequest> getOffers(UserPrincipal currentUser) {
+        Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy seller"));
+        List<OfferRequest> offerRequest = offerRequestRepository.findAllBySellerId(seller.getId());
+        if(seller.getUser().getId().equals(currentUser.getId())) {
+            return offerRequest;
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
