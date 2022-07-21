@@ -43,6 +43,7 @@ public class OfferRequestServiceImpl implements OfferRequestService {
             offerRequest.setTotalDeliveryTime(request.getTotalDeliveryTime());
             offerRequest.setCancelFee(request.getCancelFee());
             offerRequest.setOfferPrice(request.getOfferPrice());
+            offerRequest.setSeller(seller);
             offerRequest.setOfferType(OfferType.OFFER);
             offerRequest.setOfferRequestStatus(OfferRequestStatus.PENDING);
             OfferRequest save = offerRequestRepository.save(offerRequest);
@@ -88,6 +89,17 @@ public class OfferRequestServiceImpl implements OfferRequestService {
         List<OfferRequest> offerRequest = offerRequestRepository.findAllBySellerId(seller.getId());
         if(seller.getUser().getId().equals(currentUser.getId())) {
             return offerRequest;
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public List<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser) {
+        PostRequest postRequest = postRequestRepository.findPostRequestById(postRequestId);
+        if(postRequest.getUser().getId().equals(currentUser.getId())) {
+            return offerRequestRepository.findAllByPostRequestId(postRequest.getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");

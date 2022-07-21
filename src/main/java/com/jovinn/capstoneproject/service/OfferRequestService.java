@@ -12,4 +12,5 @@ public interface OfferRequestService {
     OfferRequestResponse sendOfferToBuyer(UUID postRequestId, OfferRequestRequest request, UserPrincipal currentUser);
     OfferRequestResponse sendOfferApplyToBuyer(UUID postRequestId, OfferRequestRequest request, UserPrincipal currentUser);
     List<OfferRequest> getOffers(UserPrincipal currentUser);
+    List<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser);
 }
