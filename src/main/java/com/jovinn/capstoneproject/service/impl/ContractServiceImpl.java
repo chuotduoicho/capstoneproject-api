@@ -365,6 +365,9 @@ public class ContractServiceImpl implements ContractService {
                 contract.setPostRequest(postRequest);
                 Contract newContract = contractRepository.save(contract);
 
+                offerRequest.setOfferRequestStatus(OfferRequestStatus.ACCEPTED);
+                offerRequestRepository.save(offerRequest);
+
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                 saveWallet(walletBuyer);
 

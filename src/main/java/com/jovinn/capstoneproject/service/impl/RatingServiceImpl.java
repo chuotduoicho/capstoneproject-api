@@ -8,9 +8,11 @@ import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Buyer;
 import com.jovinn.capstoneproject.model.Contract;
 import com.jovinn.capstoneproject.model.Rating;
+import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.repository.BuyerRepository;
 import com.jovinn.capstoneproject.repository.ContractRepository;
 import com.jovinn.capstoneproject.repository.RatingRepository;
+import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.RatingService;
 import com.jovinn.capstoneproject.util.ValidInputRating;
@@ -31,12 +33,16 @@ public class RatingServiceImpl implements RatingService {
     private ContractRepository contractRepository;
     @Autowired
     private BuyerRepository buyerRepository;
+    @Autowired
+    private SellerRepository sellerRepository;
     @Override
     public ApiResponse ratingSeller(UUID contractId, RatingRequest request, UserPrincipal currentUser) {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found"));
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy buyer"));
+        Seller seller = sellerRepository.findById(contract.getSeller().getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy seller"));
         if (contract.getBuyer().getUser().getId().equals(currentUser.getId()) &&
                 contract.getContractStatus().equals(ContractStatus.COMPLETE)) {
                 Rating rating = new Rating();
@@ -46,6 +52,8 @@ public class RatingServiceImpl implements RatingService {
                 rating.setComment(request.getComment());
                 rating.setRatingPoint(getInputRating(request.getRatingPoint()));
                 ratingRepository.save(rating);
+                seller.setRatingPoint((seller.getRatingPoint() + rating.getRatingPoint())/2);
+                sellerRepository.save(seller);
             return new ApiResponse(Boolean.TRUE, "Bạn đã thực hiện đánh giá thành công");
         }
 

@@ -41,15 +41,15 @@ public class PostRequest extends BaseEntity {
     Integer totalDeliveryTime;
     BigDecimal budget;
 
-    @ManyToOne(fetch =  FetchType.EAGER)
+    @ManyToOne(fetch =  FetchType.LAZY)
     @JoinColumn(name = "cat_service_id", referencedColumnName = "id")
     Category category;
 
-    @ManyToOne(fetch =  FetchType.EAGER)
+    @ManyToOne(fetch =  FetchType.LAZY)
     @JoinColumn(name = "sub_cat_service_id", referencedColumnName = "id")
     SubCategory subCategory;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinTable(
             name = "post_request_skill",
             joinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id"),

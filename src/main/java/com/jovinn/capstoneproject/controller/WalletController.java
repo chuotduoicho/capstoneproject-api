@@ -5,7 +5,7 @@ import com.jovinn.capstoneproject.dto.response.TransactionResponse;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.WalletService;
-import com.jovinn.capstoneproject.service.payment.PaymentService;
+//import com.jovinn.capstoneproject.service.payment.PaymentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

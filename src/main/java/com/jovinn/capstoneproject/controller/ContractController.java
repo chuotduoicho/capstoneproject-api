@@ -47,10 +47,10 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{postRequestId}")
-    public ResponseEntity<ContractResponse> createContractFromOffer(@PathVariable("postRequestId") UUID postRequestId,
+    @PostMapping("/{offerRequestId}")
+    public ResponseEntity<ContractResponse> createContractFromOffer(@PathVariable("offerRequestId") UUID offerRequestId,
                                                                     @CurrentUser UserPrincipal currentUser) {
-        ContractResponse response = contractService.createContractFromSellerOffer(postRequestId, currentUser);
+        ContractResponse response = contractService.createContractFromSellerOffer(offerRequestId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

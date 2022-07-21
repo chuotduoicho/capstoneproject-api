@@ -6,6 +6,7 @@ import com.jovinn.capstoneproject.dto.response.OfferRequestResponse;
 import com.jovinn.capstoneproject.enumerable.OfferRequestStatus;
 import com.jovinn.capstoneproject.enumerable.OfferType;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.OfferRequest;
 import com.jovinn.capstoneproject.model.PostRequest;
@@ -43,6 +44,7 @@ public class OfferRequestServiceImpl implements OfferRequestService {
             offerRequest.setTotalDeliveryTime(request.getTotalDeliveryTime());
             offerRequest.setCancelFee(request.getCancelFee());
             offerRequest.setOfferPrice(request.getOfferPrice());
+            offerRequest.setSeller(seller);
             offerRequest.setOfferType(OfferType.OFFER);
             offerRequest.setOfferRequestStatus(OfferRequestStatus.PENDING);
             OfferRequest save = offerRequestRepository.save(offerRequest);
@@ -85,9 +87,21 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     public List<OfferRequest> getOffers(UserPrincipal currentUser) {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy seller"));
-        List<OfferRequest> offerRequest = offerRequestRepository.findAllBySellerId(seller.getId());
+        //List<OfferRequest> offerRequest = offerRequestRepository.findAllBySellerId(seller.getId());
         if(seller.getUser().getId().equals(currentUser.getId())) {
-            return offerRequest;
+            return offerRequestRepository.findAllBySellerId(seller.getId());
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public List<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser) {
+        PostRequest postRequest = postRequestRepository.findById(postRequestId)
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tim thấy post"));
+        if(postRequest.getUser().getId().equals(currentUser.getId())) {
+            return offerRequestRepository.findAllByPostRequestId(postRequest.getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");

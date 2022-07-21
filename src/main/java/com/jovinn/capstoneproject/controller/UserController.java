@@ -5,11 +5,13 @@ import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.model.OfferRequest;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
+import com.jovinn.capstoneproject.service.OfferRequestService;
 import com.jovinn.capstoneproject.service.SellerService;
 import com.jovinn.capstoneproject.service.UserService;
 import com.jovinn.capstoneproject.service.WalletService;
@@ -35,7 +37,8 @@ public class UserController {
     private SellerService sellerService;
     @Autowired
     private WalletService walletService;
-
+    @Autowired
+    private OfferRequestService offerRequestService;
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
         UUID id = currentUser.getId();
@@ -82,6 +85,11 @@ public class UserController {
     public ResponseEntity<Wallet> getWallet(@CurrentUser UserPrincipal currentUser) {
         Wallet response = walletService.getWallet(currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/list-offer/{postRequestId}")
+    public List<OfferRequest> getOfferRequests(@PathVariable("postRequestId") UUID postRequestId, @CurrentUser UserPrincipal currentUser) {
+        return offerRequestService.getAllOffersByPostRequest(postRequestId, currentUser);
     }
 
     @PostMapping("/reset-password")
