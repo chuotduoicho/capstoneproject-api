@@ -79,6 +79,7 @@ public class SellerServiceImpl implements SellerService {
                 seller.setSellerNumber(randomNumber);
                 seller.setVerifySeller(Boolean.TRUE);
                 seller.setTotalOrderFinish(0);
+                seller.setRatingPoint(0);
                 user.setSeller(seller);
                 user.setActivityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER));
                 user.setJoinSellingAt(new Date());
