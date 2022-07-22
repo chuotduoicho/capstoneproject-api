@@ -22,10 +22,16 @@ import com.jovinn.capstoneproject.service.payment.PaymentService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 
 @Service
@@ -80,7 +86,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public TransactionResponse saveWallet(String paymentId, String payerId, UserPrincipal currentUser) {
+    public TransactionResponse saveWallet(String paymentId, String payerId, UserPrincipal currentUser) throws IOException {
         Wallet wallet = walletRepository.findWalletByUserId(currentUser.getId());
         if (wallet.getUser().getId().equals(currentUser.getId())
                 && wallet.getConfirmPayStatus().equals(PaymentConfirmStatus.READY)) {
@@ -105,8 +111,20 @@ public class WalletServiceImpl implements WalletService {
                     transaction.setType(TransactionType.CHARGE);
                     transaction.setMessage(message);
                     Transaction updatedTransaction = transactionRepository.save(transaction);
+                    OkHttpClient client = new OkHttpClient();
 
-                    wallet.setWithdraw(wallet.getWithdraw().add(new BigDecimal(payment.getTransactions().get(0).getAmount().getTotal())));
+                    Request request = new Request.Builder()
+                            .url("https://api.apilayer.com/exchangerates_data/convert?to=VND&from=USD&amount=" + payment.getTransactions().get(0).getAmount().getTotal())
+                            .addHeader("apikey", "gsEPnORByvJ8ODDXsmYiHAOeZdFYzaEm")
+                            .get().build();
+
+                    Response response = client.newCall(request).execute();
+                    System.out.println(response.body().string());
+
+                    JSONObject jsonObject = new JSONObject(response.body().string());
+                    JSONObject myResponse = jsonObject.getJSONObject("result");
+                    BigDecimal vndCharge = new BigDecimal(myResponse.toString());
+                    wallet.setWithdraw(wallet.getWithdraw().add(vndCharge));
                     wallet.setConfirmPayStatus(PaymentConfirmStatus.VERIFY);
                     Wallet updatedWallet = walletRepository.save(wallet);
 

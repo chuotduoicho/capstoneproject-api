@@ -545,7 +545,7 @@ public class ContractServiceImpl implements ContractService {
     private void changeStatusAllOfferRejected(PostRequest postRequest) {
         List<OfferRequest> listOfferRequest = offerRequestRepository.findAllByPostRequestId(postRequest.getId());
         for(OfferRequest offerRequest : listOfferRequest) {
-            if(offerRequest.getOfferRequestStatus().equals(OfferRequestStatus.ACCEPTED)) {
+            if(!offerRequest.getOfferRequestStatus().equals(OfferRequestStatus.ACCEPTED)) {
                 offerRequest.setOfferRequestStatus(OfferRequestStatus.REJECTED);
                 offerRequestRepository.save(offerRequest);
                 Notification notification = new Notification();
