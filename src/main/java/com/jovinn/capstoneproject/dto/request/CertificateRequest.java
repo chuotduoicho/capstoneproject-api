@@ -12,16 +12,16 @@ import java.util.UUID;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CertificateRequest {
-    @NotBlank
-    @Size(min = 3)
+    @NotBlank(message = "Tiêu đề không được để trống")
+    @Size(min = 1, message = "Tiêu đề không được để trống")
     String title;
 
-    @NotBlank
-    @Size(min = 3)
+    @NotBlank(message = "Tên không được để trống")
+    @Size(min = 1, message = "Tên chứng nhận không được để trống")
     String name;
 
-    @NotBlank
-    @Size(min = 3)
+    @NotBlank(message = "Đường dẫn không được để trống")
+    @Size(min = 1, message = "Đường dẫn không được để trống")
     String linkCer;
 
     @NotNull

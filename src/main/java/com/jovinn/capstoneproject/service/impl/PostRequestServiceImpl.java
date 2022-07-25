@@ -68,7 +68,7 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequest.setStatus(PostRequestStatus.OPEN);
             postRequest.setContractCancelFee(request.getContractCancelFee());
             List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
-            BigDecimal budget = new BigDecimal(0) ;
+            BigDecimal budget = new BigDecimal(0);
             for (MilestoneContract milestoneContract : milestoneContractList){
                 budget = budget.add(milestoneContract.getMilestoneFee());
             }
@@ -80,7 +80,9 @@ public class PostRequestServiceImpl implements PostRequestService {
                 notification = new Notification();
                 notification.setUser(userInvite);
                 notification.setLink("/getPostRequestDetails/" + buyer.getUser().getId().toString() + "");
-                notification.setShortContent("You have new invite from " + buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName()+"");
+                notification.setShortContent("Bạn có lời mời làm việc mới từ " +
+                        buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName() +
+                        " Kiểm tra ngay");
                 notificationService.saveNotification(notification);
             }
             PostRequest savedPostRequest = postRequestRepository.save(postRequest);

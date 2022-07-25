@@ -149,11 +149,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public ApiResponse registerUser(SignUpRequest signUpRequest) {
         if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại, vui lòng nhập lại");
         }
 
         if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Email đã được đăng kí");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Email đã được đăng kí sử dụng, vui lòng sử dụng email khác");
         }
         String verificationCode = RandomString.make(15);
         User user = new User();

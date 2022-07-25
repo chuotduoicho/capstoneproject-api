@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/v1/payment")
 @CrossOrigin(origins = "*")
@@ -34,7 +36,7 @@ public class WalletController {
     @GetMapping("/success")
     public ResponseEntity<TransactionResponse> success(@RequestParam("paymentId") String paymentId,
                                                        @RequestParam("PayerID") String payerId,
-                                                       @CurrentUser UserPrincipal currentUser) {
+                                                       @CurrentUser UserPrincipal currentUser) throws IOException {
         TransactionResponse response = walletService.saveWallet(paymentId, payerId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

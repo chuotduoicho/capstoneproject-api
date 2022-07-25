@@ -114,6 +114,14 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PutMapping("/delivery-accept-milestone/{contractId}/{milestoneId}")
+    public ResponseEntity<ApiResponse> acceptDeliveryContractFromBuyer(@PathVariable("contractId") UUID contractId,
+                                                                       @PathVariable("milestoneId") UUID milestoneId,
+                                                                       @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = contractService.acceptDeliveryForMilestone(contractId, milestoneId,  currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
     @GetMapping("/{status}")
     public ResponseEntity<List<Contract>> getContractByStatus(@PathVariable ContractStatus status,
                                                               @CurrentUser UserPrincipal currentUser) {
