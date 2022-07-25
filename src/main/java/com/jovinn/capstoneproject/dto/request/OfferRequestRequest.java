@@ -4,26 +4,26 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.math.BigDecimal;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OfferRequestRequest {
-    @NotNull
-    @Size(min = 20, max = 255)
+    @NotBlank(message = "Mô tả sơ bộ thông tin của bạn cho lời đề nghỉ không được để trống")
+    @Size(min = 20, max = 255, message = "Lời mô tả đề nghị của bạn cần tối thiểu 20 ký tự")
     String descriptionBio;
-    @NotNull
-    @Min(1)
+
+    @NotBlank(message = "Ngày bàn giao không được để trống")
+    @Min(value = 1, message = "Thời gian để bàn giao tối thiểu là 1 ngày")
     Integer totalDeliveryTime;
-    @NotNull
-    @Min(1)
+
+    @NotBlank(message = "Giá đề nghị không được để trống")
+    @Min(value = 1, message = "Giá thành đề nghị tối thiểu là 1$")
     BigDecimal offerPrice;
-    @NotNull
-    @Min(0)
-    @Max(100)
+
+    @NotBlank(message = "Phí hủy không được để trống")
+    @Min(value = 0, message = "Tối thiểu sẽ là 0%")
+    @Max(value = 100, message = "Bạn chỉ được phép nhập tối đa 100% cho phí hủy hợp đồng")
     Integer cancelFee; //tinh %
 }

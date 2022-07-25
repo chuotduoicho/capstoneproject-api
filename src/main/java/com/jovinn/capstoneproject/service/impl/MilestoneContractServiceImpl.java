@@ -12,7 +12,7 @@ public class MilestoneContractServiceImpl implements MilestoneContractService {
     @Autowired
     private MilestoneContractRepository milestoneContractRepository;
     @Override
-    public MilestoneContract addMilestoneContract(MilestoneContract milestoneContract) {
-        return milestoneContractRepository.save(milestoneContract);
+    public void addMilestoneContract(MilestoneContract milestoneContract) {
+        milestoneContractRepository.save(milestoneContract);
     }
 }

@@ -111,20 +111,20 @@ public class WalletServiceImpl implements WalletService {
                     transaction.setType(TransactionType.CHARGE);
                     transaction.setMessage(message);
                     Transaction updatedTransaction = transactionRepository.save(transaction);
-                    OkHttpClient client = new OkHttpClient();
-
-                    Request request = new Request.Builder()
-                            .url("https://api.apilayer.com/exchangerates_data/convert?to=VND&from=USD&amount=" + payment.getTransactions().get(0).getAmount().getTotal())
-                            .addHeader("apikey", "gsEPnORByvJ8ODDXsmYiHAOeZdFYzaEm")
-                            .get().build();
-
-                    Response response = client.newCall(request).execute();
-                    System.out.println(response.body().string());
-
-                    JSONObject jsonObject = new JSONObject(response.body().string());
-                    JSONObject myResponse = jsonObject.getJSONObject("result");
-                    BigDecimal vndCharge = new BigDecimal(myResponse.toString());
-                    wallet.setWithdraw(wallet.getWithdraw().add(vndCharge));
+//                    OkHttpClient client = new OkHttpClient();
+//
+//                    Request request = new Request.Builder()
+//                            .url("https://api.apilayer.com/exchangerates_data/convert?to=VND&from=USD&amount=" + payment.getTransactions().get(0).getAmount().getTotal())
+//                            .addHeader("apikey", "gsEPnORByvJ8ODDXsmYiHAOeZdFYzaEm")
+//                            .get().build();
+//
+//                    Response response = client.newCall(request).execute();
+//                    System.out.println(response.body().string());
+//
+//                    JSONObject jsonObject = new JSONObject(response.body().string());
+//                    JSONObject myResponse = jsonObject.getJSONObject("result");
+//                    BigDecimal vndCharge = new BigDecimal(myResponse.toString());
+                    wallet.setWithdraw(wallet.getWithdraw().add(new BigDecimal(payment.getTransactions().get(0).getAmount().getTotal())));
                     wallet.setConfirmPayStatus(PaymentConfirmStatus.VERIFY);
                     Wallet updatedWallet = walletRepository.save(wallet);
 

@@ -52,6 +52,8 @@ public class ContractServiceImpl implements ContractService {
     @Autowired
     private MilestoneContractRepository milestoneContractRepository;
     @Autowired
+    private DeliveryRepository deliveryRepository;
+    @Autowired
     private NotificationRepository notificationRepository;
     @Autowired
     private EmailSender emailSender;
@@ -292,7 +294,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public ContractResponse updateStatusAcceptDeliveryFromBuyer(UUID id, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
         Contract contract = contractRepository.findById(id)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found"));
         Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
@@ -303,17 +305,43 @@ public class ContractServiceImpl implements ContractService {
         if (contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
             if (contract.getDeliveryStatus() != null && contract.getDeliveryStatus().equals(DeliveryStatus.SENDING)
                 && contract.getContractStatus() != null && !contract.getContractStatus().equals(ContractStatus.COMPLETE)) {
-                walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
-                walletSeller.setIncome(walletSeller.getIncome().add(income));
-                contract.setContractStatus(ContractStatus.COMPLETE);
-                contract.setUpdatedAt(new Date());
-                contract.setBuyer(buyer);
-                saveWallet(walletSeller);
-                buyer.setSuccessContract(buyer.getSuccessContract() + 1);
-                buyerRepository.save(buyer);
-                Seller seller = contract.getSeller();
-                seller.setTotalOrderFinish(seller.getTotalOrderFinish() + 1);
-                sellerRepository.save(seller);
+                if (contract.getPostRequest() != null && contract.getPostRequest().getMilestoneContracts() != null) {
+                    boolean checkAllFinish = Boolean.FALSE;
+                    List<MilestoneContract> milestoneContracts = contract.getPostRequest().getMilestoneContracts();
+                    for(MilestoneContract milestoneContract : milestoneContracts) {
+                        if(Boolean.TRUE.equals(deliveryRepository.existsByMilestoneId(milestoneContract.getId()))) {
+                            checkAllFinish = Boolean.TRUE;
+                        } else {
+                            checkAllFinish = Boolean.FALSE;
+                            break;
+                        }
+                    }
+
+                    if(checkAllFinish) {
+                        contract.setContractStatus(ContractStatus.COMPLETE);
+                        contract.setUpdatedAt(new Date());
+                        buyer.setSuccessContract(buyer.getSuccessContract() + 1);
+                        buyerRepository.save(buyer);
+                        Seller seller = contract.getSeller();
+                        seller.setTotalOrderFinish(seller.getTotalOrderFinish() + 1);
+                        sellerRepository.save(seller);
+                        return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
+                    } else {
+                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chưa đánh dấu hoàn thành tất cả các milestone");
+                    }
+                } else {
+                    walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
+                    walletSeller.setIncome(walletSeller.getIncome().add(income));
+                    contract.setContractStatus(ContractStatus.COMPLETE);
+                    contract.setUpdatedAt(new Date());
+                    saveWallet(walletSeller);
+                    buyer.setSuccessContract(buyer.getSuccessContract() + 1);
+                    buyerRepository.save(buyer);
+                    Seller seller = contract.getSeller();
+                    seller.setTotalOrderFinish(seller.getTotalOrderFinish() + 1);
+                    sellerRepository.save(seller);
+                    return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
+                }
 
 //                String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
 //                try {
@@ -327,10 +355,31 @@ public class ContractServiceImpl implements ContractService {
 //                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
 //                }
 
-                return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
+                //return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
             } else {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Đã xảy ra lỗi khi chấp nhận bàn giao");
             }
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public ApiResponse acceptDeliveryForMilestone(UUID contractId, UUID milestoneId, UserPrincipal currentUser) {
+        MilestoneContract milestoneContract = milestoneContractRepository.findById(milestoneId)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Milestone not found"));
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found"));
+        Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
+        BigDecimal incomeMilestone = calculateRefund90PercentDeposit(milestoneContract.getMilestoneFee(), 90);
+        if(contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
+            milestoneContract.setStatus(MilestoneStatus.COMPLETE);
+            milestoneContractRepository.save(milestoneContract);
+            walletSeller.setWithdraw(walletSeller.getWithdraw().add(incomeMilestone));
+            walletSeller.setIncome(walletSeller.getIncome().add(incomeMilestone));
+            saveWallet(walletSeller);
+            return new ApiResponse(Boolean.TRUE, "Bạn đã nhận và thanh toán mã giai đoạn này");
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -353,34 +402,43 @@ public class ContractServiceImpl implements ContractService {
         Date expectCompleteDate = dateDelivery.expectDate(Calendar.DAY_OF_MONTH, countTotalDeliveryTime);
         BigDecimal totalPrice = offerRequest.getOfferPrice();
         BigDecimal serviceDeposit = totalPrice.multiply(new BigDecimal(offerRequest.getCancelFee())).divide(ONE_HUNDRED, RoundingMode.FLOOR);
-        List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(postRequest.getId());
 
         if (postRequest.getUser().getId().equals(currentUser.getId())) {
             if (walletBuyer.getWithdraw().compareTo(totalPrice) >= 0 ) {
-                Contract contract = new Contract(null, contractCode,
-                        postRequest.getShortRequirement(), 1, offerRequest.getCancelFee(),
-                        serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
-                        DeliveryStatus.PENDING, OrderStatus.TO_CONTRACT, ContractStatus.PROCESSING,
-                        ContractType.REQUEST, buyer, seller);
-                contract.setPostRequest(postRequest);
-                Contract newContract = contractRepository.save(contract);
+                if(offerRequest.getOfferRequestStatus().equals(OfferRequestStatus.ACCEPTED)) {
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Offer đã được chấp nhận");
+                } else {
+                    Contract contract = new Contract(null, contractCode,
+                            postRequest.getShortRequirement(), 1, offerRequest.getCancelFee(),
+                            serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
+                            DeliveryStatus.PENDING, OrderStatus.TO_CONTRACT, ContractStatus.PROCESSING,
+                            ContractType.REQUEST, buyer, seller);
+                    if (postRequest.getMilestoneContracts() != null) {
+                        List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(postRequest.getId());
+                        for(MilestoneContract milestoneContract : milestoneContracts) {
+                            milestoneContract.setStatus(MilestoneStatus.PROCESSING);
+                        }
+                    }
+                    contract.setPostRequest(postRequest);
+                    Contract newContract = contractRepository.save(contract);
 
-                offerRequest.setOfferRequestStatus(OfferRequestStatus.ACCEPTED);
-                offerRequestRepository.save(offerRequest);
+                    offerRequest.setOfferRequestStatus(OfferRequestStatus.ACCEPTED);
+                    offerRequestRepository.save(offerRequest);
 
-                walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
-                saveWallet(walletBuyer);
+                    walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
+                    saveWallet(walletBuyer);
 
-                updateStatusAfterAcceptOffer(postRequest, offerRequest);
-                changeStatusAllOfferRejected(postRequest);
-                return new ContractResponse(newContract.getId(), newContract.getPackageId(),
-                        newContract.getContractCode(), newContract.getRequirement(),
-                        newContract.getQuantity(), newContract.getContractCancelFee(),
-                        newContract.getServiceDeposit(), newContract.getTotalPrice(),
-                        newContract.getTotalDeliveryTime(), newContract.getExpectCompleteDate(),
-                        DeliveryStatus.PENDING, OrderStatus.TO_CONTRACT, ContractStatus.PROCESSING, postRequest,
-                        newContract.getBuyer().getUser().getId(),
-                        newContract.getSeller().getUser().getId());
+                    updateStatusAfterAcceptOffer(postRequest, offerRequest);
+                    changeStatusAllOfferRejected(postRequest);
+                    return new ContractResponse(newContract.getId(), newContract.getPackageId(),
+                            newContract.getContractCode(), newContract.getRequirement(),
+                            newContract.getQuantity(), newContract.getContractCancelFee(),
+                            newContract.getServiceDeposit(), newContract.getTotalPrice(),
+                            newContract.getTotalDeliveryTime(), newContract.getExpectCompleteDate(),
+                            DeliveryStatus.PENDING, OrderStatus.TO_CONTRACT, ContractStatus.PROCESSING, postRequest,
+                            newContract.getBuyer().getUser().getId(),
+                            newContract.getSeller().getUser().getId());
+                }
             } else {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không đủ số dư để bắt đầu hợp đồng");
             }
@@ -415,6 +473,12 @@ public class ContractServiceImpl implements ContractService {
                         serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
                         DeliveryStatus.PENDING, OrderStatus.TO_CONTRACT, ContractStatus.PROCESSING,
                         ContractType.REQUEST, buyer, seller);
+                if (postRequest.getMilestoneContracts() != null) {
+                    List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(postRequest.getId());
+                    for(MilestoneContract milestoneContract : milestoneContracts) {
+                        milestoneContract.setStatus(MilestoneStatus.PROCESSING);
+                    }
+                }
                 contract.setPostRequest(postRequest);
                 Contract newContract = contractRepository.save(contract);
 

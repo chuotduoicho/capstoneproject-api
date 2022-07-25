@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.model.Contract;
@@ -15,6 +16,7 @@ public interface ContractService {
     ContractResponse updateStatusRejectFromSeller(UUID id, UserPrincipal currentUser);
     ContractResponse updateStatusCancelFromBuyer(UUID id, UserPrincipal currentUser);
     ContractResponse updateStatusAcceptDeliveryFromBuyer(UUID id, UserPrincipal currentUser);
+    ApiResponse acceptDeliveryForMilestone(UUID contractId, UUID milestoneId, UserPrincipal currentUser);
     ContractResponse createContractFromSellerOffer(UUID offerRequestId, UserPrincipal currentUser);
     ContractResponse createContractFromSellerApply(UUID postRequestId, UUID sellerId, UserPrincipal currentUser);
     Contract getContractById(UUID id, UserPrincipal currentUser);

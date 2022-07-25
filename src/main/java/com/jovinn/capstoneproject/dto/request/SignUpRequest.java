@@ -3,28 +3,31 @@ import lombok.Data;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Data
 public class SignUpRequest {
-    @NotBlank
+    @NotBlank(message = "Họ Không được để trống")
     @Size(min = 1, max = 40)
     private String firstName;
 
-    @NotBlank
+    @NotBlank(message = "Tên Không được để trống")
     @Size(min = 1, max = 40)
     private String lastName;
 
-    @NotBlank
-    @Size(min = 3, max = 15)
+    @NotBlank(message = "Tên tài khoản Không được để trống")
+    @Size(min = 5, max = 50, message = "Tên tài khoản cần nhập đủ 5 ký tự trở lên")
+    @Pattern(regexp = "^[a-zA-Z0-9äöüÄÖÜ]*$", message = "Tên tài khoản không được chứa ký tự đặc biệt")
     private String username;
 
-    @NotBlank
-    @Size(max = 70)
+    @NotBlank(message = "Email không được để trống")
+    @Size(max = 255)
     @Email
+    @Pattern(regexp=".+@.+\\..+", message = "Hãy nhập đúng định dạng email")
     private String email;
 
-    @NotBlank
-    @Size(min = 6, max = 30)
+    @NotBlank(message = "Mật khẩu Không được để trống")
+    @Size(min = 6, max = 255, message = "Mật khẩu cần ít nhất 6 ký tự trở lên")
     private String password;
 }
