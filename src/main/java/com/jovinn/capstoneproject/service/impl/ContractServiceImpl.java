@@ -379,7 +379,7 @@ public class ContractServiceImpl implements ContractService {
             walletSeller.setWithdraw(walletSeller.getWithdraw().add(incomeMilestone));
             walletSeller.setIncome(walletSeller.getIncome().add(incomeMilestone));
             saveWallet(walletSeller);
-            return new ApiResponse(Boolean.TRUE, "Bạn đã nhận và thanh toán mã giai đoạn này");
+            return new ApiResponse(Boolean.TRUE, "Bạn đã nhận và thanh toán mã giai đoạn này thành công");
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
