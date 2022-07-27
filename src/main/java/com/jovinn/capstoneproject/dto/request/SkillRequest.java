@@ -16,7 +16,6 @@ public class SkillRequest {
     @NotBlank(message = "Tên kỹ năng không được để trống")
     String name;
 
-    @NotBlank(message = "Trình độ kỹ năng không được để trống")
     SkillLevel level;
 
     @NotBlank(message = "Mô tả ngắn về kỹ năng không được để trống")
