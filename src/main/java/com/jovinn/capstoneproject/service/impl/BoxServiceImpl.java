@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.request.PackageRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.BoxResponse;
+import com.jovinn.capstoneproject.dto.response.CountServiceResponse;
 import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
@@ -119,5 +120,10 @@ public class BoxServiceImpl implements BoxService {
     @Override
     public Page<Box> searchServiceByCatNameBySubCateName(int offset, String catName, String subCatName) {
         return boxRepository.findAllBySubCategory_NameContainsOrSubCategory_Category_NameContains(subCatName,catName,PageRequest.of(offset,8));
+    }
+
+    @Override
+    public CountServiceResponse countTotalService() {
+        return new CountServiceResponse(boxRepository.count());
     }
 }

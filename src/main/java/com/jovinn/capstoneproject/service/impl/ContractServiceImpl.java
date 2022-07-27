@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
+import com.jovinn.capstoneproject.dto.response.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.enumerable.*;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
@@ -491,6 +492,17 @@ public class ContractServiceImpl implements ContractService {
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public CountTotalRevenueResponse getTotalRevenue() {
+//        List<Contract> contracts = contractRepository.findAllByContractStatus(ContractStatus.COMPLETE);
+//        BigDecimal totalRevenue = new BigDecimal(0);
+//        BigDecimal number = new BigDecimal(0.1);
+//        for (Contract contract:contracts){
+//            totalRevenue.add(contract.getTotalPrice());
+//        }
+        return new CountTotalRevenueResponse(contractRepository.countTotalRevenue());
     }
 
     private ContractResponse getUpdateResponse(Contract contract, DeliveryStatus deliveryStatus,

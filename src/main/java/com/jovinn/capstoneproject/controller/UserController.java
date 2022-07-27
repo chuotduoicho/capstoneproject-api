@@ -4,6 +4,7 @@ import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.response.CountUserResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
@@ -102,4 +103,6 @@ public class UserController {
         ApiResponse response = userService.changePassword(request, currentUser);
         return new ResponseEntity< >(response, HttpStatus.CREATED);
     }
+
+
 }

@@ -5,6 +5,7 @@ import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.response.CountUserResponse;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
@@ -37,4 +38,8 @@ public interface UserService {
     ApiResponse changePassword(ChangePasswordRequest request, UserPrincipal currentUser);
 
     List<UserProfile> getListUserInvitedByPostRequestId(UUID postRequest);
+
+    CountUserResponse countUserById();
+
+    ApiResponse banOrUnbanUser(UUID userId);
 }

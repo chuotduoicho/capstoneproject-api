@@ -5,8 +5,11 @@ import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
 import com.jovinn.capstoneproject.enumerable.OrderStatus;
 import com.jovinn.capstoneproject.model.Contract;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,5 +19,17 @@ public interface ContractRepository extends JpaRepository<Contract, UUID> {
     List<Contract> findAllByOrderStatusAndSellerId(OrderStatus status, UUID sellerId);
     List<Contract> findAllByContractStatusAndBuyerId(ContractStatus status, UUID buyerId);
     List<Contract> findAllByContractStatusAndSellerId(ContractStatus status, UUID sellerId);
+    @Query(value = "select sum(total_price*0.1) as total_revenue from jovinn_server.contract where contract_status = \"COMPLETE\"", nativeQuery = true)
+    BigDecimal countTotalRevenue();
 
+    List<Contract> findAllByContractStatusAndCreateAt(ContractStatus status, Date date);
+    @Query(value = "select sum(total_price*0.1) as revenue from jovinn_server.contract where contract_status = \"COMPLETE\" and date(create_at) = date(now())", nativeQuery = true)
+    BigDecimal countTotalRevenueToday();
+
+    @Query(value = "select sum(total_price*0.1) as revenue \n" +
+            "from jovinn_server.contract \n" +
+            "where contract_status = \"COMPLETE\" \n" +
+            "and YEAR(create_at) = YEAR(CURRENT_DATE - INTERVAL ?1 MONTH)\n" +
+            "AND MONTH(create_at) = MONTH(CURRENT_DATE - INTERVAL ?1 MONTH)", nativeQuery = true)
+    BigDecimal countTotalRevenueByMonth(Integer month);
 }

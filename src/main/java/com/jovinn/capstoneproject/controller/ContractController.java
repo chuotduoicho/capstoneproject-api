@@ -4,6 +4,7 @@ import com.jovinn.capstoneproject.dto.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.request.DeliveryHaveMilestoneRequest;
 import com.jovinn.capstoneproject.dto.request.DeliveryNotMilestoneRequest;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
+import com.jovinn.capstoneproject.dto.response.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.dto.response.DeliveryHaveMilestoneResponse;
 import com.jovinn.capstoneproject.dto.response.DeliveryNotMilestoneResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
@@ -126,4 +127,6 @@ public class ContractController {
         List<Contract> response = contractService.getContracts(currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
+
 }

@@ -2,6 +2,7 @@ package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.BoxResponse;
+import com.jovinn.capstoneproject.dto.response.CountServiceResponse;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
