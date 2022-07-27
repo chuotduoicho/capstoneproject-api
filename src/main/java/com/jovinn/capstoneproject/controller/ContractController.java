@@ -3,15 +3,19 @@ package com.jovinn.capstoneproject.controller;
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.request.DeliveryHaveMilestoneRequest;
 import com.jovinn.capstoneproject.dto.request.DeliveryNotMilestoneRequest;
+import com.jovinn.capstoneproject.dto.request.RatingRequest;
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
 import com.jovinn.capstoneproject.dto.response.DeliveryHaveMilestoneResponse;
 import com.jovinn.capstoneproject.dto.response.DeliveryNotMilestoneResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.model.Contract;
+import com.jovinn.capstoneproject.model.Rating;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ContractService;
 import com.jovinn.capstoneproject.service.DeliveryService;
+import com.jovinn.capstoneproject.service.RatingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +33,8 @@ public class ContractController {
     private ContractService contractService;
     @Autowired
     private DeliveryService deliveryService;
+    @Autowired
+    private RatingService ratingService;
     @GetMapping("/{id}")
     public ResponseEntity<Contract> getContractById(@PathVariable UUID id, @CurrentUser UserPrincipal currentUser) {
         Contract response = contractService.getContractById(id, currentUser);
@@ -41,10 +47,10 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{postRequestId}")
-    public ResponseEntity<ContractResponse> createContractFromOffer(@PathVariable("postRequestId") UUID postRequestId,
+    @PostMapping("/{offerRequestId}")
+    public ResponseEntity<ContractResponse> createContractFromOffer(@PathVariable("offerRequestId") UUID offerRequestId,
                                                                     @CurrentUser UserPrincipal currentUser) {
-        ContractResponse response = contractService.createContractFromSellerOffer(postRequestId, currentUser);
+        ContractResponse response = contractService.createContractFromSellerOffer(offerRequestId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -108,6 +114,14 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PutMapping("/delivery-accept-milestone/{contractId}/{milestoneId}")
+    public ResponseEntity<ApiResponse> acceptDeliveryContractFromBuyer(@PathVariable("contractId") UUID contractId,
+                                                                       @PathVariable("milestoneId") UUID milestoneId,
+                                                                       @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = contractService.acceptDeliveryForMilestone(contractId, milestoneId,  currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
     @GetMapping("/{status}")
     public ResponseEntity<List<Contract>> getContractByStatus(@PathVariable ContractStatus status,
                                                               @CurrentUser UserPrincipal currentUser) {
@@ -125,5 +139,18 @@ public class ContractController {
     public ResponseEntity<List<Contract>> getContracts(@CurrentUser UserPrincipal currentUser) {
         List<Contract> response = contractService.getContracts(currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/rating/{contractId}")
+    public ResponseEntity<ApiResponse> ratingSellerFromBuyer(@PathVariable("contractId") UUID contractId,
+                                                    @Valid @RequestBody RatingRequest request,
+                                                    @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = ratingService.ratingSeller(contractId, request, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/rating/{contractId}")
+    public List<Rating> getRatingsForContract(@PathVariable("contractId") UUID contractId){
+        return ratingService.getRatingsForContract(contractId);
     }
 }

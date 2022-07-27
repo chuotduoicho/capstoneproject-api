@@ -30,7 +30,7 @@ public class Category extends BaseEntity {
     UUID id;
     String name;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @PrimaryKeyJoinColumn
     @JsonManagedReference
     List<SubCategory> subCategories;

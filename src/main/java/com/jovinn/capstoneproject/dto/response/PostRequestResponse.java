@@ -1,7 +1,9 @@
 package com.jovinn.capstoneproject.dto.response;
 
+import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.model.MilestoneContract;
 import com.jovinn.capstoneproject.model.Skill;
+import com.jovinn.capstoneproject.model.User;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -34,7 +36,10 @@ public class PostRequestResponse {
     Date userCreateAt;
     Integer numberPostRequestCreated;
 
-    public PostRequestResponse(UUID categoryId, UUID subcategoryId, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, String attachFile, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, BigDecimal budget) {
+    List<UserProfile> invitedUser;
+
+    public PostRequestResponse(UUID postRequestId, UUID categoryId, UUID subcategoryId, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, String attachFile, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, BigDecimal budget, List<UserProfile> invitedUser) {
+        this.postRequestId = postRequestId;
         this.categoryId = categoryId;
         this.subcategoryId = subcategoryId;
         this.recruitLevel = recruitLevel;
@@ -45,10 +50,13 @@ public class PostRequestResponse {
         this.milestoneContracts = milestoneContracts;
         this.contractCancelFee = contractCancelFee;
         this.budget = budget;
+        this.invitedUser = invitedUser;
     }
 
-    public PostRequestResponse(UUID postRequestId, String jobTitle, BigDecimal budget, UUID buyerId, String buyerFirstName,String buyerLastname, String city, Date createdAt) {
+    public PostRequestResponse(UUID postRequestId, UUID categoryId, UUID subcategoryId, String jobTitle, BigDecimal budget, UUID buyerId, String buyerFirstName,String buyerLastname, String city, Date createdAt, String recruitLevel, List<Skill> skillsName, String shortRequirement, List<MilestoneContract> milestoneContracts, Integer contractCancelFee) {
         this.postRequestId = postRequestId;
+        this.categoryId = categoryId;
+        this.subcategoryId = subcategoryId;
         this.jobTitle = jobTitle;
         this.budget = budget;
         this.buyerId = buyerId;
@@ -56,6 +64,11 @@ public class PostRequestResponse {
         this.buyerLastname = buyerLastname;
         this.city = city;
         this.createdAt = createdAt;
+        this.recruitLevel = recruitLevel;
+        this.skillsName = skillsName;
+        this.shortRequirement = shortRequirement;
+        this.milestoneContracts = milestoneContracts;
+        this.contractCancelFee = contractCancelFee;
     }
 
     public PostRequestResponse(String categoryName, String subCategoryName, String recruitLevel, List<Skill> skillsName, String jobTitle, String shortRequirement, List<MilestoneContract> milestoneContracts, Integer contractCancelFee, BigDecimal budget, String buyerFirstName, String buyerLastname, String city, Date userCreateAt, Integer numberPostRequestCreated) {

@@ -35,6 +35,7 @@ public class Seller extends BaseEntity {
     @Enumerated(EnumType.STRING)
     RankSeller rankSeller;
     Integer totalOrderFinish;
+    Integer ratingPoint;
     Boolean verifySeller;
 
     @OneToOne(fetch = FetchType.EAGER)
@@ -71,6 +72,9 @@ public class Seller extends BaseEntity {
     @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)
     List<Contract> contracts;
 
-    @OneToOne(mappedBy = "seller", fetch = FetchType.EAGER)
-    OfferRequest offerRequest;
+    @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)
+    List<OfferRequest> offerRequests;
+
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
+    List<Rating> ratings;
 }

@@ -9,6 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ public class MilestoneContract extends BaseEntity {
     @Enumerated(EnumType.STRING)
     MilestoneStatus status;
 
-    Integer totalFeePercent;
+    BigDecimal milestoneFee;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_request_id", referencedColumnName = "id")

@@ -13,10 +13,12 @@ import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.MilestoneContractService;
 import com.jovinn.capstoneproject.service.NotificationService;
 import com.jovinn.capstoneproject.service.PostRequestService;
+import com.jovinn.capstoneproject.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -46,6 +48,9 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public ApiResponse addPostRequest(PostRequestRequest request, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
@@ -62,7 +67,12 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequest.setAttachFile(request.getAttachFile());
             postRequest.setStatus(PostRequestStatus.OPEN);
             postRequest.setContractCancelFee(request.getContractCancelFee());
-            postRequest.setBudget(request.getBudget());
+            List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
+            BigDecimal budget = new BigDecimal(0);
+            for (MilestoneContract milestoneContract : milestoneContractList){
+                budget = budget.add(milestoneContract.getMilestoneFee());
+            }
+            postRequest.setBudget(budget);
             postRequest.setUser(userRepository.findUserById(currentUser.getId()));
             Notification notification;
             List<User> usersGetInvite = request.getInvitedUsers();
@@ -70,12 +80,14 @@ public class PostRequestServiceImpl implements PostRequestService {
                 notification = new Notification();
                 notification.setUser(userInvite);
                 notification.setLink("/getPostRequestDetails/" + buyer.getUser().getId().toString() + "");
-                notification.setShortContent("You have new invite from " + buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName()+"");
+                notification.setShortContent("Bạn có lời mời làm việc mới từ " +
+                        buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName() +
+                        " Kiểm tra ngay");
                 notificationService.saveNotification(notification);
             }
             PostRequest savedPostRequest = postRequestRepository.save(postRequest);
 
-            List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
+
             for (MilestoneContract milestoneContract : milestoneContractList){
                 milestoneContract.setPostRequest(savedPostRequest);
                 milestoneContractService.addMilestoneContract(milestoneContract);
@@ -92,7 +104,7 @@ public class PostRequestServiceImpl implements PostRequestService {
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Post Request not found "));
         if (post.getUser().getId().equals(buyer.getUser().getId()) && post.getUser().getId().equals(currentUser.getId())){
             PostRequest savedPostRequest;
-            if (request != null){
+            if (request != null && post.getSellersApplyRequest().isEmpty() ){
                 post.setCategory(categoryRepository.findCategoryById(request.getCategoryId()));
                 post.setSubCategory(subCategoryRepository.findSubCategoryById(request.getSubCategoryId()));
                 post.setRecruitLevel(request.getRecruitLevel());
@@ -102,11 +114,16 @@ public class PostRequestServiceImpl implements PostRequestService {
                 post.setAttachFile(request.getAttachFile());
                 post.setStatus(PostRequestStatus.OPEN);
                 post.setContractCancelFee(request.getContractCancelFee());
-                post.setBudget(request.getBudget());
+                List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
+                BigDecimal budget = new BigDecimal(0) ;
+                for (MilestoneContract milestoneContract : milestoneContractList){
+                    budget = budget.add(milestoneContract.getMilestoneFee());
+                }
+                post.setBudget(budget);
                 post.setUser(userRepository.findUserById(currentUser.getId()));
                 savedPostRequest =  postRequestRepository.save(post);
-                List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
-                if (milestoneContractList != null){
+
+                if (!milestoneContractList.isEmpty()){
                     for (MilestoneContract milestoneContract : milestoneContractList){
                         milestoneContract.setPostRequest(savedPostRequest);
                         milestoneContractService.addMilestoneContract(milestoneContract);
@@ -135,11 +152,11 @@ public class PostRequestServiceImpl implements PostRequestService {
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
                 buyer.getUser().getIsEnabled().equals(Boolean.TRUE)) {
             postRequest = postRequestRepository.findAllByUser_Id(currentUser.getId());
-
             for (PostRequest postRequest1 : postRequest) {
-                postRequestResponses.add(new PostRequestResponse(postRequest1.getCategory().getId(), postRequest1.getSubCategory().getId(),
+                postRequestResponses.add(new PostRequestResponse(postRequest1.getId(), postRequest1.getCategory().getId(), postRequest1.getSubCategory().getId(),
                         postRequest1.getRecruitLevel(), postRequest1.getSkills(), postRequest1.getJobTitle(), postRequest1.getShortRequirement(),
-                        postRequest1.getAttachFile(), postRequest1.getMilestoneContracts(), postRequest1.getContractCancelFee(), postRequest1.getBudget()));
+                        postRequest1.getAttachFile(), postRequest1.getMilestoneContracts(), postRequest1.getContractCancelFee(), postRequest1.getBudget(),
+                        userService.getListUserInvitedByPostRequestId(postRequest1.getId())));
             }
         }
         return postRequestResponses;
@@ -150,9 +167,11 @@ public class PostRequestServiceImpl implements PostRequestService {
         List<PostRequestResponse> postRequestResponses = new ArrayList<>();
         List<PostRequest> postRequests = postRequestRepository.findAllByCategory_Id(categoryId);
         for (PostRequest postRequest:postRequests){
-            postRequestResponses.add(new PostRequestResponse(postRequest.getId(),postRequest.getJobTitle(),postRequest.getBudget(),
+            postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
+                    postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
                     postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
-                    postRequest.getUser().getCity(),postRequest.getCreateAt()));
+                    postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkills(),
+                    postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
         }
         return postRequestResponses;
     }
@@ -207,5 +226,19 @@ public class PostRequestServiceImpl implements PostRequestService {
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public List<PostRequestResponse> getAllPostRequest() {
+        List<PostRequestResponse> postRequestResponses = new ArrayList<>();
+        List<PostRequest> postRequests = postRequestRepository.findAll();
+        for (PostRequest postRequest:postRequests){
+            postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
+                    postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
+                    postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
+                    postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkills(),
+                    postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
+        }
+        return postRequestResponses;
     }
 }

@@ -92,4 +92,9 @@ public class PostRequestController {
         ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId,currentUser);
         return new ResponseEntity<>(response,HttpStatus.CREATED);
     }
+
+    @GetMapping("/getAllPostRequest")
+    public List<PostRequestResponse> getAllPostRequest(){
+        return postRequestService.getAllPostRequest();
+    }
 }

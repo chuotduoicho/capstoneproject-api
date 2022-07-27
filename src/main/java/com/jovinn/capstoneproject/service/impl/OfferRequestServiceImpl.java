@@ -6,19 +6,24 @@ import com.jovinn.capstoneproject.dto.response.OfferRequestResponse;
 import com.jovinn.capstoneproject.enumerable.OfferRequestStatus;
 import com.jovinn.capstoneproject.enumerable.OfferType;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.OfferRequest;
 import com.jovinn.capstoneproject.model.PostRequest;
 import com.jovinn.capstoneproject.model.Seller;
+import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.repository.OfferRequestRepository;
 import com.jovinn.capstoneproject.repository.PostRequestRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
+import com.jovinn.capstoneproject.repository.payment.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.OfferRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -29,25 +34,34 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     private PostRequestRepository postRequestRepository;
     @Autowired
     private SellerRepository sellerRepository;
+    @Autowired
+    private WalletRepository walletRepository;
     @Override
     public OfferRequestResponse sendOfferToBuyer(UUID postRequestId, OfferRequestRequest request, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy post cần gửi offer"));
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy seller"));
+        Wallet walletSeller = walletRepository.findWalletByUserId(currentUser.getId());
+
         if(seller.getUser().getId().equals(currentUser.getId())) {
-            OfferRequest offerRequest = new OfferRequest();
-            offerRequest.setPostRequest(postRequest);
-            offerRequest.setDescriptionBio(request.getDescriptionBio());
-            offerRequest.setTotalDeliveryTime(request.getTotalDeliveryTime());
-            offerRequest.setCancelFee(request.getCancelFee());
-            offerRequest.setOfferPrice(request.getOfferPrice());
-            offerRequest.setOfferType(OfferType.OFFER);
-            offerRequest.setOfferRequestStatus(OfferRequestStatus.PENDING);
-            OfferRequest save = offerRequestRepository.save(offerRequest);
-            String message = "Gửi đi offer thành công qua " + postRequest.getId();
-            return new OfferRequestResponse(save.getId(), save.getPostRequest().getId(), save.getDescriptionBio(),
-                    save.getTotalDeliveryTime(), save.getOfferPrice(), save.getCancelFee(), message);
+            if(walletSeller.getWithdraw().compareTo(request.getOfferPrice().multiply(new BigDecimal(request.getCancelFee()/100))) >= 0) {
+                OfferRequest offerRequest = new OfferRequest();
+                offerRequest.setPostRequest(postRequest);
+                offerRequest.setDescriptionBio(request.getDescriptionBio());
+                offerRequest.setTotalDeliveryTime(request.getTotalDeliveryTime());
+                offerRequest.setCancelFee(request.getCancelFee());
+                offerRequest.setOfferPrice(request.getOfferPrice());
+                offerRequest.setSeller(seller);
+                offerRequest.setOfferType(OfferType.OFFER);
+                offerRequest.setOfferRequestStatus(OfferRequestStatus.PENDING);
+                OfferRequest save = offerRequestRepository.save(offerRequest);
+                String message = "Gửi đi offer thành công qua " + postRequest.getId();
+                return new OfferRequestResponse(save.getId(), save.getPostRequest().getId(), save.getDescriptionBio(),
+                        save.getTotalDeliveryTime(), save.getOfferPrice(), save.getCancelFee(), message);
+            } else {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn cần có một lượng cọc nhất định trong tài khoản, vui lòng nạp thêm");
+            }
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -74,6 +88,31 @@ public class OfferRequestServiceImpl implements OfferRequestService {
             String message = "Gửi đi offer thành công qua " + postRequest.getId();
             return new OfferRequestResponse(save.getId(), save.getPostRequest().getId(), save.getDescriptionBio(),
                     save.getTotalDeliveryTime(), save.getOfferPrice(), save.getCancelFee(), message);
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public List<OfferRequest> getOffers(UserPrincipal currentUser) {
+        Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy seller"));
+        //List<OfferRequest> offerRequest = offerRequestRepository.findAllBySellerId(seller.getId());
+        if(seller.getUser().getId().equals(currentUser.getId())) {
+            return offerRequestRepository.findAllBySellerId(seller.getId());
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public List<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser) {
+        PostRequest postRequest = postRequestRepository.findById(postRequestId)
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tim thấy post"));
+        if(postRequest.getUser().getId().equals(currentUser.getId())) {
+            return offerRequestRepository.findAllByPostRequestId(postRequest.getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");

@@ -12,11 +12,11 @@ import java.util.UUID;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UrlProfileRequest {
-    @NotBlank
+    @NotBlank(message = "Cung cấp về đường dẫn thông tin của bạn không được để trống")
     @Size(min = 3)
     String title;
 
-    @NotBlank
+    @NotBlank(message = "Đường dẫn thông tin của bạn không được để trống")
     @Size(min = 3)
     String url;
 

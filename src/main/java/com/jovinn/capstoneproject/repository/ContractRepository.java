@@ -12,9 +12,10 @@ import java.util.UUID;
 
 @Repository
 public interface ContractRepository extends JpaRepository<Contract, UUID> {
+    List<Contract> findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus status, UUID buyerId, UUID sellerId);
     List<Contract> findAllByOrderStatusAndBuyerId(OrderStatus status, UUID buyerId);
     List<Contract> findAllByOrderStatusAndSellerId(OrderStatus status, UUID sellerId);
     List<Contract> findAllByContractStatusAndBuyerId(ContractStatus status, UUID buyerId);
-    List<Contract> findAllByContractStatusAndSellerId(ContractStatus status, UUID sellerId);
+    List<Contract> findAllByContractStatusAndSellerIdOrBuyerId(ContractStatus status, UUID sellerId, UUID buyerId);
 
 }

@@ -13,17 +13,18 @@ import java.util.UUID;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EducationRequest {
-    @NotBlank
+    @NotBlank(message = "Quốc gia không được để trống")
     String country;
 
-    @NotBlank
+    @NotBlank(message = "Tên trường không được để trống")
     String universityName;
 
-    @NotBlank
-    @Size(min = 3)
+    @NotBlank(message = "Tiêu đề không được để trống")
+    @Size(min = 3, message = "Tên tiêu đề không được để trống")
     String title;
 
-    @NotBlank
+    @NotBlank(message = "Chuyên ngành của bạn không được để trống")
+    @Size(min = 1, message = "Chuyên ngành của bạn không được để trống")
     String major;
 
     Date yearOfGraduation;

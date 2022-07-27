@@ -5,12 +5,14 @@ import com.jovinn.capstoneproject.dto.response.TransactionResponse;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.WalletService;
-import com.jovinn.capstoneproject.service.payment.PaymentService;
+//import com.jovinn.capstoneproject.service.payment.PaymentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/payment")
@@ -34,7 +36,7 @@ public class WalletController {
     @GetMapping("/success")
     public ResponseEntity<TransactionResponse> success(@RequestParam("paymentId") String paymentId,
                                                        @RequestParam("PayerID") String payerId,
-                                                       @CurrentUser UserPrincipal currentUser) {
+                                                       @CurrentUser UserPrincipal currentUser) throws IOException {
         TransactionResponse response = walletService.saveWallet(paymentId, payerId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

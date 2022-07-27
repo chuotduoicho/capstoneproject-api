@@ -76,7 +76,7 @@ public class BoxController {
     }
 
     @GetMapping("/paginate-list-services-by-cat/{catId}/{page}")
-    public Page<Box> getAllServiceByCategoryIdPagination(@PathVariable UUID catId,@PathVariable int page){
+    public Page<Box> getAllServiceByCategoryIdPagination(@PathVariable UUID catId, @PathVariable int page){
         return  boxService.getAllServiceByCatIdPagination(page,catId);
     }
 

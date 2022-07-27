@@ -7,9 +7,11 @@ import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.repository.payment.TransactionRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
+import java.io.IOException;
+
 public interface WalletService {
     String buyJCoin(WalletRequest request, UserPrincipal currentUser);
     Wallet getWallet(UserPrincipal currentUser);
-    TransactionResponse saveWallet(String paymentId, String payerId, UserPrincipal currentUser);
+    TransactionResponse saveWallet(String paymentId, String payerId, UserPrincipal currentUser) throws IOException;
     TransactionResponse getTransactionWallet(UserPrincipal currentUser);
 }

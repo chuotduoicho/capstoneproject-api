@@ -19,10 +19,7 @@ public interface SkillService {
     SkillResponse addSkill(SkillRequest request, UserPrincipal currentUser);
     SkillResponse update(UUID id, SkillRequest request, UserPrincipal currentUser);
     ApiResponse delete(UUID id, UserPrincipal currentUser);
-
     List<SellerSkillResponse> getSellerBySkillNameAndSkillLevelOrderBySellerId(List<String> name, SkillLevel level);
-
     List<Skill> getAllSkillBySellerId(UUID id);
-
     List<Skill> getSellerBySkillNameAndSkillLevel(List<String> name, SkillLevel level);
 }
