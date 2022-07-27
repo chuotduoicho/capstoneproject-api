@@ -81,7 +81,12 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public Boolean deleteBox(UUID id) {
-        boxRepository.deleteById(id);
+        try {
+            boxRepository.deleteById(id);
+        }catch (Exception e){
+            return false;
+        }
+
         return true;
     }
 

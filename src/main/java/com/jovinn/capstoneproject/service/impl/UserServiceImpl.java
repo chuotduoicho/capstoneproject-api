@@ -4,6 +4,7 @@ import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
+import com.jovinn.capstoneproject.dto.response.AdminViewUserResponse;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.CountUserResponse;
 import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
@@ -260,5 +261,12 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.save(user);
         return new ApiResponse(Boolean.TRUE, "Thay Đổi Trạng Thái Thành Công");
+    }
+
+    @Override
+    public AdminViewUserResponse getUserById(UUID id) {
+        User user = userRepository.findUserById(id);
+        return new AdminViewUserResponse(user.getId(),user.getFirstName(),user.getLastName(),user.getEmail(),
+                user.getPhoneNumber(),user.getUsername());
     }
 }

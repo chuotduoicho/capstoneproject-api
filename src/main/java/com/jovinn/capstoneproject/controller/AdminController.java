@@ -2,6 +2,7 @@ package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.model.Admin;
+import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,5 +102,9 @@ public class AdminController {
     @GetMapping("/get-admin-by-id/{id}")
     public AdminProfileResponse getAdminById(@PathVariable UUID id){
         return adminService.getAdminById(id);
+    }
+    @GetMapping("/get-user-by-id/{id}")
+    public AdminViewUserResponse getUserById(@PathVariable UUID id){
+        return userService.getUserById(id);
     }
 }
