@@ -4,6 +4,7 @@ import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.response.WalletResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.OfferRequest;
 import com.jovinn.capstoneproject.model.Seller;
@@ -82,8 +83,8 @@ public class UserController {
     }
 
     @GetMapping("/wallet")
-    public ResponseEntity<Wallet> getWallet(@CurrentUser UserPrincipal currentUser) {
-        Wallet response = walletService.getWallet(currentUser);
+    public ResponseEntity<WalletResponse> getWallet(@CurrentUser UserPrincipal currentUser) {
+        WalletResponse response = walletService.getWallet(currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

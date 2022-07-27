@@ -5,6 +5,7 @@ import com.jovinn.capstoneproject.config.payment.PaypalPaymentMethod;
 import com.jovinn.capstoneproject.dto.request.WalletRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.TransactionResponse;
+import com.jovinn.capstoneproject.dto.response.WalletResponse;
 import com.jovinn.capstoneproject.enumerable.PaymentConfirmStatus;
 import com.jovinn.capstoneproject.enumerable.TransactionType;
 import com.jovinn.capstoneproject.exception.ApiException;
@@ -76,9 +77,10 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public Wallet getWallet(UserPrincipal currentUser) {
-        if (currentUser.getId() != null) {
-            return walletRepository.findWalletByUserId(currentUser.getId());
+    public WalletResponse getWallet(UserPrincipal currentUser) {
+        Wallet wallet = walletRepository.findWalletByUserId(currentUser.getId());
+        if (wallet.getUser().getId().equals(currentUser.getId())) {
+            return new WalletResponse(wallet.getId(), wallet.getIncome(), wallet.getWithdraw(), wallet.getTransactions());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
