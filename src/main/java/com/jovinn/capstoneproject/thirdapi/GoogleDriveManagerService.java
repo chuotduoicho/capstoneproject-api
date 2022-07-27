@@ -46,7 +46,7 @@ public class GoogleDriveManagerService implements FileManagerService {
                     .setFields("id, webContentLink")
                     .execute();
             return UploadFileResponse.builder()
-                    .url(uploadFile.getWebContentLink())
+                    .url(uploadFile.getWebContentLink().replace("&export=download", ""))
                     .id(uploadFile.getId())
                     .build();
         } catch (Exception e) {

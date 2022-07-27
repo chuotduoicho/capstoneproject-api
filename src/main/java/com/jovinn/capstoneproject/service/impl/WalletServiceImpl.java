@@ -61,7 +61,7 @@ public class WalletServiceImpl implements WalletService {
                     walletRepository.save(wallet);
                     for(Links link:payment.getLinks()) {
                         if (link.getRel().equals("approval_url")) {
-                            return "redirect:" + link.getHref();
+                            return link.getHref();
                         }
                     }
                 } catch (PayPalRESTException e) {

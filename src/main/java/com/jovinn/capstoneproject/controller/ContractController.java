@@ -35,7 +35,7 @@ public class ContractController {
     private DeliveryService deliveryService;
     @Autowired
     private RatingService ratingService;
-    @GetMapping("/{id}")
+    @GetMapping("/details/{id}")
     public ResponseEntity<Contract> getContractById(@PathVariable UUID id, @CurrentUser UserPrincipal currentUser) {
         Contract response = contractService.getContractById(id, currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
