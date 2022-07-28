@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.request.DeliveryHaveMilestoneRequest;
 import com.jovinn.capstoneproject.dto.request.DeliveryNotMilestoneRequest;
@@ -16,7 +17,9 @@ import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ContractService;
 import com.jovinn.capstoneproject.service.DeliveryService;
 import com.jovinn.capstoneproject.service.RatingService;
+import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -123,21 +126,45 @@ public class ContractController {
     }
 
     @GetMapping("/{status}")
-    public ResponseEntity<List<Contract>> getContractByStatus(@PathVariable ContractStatus status,
-                                                              @CurrentUser UserPrincipal currentUser) {
-        List<Contract> response = contractService.getContractByStatus(status, currentUser);
+    public ResponseEntity<PageResponse<Contract>> getContractByStatus(@PathVariable ContractStatus status,
+                                                              @CurrentUser UserPrincipal currentUser,
+                                                              @RequestParam(name = "page", required = false,
+                                                                      defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                              @RequestParam(name = "size", required = false,
+                                                                      defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                                              @RequestParam(value = "sortBy",
+                                                                      defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
+                                                              @RequestParam(value = "sortDir",
+                                                                      defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        PageResponse<Contract> response = contractService.getContractByStatus(status, currentUser, page, size, sortBy, sortDir);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/list-order")
-    public ResponseEntity<List<Contract>> getOrders(@CurrentUser UserPrincipal currentUser) {
-        List<Contract> response = contractService.getOrders(currentUser);
+    public ResponseEntity<PageResponse<Contract>> getOrders(@CurrentUser UserPrincipal currentUser,
+                                    @RequestParam(name = "page", required = false,
+                                            defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                    @RequestParam(name = "size", required = false,
+                                            defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                    @RequestParam(value = "sortBy",
+                                            defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
+                                    @RequestParam(value = "sortDir",
+                                            defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir){
+        PageResponse<Contract> response = contractService.getOrders(currentUser, page, size, sortBy, sortDir);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/list-contract")
-    public ResponseEntity<List<Contract>> getContracts(@CurrentUser UserPrincipal currentUser) {
-        List<Contract> response = contractService.getContracts(currentUser);
+    public ResponseEntity<PageResponse<Contract>> getContracts(@CurrentUser UserPrincipal currentUser,
+                                   @RequestParam(name = "page", required = false,
+                                           defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                   @RequestParam(name = "size", required = false,
+                                           defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                   @RequestParam(value = "sortBy",
+                                           defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
+                                   @RequestParam(value = "sortDir",
+                                           defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        PageResponse<Contract> response = contractService.getContracts(currentUser, page, size, sortBy, sortDir);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -150,7 +177,12 @@ public class ContractController {
     }
 
     @GetMapping("/rating/{contractId}")
-    public List<Rating> getRatingsForContract(@PathVariable("contractId") UUID contractId){
-        return ratingService.getRatingsForContract(contractId);
+    public ResponseEntity<PageResponse<Rating>> getRatingsForContract(@PathVariable("contractId") UUID contractId,
+                                                                      @RequestParam(name = "page", required = false,
+                                                                              defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                                      @RequestParam(name = "size", required = false,
+                                                                              defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size){
+        PageResponse<Rating> response = ratingService.getRatingsForContract(contractId, page, size);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

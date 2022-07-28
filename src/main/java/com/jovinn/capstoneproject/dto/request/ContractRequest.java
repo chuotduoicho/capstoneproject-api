@@ -16,7 +16,7 @@ public class ContractRequest {
     @Size(min = 30, max = 500, message = "Yêu cầu cần đạt tối thiểu 30 ký tự và tối đa 500 ký tự")
     String requirement;
 
-    @NotBlank(message = "Số lượng không được để trống")
+    @NotNull(message = "Số lượng không được để trống")
     @Min(value = 1, message = "Tối thiểu là 1 đơn vị số lượng")
     Integer quantity;
 }

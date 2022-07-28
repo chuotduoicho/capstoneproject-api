@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.service.impl;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.request.RatingRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
@@ -15,11 +16,15 @@ import com.jovinn.capstoneproject.repository.RatingRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.RatingService;
+import com.jovinn.capstoneproject.util.Pagination;
 import com.jovinn.capstoneproject.util.ValidInputRating;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,13 +67,20 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public List<Rating> getRatingsForSeller(UUID sellerId) {
-        return ratingRepository.findAllBySellerId(sellerId);
+    public PageResponse<Rating> getRatingsForSeller(UUID sellerId, int page, int size) {
+        Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
+        Page<Rating> ratings = ratingRepository.findAllBySellerId(sellerId, pageable);
+        List<Rating> content = ratings.getNumberOfElements() == 0 ? Collections.emptyList() : ratings.getContent();
+        return new PageResponse<>(content, ratings.getNumber(), ratings.getSize(), ratings.getTotalElements(),
+                ratings.getTotalPages(), ratings.isLast());
     }
 
     @Override
-    public List<Rating> getRatingsForContract(UUID contractId) {
-        ratingRepository.findAllByContractId(contractId);
-        return ratingRepository.findAllByContractId(contractId);
+    public PageResponse<Rating> getRatingsForContract(UUID contractId, int page, int size) {
+        Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
+        Page<Rating> ratings = ratingRepository.findAllByContractId(contractId, pageable);
+        List<Rating> content = ratings.getNumberOfElements() == 0 ? Collections.emptyList() : ratings.getContent();
+        return new PageResponse<>(content, ratings.getNumber(), ratings.getSize(), ratings.getTotalElements(),
+                ratings.getTotalPages(), ratings.isLast());
     }
 }

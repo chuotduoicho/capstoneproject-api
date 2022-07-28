@@ -9,6 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +30,9 @@ public class Seller extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
+    @NotBlank(message = "Không được để trống tên thương hiệu của bạn")
     String brandName;
+    @NotBlank(message = "Không được để trống mô tả ngắn về bạn")
     String descriptionBio;
     String sellerNumber;
     @Enumerated(EnumType.STRING)

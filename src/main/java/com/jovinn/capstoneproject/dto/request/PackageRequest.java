@@ -17,11 +17,11 @@ public class PackageRequest {
     @Size(min = 30, max = 500, message = "Mô tả cho package của bạn cần tối thiểu 30 ký tự")
     String shortDescription;
 
-    @NotBlank(message = "Thời gian bàn giao package không được để trống")
+    @NotNull(message = "Thời gian bàn giao package không được để trống")
     @Min(value = 1, message = "Thời gian tối thiểu bàn giao là 1 ngày")
     Integer deliveryTime;
 
-    @NotBlank(message = "Giá của package không được để trống")
+    @NotNull(message = "Giá của package không được để trống")
     @Min(value = 1, message = "Giá của package của bạn tối thiểu là 1$")
     BigDecimal price;
 

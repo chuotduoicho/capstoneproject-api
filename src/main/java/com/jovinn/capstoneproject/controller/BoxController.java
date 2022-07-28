@@ -1,11 +1,13 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.BoxResponse;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
+import com.jovinn.capstoneproject.util.WebConstant;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -48,8 +50,13 @@ public class BoxController {
 
     //Api get Service By Seller Id
     @GetMapping("/list-service-by-sellerId/{sellerId}")
-    public List<Box> getBoxServiceBySellerId(@PathVariable UUID sellerId){
-        return boxService.getListServiceBySellerId(sellerId);
+    public ResponseEntity<PageResponse<BoxResponse>> getBoxServiceBySellerId(@PathVariable UUID sellerId,
+                                                @RequestParam(name = "page", required = false,
+                                                        defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                @RequestParam(name = "size", required = false,
+                                                        defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size){
+        PageResponse<BoxResponse> response = boxService.getListServiceBySellerId(sellerId, page, size);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //Api get all Service
@@ -59,20 +66,40 @@ public class BoxController {
 //    }
 
     @GetMapping("/box-services")
-    public List<BoxResponse> getAllPosts() {
-        return boxService.getAllService().stream().map(box -> modelMapper.map(box, BoxResponse.class))
-                .collect(Collectors.toList());
+    public ResponseEntity<PageResponse<BoxResponse>> getAllPosts(@RequestParam(name = "page", required = false,
+                                                    defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                         @RequestParam(name = "size", required = false,
+                                                    defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                         @RequestParam(value = "sortBy",
+                                                    defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
+                                         @RequestParam(value = "sortDir",
+                                                    defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        PageResponse<BoxResponse> response = boxService.getAllService(page, size, sortBy, sortDir);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+//        return boxService.getAllService(page, size, sortBy, sortDir).stream().map(box -> modelMapper.map(box, BoxResponse.class))
+//                .collect(Collectors.toList());
     }
     //Api view detail Service
     @GetMapping("/box-details/{id}")
-    public Box getServiceById(@PathVariable UUID id){
-        return boxService.getServiceByID(id);
+    public ResponseEntity<BoxResponse> getServiceById(@PathVariable UUID id){
+        BoxResponse response = boxService.getServiceByID(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/list-services-by-cat/{catId}")
-    public List<BoxResponse> getAllServiceByCategoryId(@PathVariable("catId") UUID catId){
-        return boxService.getAllServiceByCategoryID(catId).stream().map(box -> modelMapper.map(box, BoxResponse.class))
-                .collect(Collectors.toList());
+    public ResponseEntity<PageResponse<BoxResponse>> getAllServiceByCategoryId(@PathVariable("catId") UUID catId,
+                                                       @RequestParam(name = "page", required = false,
+                                                               defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                       @RequestParam(name = "size", required = false,
+                                                               defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                                       @RequestParam(value = "sortBy",
+                                                               defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
+                                                       @RequestParam(value = "sortDir",
+                                                               defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        PageResponse<BoxResponse> response = boxService.getAllServiceByCategoryID(catId, page, size, sortBy, sortDir);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+//        return boxService.getAllServiceByCategoryID(catId).stream().map(box -> modelMapper.map(box, BoxResponse.class))
+//                .collect(Collectors.toList());
     }
 
     @GetMapping("/paginate-list-services-by-cat/{catId}/{page}")
