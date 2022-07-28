@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
 @Service
 public class TransactionServiceImpl implements TransactionService {
 
@@ -24,12 +26,25 @@ public class TransactionServiceImpl implements TransactionService {
         List<AdminViewTransactionResponse> responses = new ArrayList<>();
         User user;
         for (Transaction transaction : transactions) {
-            user = new User();
             user = userRepository.findUserById(transaction.getUserId());
             responses.add(new AdminViewTransactionResponse(transaction.getId(), transaction.getUserId(), transaction.getAmount(),
                     transaction.getDescription(), transaction.getMethod(), transaction.getCurrency(), transaction.getPaymentCode(),
                     transaction.getMessage(), transaction.getType(), user.getFirstName() + " " + user.getLastName(), transaction.getCreateAt()));
         }
         return responses;
+    }
+
+    @Override
+    public List<AdminViewTransactionResponse> getAllTransactionByUserId(UUID userId) {
+        List<Transaction> transactions = transactionRepository.findAllByWallet_User_Id(userId);
+        List<AdminViewTransactionResponse> responseList = new ArrayList<>();
+        User user = userRepository.findUserById(userId);
+        for (Transaction transaction:
+             transactions) {
+            responseList.add(new AdminViewTransactionResponse(transaction.getId(),transaction.getUserId(),transaction.getAmount(),
+                    transaction.getDescription(),transaction.getMethod(),transaction.getCurrency(),transaction.getPaymentCode(),
+                    transaction.getMessage(),transaction.getType(),user.getFirstName()+" "+user.getLastName(),transaction.getCreateAt()));
+        }
+        return responseList;
     }
 }

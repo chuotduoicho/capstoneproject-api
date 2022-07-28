@@ -10,4 +10,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     Transaction findTransactionByUserId(UUID userId);
 
     List<Transaction> findAllByOrderByCreateAtAsc();
+
+    List<Transaction> findAllByWallet_User_Id(UUID userId);
 }

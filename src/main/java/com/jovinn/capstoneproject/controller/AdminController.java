@@ -107,4 +107,8 @@ public class AdminController {
     public AdminViewUserResponse getUserById(@PathVariable UUID id){
         return userService.getUserById(id);
     }
+    @GetMapping("/get-all-transaction-by-userId/{userId}")
+    public List<AdminViewTransactionResponse> getAllTransactionByUserId(@PathVariable UUID userId){
+        return transactionService.getAllTransactionByUserId(userId);
+    }
 }
