@@ -1,9 +1,7 @@
 package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
-import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
+import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
@@ -238,5 +236,10 @@ public class PostRequestServiceImpl implements PostRequestService {
                     postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
         }
         return postRequestResponses;
+    }
+
+    @Override
+    public CountPostRequestResponse countTotalPostRequestByCatId(UUID catId) {
+        return new CountPostRequestResponse(postRequestRepository.countPostRequestByCategory_Id(catId));
     }
 }

@@ -32,4 +32,8 @@ public interface ContractRepository extends JpaRepository<Contract, UUID> {
             "and YEAR(create_at) = YEAR(CURRENT_DATE - INTERVAL ?1 MONTH)\n" +
             "AND MONTH(create_at) = MONTH(CURRENT_DATE - INTERVAL ?1 MONTH)", nativeQuery = true)
     BigDecimal countTotalRevenueByMonth(Integer month);
+
+    Long countContractByPostRequest_Category_Id(UUID catId);
+
+    List<Contract> findAllByPostRequest_Category_Id(UUID catId);
 }

@@ -1,9 +1,7 @@
 package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
-import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
+import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.model.PostRequest;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import org.springframework.stereotype.Service;
@@ -37,4 +35,6 @@ public interface PostRequestService {
     ListSellerApplyPostRequestResponse getListSellerApply(UUID postRequestId, UserPrincipal currentUser);
 
     List<PostRequestResponse> getAllPostRequest();
+
+    CountPostRequestResponse countTotalPostRequestByCatId(UUID catId);
 }

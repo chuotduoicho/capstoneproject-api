@@ -2,6 +2,7 @@ package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
+import com.jovinn.capstoneproject.dto.response.CountContractResponse;
 import com.jovinn.capstoneproject.dto.response.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.model.Contract;
@@ -24,4 +25,8 @@ public interface ContractService {
     List<Contract> getContracts(UserPrincipal currentUser);
 
     CountTotalRevenueResponse getTotalRevenue();
+
+    CountContractResponse countTotalContractByCatId(UUID catId);
+
+    List<ContractResponse> getContractsByCategoryId(UUID catId);
 }

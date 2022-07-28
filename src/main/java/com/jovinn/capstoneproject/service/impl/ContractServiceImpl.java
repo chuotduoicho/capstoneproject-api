@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
+import com.jovinn.capstoneproject.dto.response.CountContractResponse;
 import com.jovinn.capstoneproject.dto.response.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.enumerable.*;
 import com.jovinn.capstoneproject.exception.ApiException;
@@ -26,10 +27,7 @@ import javax.mail.MessagingException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.jovinn.capstoneproject.util.GenerateRandom.getRandomContractNumber;
 
@@ -503,6 +501,30 @@ public class ContractServiceImpl implements ContractService {
 //            totalRevenue.add(contract.getTotalPrice());
 //        }
         return new CountTotalRevenueResponse(contractRepository.countTotalRevenue());
+    }
+
+    @Override
+    public CountContractResponse countTotalContractByCatId(UUID catId) {
+        return new CountContractResponse(contractRepository.countContractByPostRequest_Category_Id(catId));
+    }
+
+    @Override
+    public List<ContractResponse> getContractsByCategoryId(UUID catId) {
+        List<Contract> contracts = contractRepository.findAllByPostRequest_Category_Id(catId);
+        List<ContractResponse> contractResponses = new ArrayList<>();
+        for (Contract newContract:
+             contracts) {
+            contractResponses.add(new ContractResponse(newContract.getId(), newContract.getPackageId(),
+                    newContract.getContractCode(), newContract.getRequirement(),
+                    newContract.getQuantity(), newContract.getContractCancelFee(),
+                    newContract.getServiceDeposit(), newContract.getTotalPrice(),
+                    newContract.getTotalDeliveryTime(), newContract.getExpectCompleteDate(),
+                    newContract.getDeliveryStatus(), newContract.getOrderStatus(), newContract.getContractStatus(),
+                    newContract.getPostRequest(),
+                    newContract.getBuyer().getUser().getId(),
+                    newContract.getSeller().getUser().getId()));
+        }
+        return contractResponses;
     }
 
     private ContractResponse getUpdateResponse(Contract contract, DeliveryStatus deliveryStatus,

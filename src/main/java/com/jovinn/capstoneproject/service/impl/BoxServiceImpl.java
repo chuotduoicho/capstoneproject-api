@@ -131,4 +131,9 @@ public class BoxServiceImpl implements BoxService {
     public CountServiceResponse countTotalService() {
         return new CountServiceResponse(boxRepository.count());
     }
+
+    @Override
+    public CountServiceResponse countTotalServiceByCat(UUID catId) {
+        return new CountServiceResponse(boxRepository.countBySubCategory_Category_Id(catId));
+    }
 }

@@ -9,4 +9,6 @@ public interface TransactionService {
     List<AdminViewTransactionResponse> getAllTransaction();
 
     List<AdminViewTransactionResponse> getAllTransactionByUserId(UUID userId);
+
+    AdminViewTransactionResponse getTransactionById(UUID id);
 }

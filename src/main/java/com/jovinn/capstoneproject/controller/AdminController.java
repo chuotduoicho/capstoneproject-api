@@ -2,9 +2,11 @@ package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.model.Admin;
+import com.jovinn.capstoneproject.model.Contract;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.service.*;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,9 +38,46 @@ public class AdminController {
     @Autowired
     private TransactionService transactionService;
 
+    @Autowired
+    private PostRequestService postRequestService;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
     @GetMapping("/get-total-service")
     public CountServiceResponse countTotalService(){
         return boxService.countTotalService();
+    }
+
+    @GetMapping("/count-total-service-by-cat-id/{catId}")
+    public CountServiceResponse countTotalServiceByCatId(@PathVariable UUID catId){
+        return boxService.countTotalServiceByCat(catId);
+    }
+
+    @GetMapping("/count-total-postRequest-by-cat-id/{catId}")
+    public CountPostRequestResponse countTotalPostRequestByCatId(@PathVariable UUID catId){
+        return postRequestService.countTotalPostRequestByCatId(catId);
+    }
+
+    @GetMapping("/count-total-contract-by-cat-id/{catId}")
+    public CountContractResponse countTotalContractByCatId(@PathVariable UUID catId){
+        return contractService.countTotalContractByCatId(catId);
+    }
+
+    @GetMapping("/list-services-by-cat/{catId}")
+    public List<BoxResponse> getAllServiceByCategoryId(@PathVariable("catId") UUID catId){
+        return boxService.getAllServiceByCategoryID(catId).stream().map(box -> modelMapper.map(box, BoxResponse.class))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/list-postRequest-by-cat-id/{catId}")
+    public List<PostRequestResponse> getPostRequestByCategoryId(@PathVariable UUID catId){
+        return postRequestService.getPostRequestByCategoryId(catId);
+    }
+
+    @GetMapping("/list-contract-by-cat-id/{catId}")
+    public List<ContractResponse> getContractByCategoryId(@PathVariable UUID catId){
+        return contractService.getContractsByCategoryId(catId);
     }
 
     @GetMapping("/get-total-revenue")
@@ -110,5 +150,9 @@ public class AdminController {
     @GetMapping("/get-all-transaction-by-userId/{userId}")
     public List<AdminViewTransactionResponse> getAllTransactionByUserId(@PathVariable UUID userId){
         return transactionService.getAllTransactionByUserId(userId);
+    }
+    @GetMapping("/get-transaction-by-id/{id}")
+    public AdminViewTransactionResponse getTransactionById(@PathVariable UUID id){
+        return transactionService.getTransactionById(id);
     }
 }

@@ -42,4 +42,6 @@ public interface BoxService {
     Page<Box> searchServiceByCatNameBySubCateName(int offset, String catName, String serviceTypeName);
 
     CountServiceResponse countTotalService();
+
+    CountServiceResponse countTotalServiceByCat(UUID catId);
 }
