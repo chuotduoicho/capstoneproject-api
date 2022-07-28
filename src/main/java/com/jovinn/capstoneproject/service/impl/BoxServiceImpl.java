@@ -89,7 +89,6 @@ public class BoxServiceImpl implements BoxService {
         return null;
     }
 
-    //Dang loi :V
     @Override
     public List<Box> getListServiceBySellerId(UUID sellerId) {
         return boxRepository.findAllById(sellerId);
