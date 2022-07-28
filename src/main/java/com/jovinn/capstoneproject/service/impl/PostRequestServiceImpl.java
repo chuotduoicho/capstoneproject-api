@@ -230,22 +230,21 @@ public class PostRequestServiceImpl implements PostRequestService {
     }
 
     @Override
-    public PageResponse<ListSellerApplyPostRequestResponse> getListSellerApply(UUID postRequestId, UserPrincipal currentUser,
-                                                                               int page, int size, String sortDir) {
+    public ListSellerApplyPostRequestResponse getListSellerApply(UUID postRequestId, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bài đăng"));
-        Pageable pageable = Pagination.paginationCommon(page, size, "sellerId", sortDir);
+        //Pageable pageable = Pagination.paginationCommon(page, size, "sellerId", sortDir);
 
 //        List<Seller> sellers = postRequest.getSellersApplyRequest();
         if (postRequest.getUser().getId().equals(currentUser.getId())) {
-            Page<Seller> sellers = sellerRepository.findAllByPostRequests_Id(postRequest.getId(), pageable);
-            List<Seller> list = sellers.getContent();
-            List<ListSellerApplyPostRequestResponse> content = list.stream().map(
-                            sellerApplyPostRequest -> modelMapper.map(sellerApplyPostRequest, ListSellerApplyPostRequestResponse.class))
-                            .collect(Collectors.toList());
-            return new PageResponse<>(content, sellers.getNumber(), sellers.getSize(), sellers.getTotalElements(),
-                    sellers.getTotalPages(), sellers.isLast());
-            //return new ListSellerApplyPostRequestResponse(postRequest.getId(),postRequest.getSellersApplyRequest());
+//            Page<Seller> sellers = sellerRepository.findAllByPostRequestsId(postRequestId, pageable);
+//            List<Seller> list = sellers.getContent();
+//            List<ListSellerApplyPostRequestResponse> content = list.stream().map(
+//                            sellerApplyPostRequest -> modelMapper.map(sellerApplyPostRequest, ListSellerApplyPostRequestResponse.class))
+//                            .collect(Collectors.toList());
+//            return new PageResponse<>(content, sellers.getNumber(), sellers.getSize(), sellers.getTotalElements(),
+//                    sellers.getTotalPages(), sellers.isLast());
+            return new ListSellerApplyPostRequestResponse(postRequest.getId(), postRequest.getSellersApplyRequest());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");

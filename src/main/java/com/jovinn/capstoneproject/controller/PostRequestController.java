@@ -43,15 +43,9 @@ public class PostRequestController {
     }
 
     @GetMapping("/get-list-seller-apply/{postRequestId}")
-    public ResponseEntity<PageResponse<ListSellerApplyPostRequestResponse>> getListSellerApplyRequest(@PathVariable("postRequestId") UUID postRequestId,
-                                                                                                      @CurrentUser UserPrincipal currentUser,
-                                                                                                      @RequestParam(name = "page", required = false,
-                                                                                                              defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
-                                                                                                      @RequestParam(name = "size", required = false,
-                                                                                                              defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
-                                                                                                      @RequestParam(value = "sortDir",
-                                                                                                              defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
-        PageResponse<ListSellerApplyPostRequestResponse> response = postRequestService.getListSellerApply(postRequestId, currentUser, page, size, sortDir);
+    public ResponseEntity<ListSellerApplyPostRequestResponse> getListSellerApplyRequest(@PathVariable("postRequestId") UUID postRequestId,
+                                                                                                      @CurrentUser UserPrincipal currentUser) {
+        ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/getPostRequestByCategoryId/{id}")
