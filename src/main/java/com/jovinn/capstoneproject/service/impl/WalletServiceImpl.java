@@ -55,7 +55,7 @@ public class WalletServiceImpl implements WalletService {
                 try {
                     Payment payment = paymentService.createPayment(request.getCharge(), request.getCurrency(),
                             PaypalPaymentMethod.PAYPAL, PaypalPaymentIntent.SALE, "BUY " + request.getCharge() + " JCOIN",
-                            "http://localhost:8080/api/v1/payment/cancel",  "http://localhost:8080/api/v1/payment/success");
+                            "http://localhost:8080/api/v1/payment/cancel",  "http://localhost:3000/buyerhome/manageWallet");
                     System.out.println(payment.toJSON());
                     wallet.setConfirmPayStatus(PaymentConfirmStatus.READY);
                     walletRepository.save(wallet);
