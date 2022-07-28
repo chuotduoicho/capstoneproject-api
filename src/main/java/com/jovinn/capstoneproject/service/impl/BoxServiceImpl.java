@@ -99,7 +99,7 @@ public class BoxServiceImpl implements BoxService {
 
     //Dang loi :V
     @Override
-    public PageResponse<BoxResponse> getListServiceBySellerId(UUID sellerId, int page, int size, String sortBy, String sortDir) {
+    public PageResponse<BoxResponse> getListServiceBySellerId(UUID sellerId, int page, int size) {
         Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
         Page<Box> boxes = boxRepository.findAllBySellerId(sellerId, pageable);
         List<BoxResponse> content = boxes.getContent().stream().map(
@@ -131,9 +131,16 @@ public class BoxServiceImpl implements BoxService {
     }
 
     @Override
-    public List<Box> getAllServiceByCategoryID(UUID categoryId) {
+    public PageResponse<BoxResponse> getAllServiceByCategoryID(UUID categoryId, int page, int size, String sortBy, String sortDir) {
+        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+        Page<Box> boxes = boxRepository.getAllServiceByCategoryId(categoryId, pageable);
+        List<BoxResponse> content = boxes.getContent().stream().map(
+                        box -> modelMapper.map(box, BoxResponse.class))
+                .collect(Collectors.toList());
+        return new PageResponse<>(content, boxes.getNumber(), boxes.getSize(), boxes.getTotalElements(),
+                boxes.getTotalPages(), boxes.isLast());
         //Pageable pageable = PageRequest.of(page,8, Sort.Direction.DESC);
-        return boxRepository.getAllServiceByCategoryId(categoryId) ;
+        //return boxRepository.getAllServiceByCategoryId(categoryId) ;
     }
 
     @Override

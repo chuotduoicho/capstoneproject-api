@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
@@ -16,6 +17,7 @@ import com.jovinn.capstoneproject.service.OfferRequestService;
 import com.jovinn.capstoneproject.service.SellerService;
 import com.jovinn.capstoneproject.service.UserService;
 import com.jovinn.capstoneproject.service.WalletService;
+import com.jovinn.capstoneproject.util.WebConstant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -76,8 +78,8 @@ public class UserController {
     }
 
     @PostMapping("/join-selling")
-    public ResponseEntity<Seller> joinSelling(@RequestBody Seller seller,
-                                                   @CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<Seller> joinSelling(@Valid @RequestBody Seller seller,
+                                              @CurrentUser UserPrincipal currentUser) {
         Seller sellerInfo = sellerService.becomeSeller(seller, currentUser);
         return new ResponseEntity<>(sellerInfo, HttpStatus.CREATED);
     }
@@ -89,8 +91,18 @@ public class UserController {
     }
 
     @GetMapping("/list-offer/{postRequestId}")
-    public List<OfferRequest> getOfferRequests(@PathVariable("postRequestId") UUID postRequestId, @CurrentUser UserPrincipal currentUser) {
-        return offerRequestService.getAllOffersByPostRequest(postRequestId, currentUser);
+    public ResponseEntity<PageResponse<OfferRequest>> getOfferRequests(@PathVariable("postRequestId") UUID postRequestId, @CurrentUser UserPrincipal currentUser,
+                                                       @RequestParam(name = "page", required = false,
+                                                       defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                       @RequestParam(name = "size", required = false,
+                                                       defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                                       @RequestParam(value = "sortBy",
+                                                       defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
+                                                       @RequestParam(value = "sortDir",
+                                                       defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        PageResponse<OfferRequest> response = offerRequestService.getAllOffersByPostRequest(postRequestId, currentUser, page, size, sortBy, sortDir);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+        //return offerRequestService.getAllOffersByPostRequest(postRequestId, currentUser);
     }
 
     @PostMapping("/reset-password")

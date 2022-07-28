@@ -17,7 +17,7 @@ public interface BoxRepository extends JpaRepository<Box, UUID> {
     Page<Box> findAllBySellerId(UUID sellerId, Pageable pageable);
 
     @Query("select b from Box b where b.subCategory.category.id = :catId")
-    List<Box> getAllServiceByCategoryId(@Param("catId") UUID catId);
+    Page<Box> getAllServiceByCategoryId(@Param("catId") UUID catId, Pageable pageable);
 
     Page<Box> findAllBySubCategory_Category_Id(UUID catId, PageRequest pageRequest);
 

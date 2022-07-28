@@ -1,25 +1,23 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.request.OfferRequestRequest;
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
 import com.jovinn.capstoneproject.dto.response.OfferRequestResponse;
 import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
-import com.jovinn.capstoneproject.model.PostRequest;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.OfferRequestService;
 import com.jovinn.capstoneproject.service.PostRequestService;
+import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
 import javax.validation.Valid;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,14 +43,31 @@ public class PostRequestController {
     }
 
     @GetMapping("/get-list-seller-apply/{postRequestId}")
-    public ResponseEntity<ListSellerApplyPostRequestResponse> getListSellerApplyRequest(@PathVariable("postRequestId") UUID postRequestId,
-                                                                                        @CurrentUser UserPrincipal currentUser) {
-        ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId, currentUser);
+    public ResponseEntity<PageResponse<ListSellerApplyPostRequestResponse>> getListSellerApplyRequest(@PathVariable("postRequestId") UUID postRequestId,
+                                                                                                      @CurrentUser UserPrincipal currentUser,
+                                                                                                      @RequestParam(name = "page", required = false,
+                                                                                                              defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                                                                      @RequestParam(name = "size", required = false,
+                                                                                                              defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                                                                                      @RequestParam(value = "sortDir",
+                                                                                                              defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        PageResponse<ListSellerApplyPostRequestResponse> response = postRequestService.getListSellerApply(postRequestId, currentUser, page, size, sortDir);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/getPostRequestByCategoryId/{id}")
-    public List<PostRequestResponse> getPostRequestByCategoryId(@PathVariable UUID id){
-        return postRequestService.getPostRequestByCategoryId(id);
+    public ResponseEntity<PageResponse<PostRequestResponse>> getPostRequestByCategoryId(@PathVariable UUID id,
+                                                                @CurrentUser UserPrincipal currentUser,
+                                                                @RequestParam(name = "page", required = false,
+                                                                        defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                                @RequestParam(name = "size", required = false,
+                                                                        defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                                                @RequestParam(value = "sortBy",
+                                                                        defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
+                                                                @RequestParam(value = "sortDir",
+                                                                        defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        PageResponse<PostRequestResponse> response = postRequestService.getPostRequestByCategoryId(id, page, size, sortBy, sortDir);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+        //return postRequestService.getPostRequestByCategoryId(id);
     }
 
     @GetMapping("/getPostRequestDetails/{postRequestId}")
@@ -87,11 +102,11 @@ public class PostRequestController {
         return new ResponseEntity<>(response,HttpStatus.CREATED);
     }
 
-    @GetMapping("/getListSellerApply/{postRequestId}")
-    public  ResponseEntity<ListSellerApplyPostRequestResponse> getListSellerApply(@PathVariable UUID postRequestId, @CurrentUser UserPrincipal currentUser){
-        ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId,currentUser);
-        return new ResponseEntity<>(response,HttpStatus.CREATED);
-    }
+//    @GetMapping("/getListSellerApply/{postRequestId}")
+//    public  ResponseEntity<ListSellerApplyPostRequestResponse> getListSellerApply(@PathVariable UUID postRequestId, @CurrentUser UserPrincipal currentUser){
+//        ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId,currentUser);
+//        return new ResponseEntity<>(response,HttpStatus.CREATED);
+//    }
 
     @GetMapping("/getAllPostRequest")
     public List<PostRequestResponse> getAllPostRequest(){

@@ -87,7 +87,17 @@ public class SellerController {
     }
 
     @GetMapping("/list-offer")
-    public List<OfferRequest> getOfferRequests(@CurrentUser UserPrincipal currentUser) {
-        return offerRequestService.getOffers(currentUser);
+    public ResponseEntity<PageResponse<OfferRequest>> getOfferRequests(@CurrentUser UserPrincipal currentUser,
+                                               @RequestParam(name = "page", required = false,
+                                                       defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                               @RequestParam(name = "size", required = false,
+                                                       defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                               @RequestParam(value = "sortBy",
+                                                       defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
+                                               @RequestParam(value = "sortDir",
+                                                       defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        PageResponse<OfferRequest> response = offerRequestService.getOffers(currentUser, page, size, sortBy, sortDir);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+        //return offerRequestService.getOffers(currentUser);
     }
 }

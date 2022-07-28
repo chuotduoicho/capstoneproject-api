@@ -24,7 +24,7 @@ public interface BoxService {
     Box updateStatus(UUID id);
 
     //View List Service Buy SellerId
-    PageResponse<BoxResponse> getListServiceBySellerId(UUID sellerId, int page, int size, String sortBy, String sortDir);
+    PageResponse<BoxResponse> getListServiceBySellerId(UUID sellerId, int page, int size);
 
     //View All Service
     PageResponse<BoxResponse> getAllService(int page, int size, String sortBy, String sortDir);
@@ -33,7 +33,7 @@ public interface BoxService {
     BoxResponse getServiceByID(UUID id);
 
     //Get Service By Category ID
-    List<Box> getAllServiceByCategoryID(UUID categoryId);
+    PageResponse<BoxResponse> getAllServiceByCategoryID(UUID categoryId, int page, int size, String sortBy, String sortDir);
 
     //Get Service By Category ID Pagination
     Page<Box> getAllServiceByCatIdPagination(int offset, UUID categoryId);

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.io.IOException;
 
 @RestController
@@ -22,7 +23,7 @@ public class WalletController {
     private WalletService walletService;
 
     @PostMapping("")
-    public ResponseEntity<String> buyJCoin(@RequestBody WalletRequest request,
+    public ResponseEntity<String> buyJCoin(@Valid @RequestBody WalletRequest request,
                            @CurrentUser UserPrincipal currentUser) {
         String response = walletService.buyJCoin(request, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);

@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.service.impl;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.request.OfferRequestRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.OfferRequestResponse;
@@ -18,11 +19,15 @@ import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.repository.payment.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.OfferRequestService;
+import com.jovinn.capstoneproject.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -95,12 +100,19 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     }
 
     @Override
-    public List<OfferRequest> getOffers(UserPrincipal currentUser) {
+    public PageResponse<OfferRequest> getOffers(UserPrincipal currentUser,
+                                                int page, int size, String sortBy, String sortDir) {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy seller"));
+        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+
         //List<OfferRequest> offerRequest = offerRequestRepository.findAllBySellerId(seller.getId());
         if(seller.getUser().getId().equals(currentUser.getId())) {
-            return offerRequestRepository.findAllBySellerId(seller.getId());
+            Page<OfferRequest> offerRequests = offerRequestRepository.findAllBySellerId(seller.getId(), pageable);
+            List<OfferRequest> content = offerRequests.getNumberOfElements()  == 0 ? Collections.emptyList() : offerRequests.getContent();
+            return new PageResponse<>(content, offerRequests.getNumber(), offerRequests.getSize(), offerRequests.getTotalElements(),
+                    offerRequests.getTotalPages(), offerRequests.isLast());
+            //return offerRequestRepository.findAllBySellerId(seller.getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -108,11 +120,18 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     }
 
     @Override
-    public List<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser) {
+    public PageResponse<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser,
+                                                                int page, int size, String sortBy, String sortDir) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tim thấy post"));
+        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+
         if(postRequest.getUser().getId().equals(currentUser.getId())) {
-            return offerRequestRepository.findAllByPostRequestId(postRequest.getId());
+            Page<OfferRequest> offerRequests = offerRequestRepository.findAllByPostRequestId(postRequest.getId(), pageable);
+            List<OfferRequest> content = offerRequests.getNumberOfElements()  == 0 ? Collections.emptyList() : offerRequests.getContent();
+            return new PageResponse<>(content, offerRequests.getNumber(), offerRequests.getSize(), offerRequests.getTotalElements(),
+                    offerRequests.getTotalPages(), offerRequests.isLast());
+            //return offerRequestRepository.findAllByPostRequestId(postRequest.getId(), pageable);
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");

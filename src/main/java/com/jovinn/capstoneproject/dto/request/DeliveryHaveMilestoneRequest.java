@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
@@ -12,5 +13,6 @@ import java.util.UUID;
 public class DeliveryHaveMilestoneRequest {
     @NotNull UUID milestoneId;
     String file;
-    @NotNull String description;
+    @NotBlank(message = "Mô tả cho sản phẩm sẽ giúp người mua hiểu rõ hơn")
+    String description;
 }

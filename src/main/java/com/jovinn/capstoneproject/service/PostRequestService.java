@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.service;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
@@ -26,7 +27,7 @@ public interface PostRequestService {
     List<PostRequestResponse> getPostRequestByBuyerCreated(UserPrincipal currentUser);
 
     //View list post request by category id
-    List<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId);
+    PageResponse<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId, int page, int size, String sortBy, String sortDir);
 
     //View Post Request Detail
     PostRequestResponse getPostRequestDetails(UUID postRequestId);
@@ -34,7 +35,8 @@ public interface PostRequestService {
     //Seller Apply Request
     ApiResponse sellerApplyRequest(UUID postRequestId, UserPrincipal currentUser);
 
-    ListSellerApplyPostRequestResponse getListSellerApply(UUID postRequestId, UserPrincipal currentUser);
+    PageResponse<ListSellerApplyPostRequestResponse> getListSellerApply(UUID postRequestId, UserPrincipal currentUser,
+                                                                        int page, int size, String sortDir);
 
     List<PostRequestResponse> getAllPostRequest();
 }
