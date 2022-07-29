@@ -1,10 +1,7 @@
 package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ContractResponse;
-import com.jovinn.capstoneproject.dto.response.CountContractResponse;
-import com.jovinn.capstoneproject.dto.response.CountTotalRevenueResponse;
+import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.enumerable.*;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
@@ -509,20 +506,16 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public List<ContractResponse> getContractsByCategoryId(UUID catId) {
+    public List<AdminViewContractsResponse> getContractsByCategoryId(UUID catId) {
         List<Contract> contracts = contractRepository.findAllByPostRequest_Category_Id(catId);
-        List<ContractResponse> contractResponses = new ArrayList<>();
+        List<AdminViewContractsResponse> contractResponses = new ArrayList<>();
         for (Contract newContract:
              contracts) {
-            contractResponses.add(new ContractResponse(newContract.getId(), newContract.getPackageId(),
-                    newContract.getContractCode(), newContract.getRequirement(),
-                    newContract.getQuantity(), newContract.getContractCancelFee(),
-                    newContract.getServiceDeposit(), newContract.getTotalPrice(),
-                    newContract.getTotalDeliveryTime(), newContract.getExpectCompleteDate(),
-                    newContract.getDeliveryStatus(), newContract.getOrderStatus(), newContract.getContractStatus(),
-                    newContract.getPostRequest(),
-                    newContract.getBuyer().getUser().getId(),
-                    newContract.getSeller().getUser().getId()));
+            contractResponses.add(new AdminViewContractsResponse(newContract.getContractCode(),
+                    newContract.getPostRequest().getUser().getUsername(),
+                    newContract.getPostRequest().getUser().getFirstName()+" "+
+                            newContract.getPostRequest().getUser().getLastName(),newContract.getTotalPrice(),
+                    newContract.getCreateAt()));
         }
         return contractResponses;
     }

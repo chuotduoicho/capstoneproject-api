@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
+import com.jovinn.capstoneproject.dto.response.AdminViewContractsResponse;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
 import com.jovinn.capstoneproject.dto.response.CountContractResponse;
 import com.jovinn.capstoneproject.dto.response.CountTotalRevenueResponse;
@@ -28,5 +29,5 @@ public interface ContractService {
 
     CountContractResponse countTotalContractByCatId(UUID catId);
 
-    List<ContractResponse> getContractsByCategoryId(UUID catId);
+    List<AdminViewContractsResponse> getContractsByCategoryId(UUID catId);
 }

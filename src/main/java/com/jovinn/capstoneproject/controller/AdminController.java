@@ -76,7 +76,7 @@ public class AdminController {
     }
 
     @GetMapping("/list-contract-by-cat-id/{catId}")
-    public List<ContractResponse> getContractByCategoryId(@PathVariable UUID catId){
+    public List<AdminViewContractsResponse> getContractByCategoryId(@PathVariable UUID catId){
         return contractService.getContractsByCategoryId(catId);
     }
 
