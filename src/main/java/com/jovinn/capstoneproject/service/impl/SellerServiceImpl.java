@@ -49,7 +49,7 @@ public class SellerServiceImpl implements SellerService {
     @Override
     public Seller getSellerById(UUID id) {
         return sellerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Seller", "Seller not found ", id ));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Seller not found "));
     }
 
     @Override
@@ -79,6 +79,7 @@ public class SellerServiceImpl implements SellerService {
                 seller.setSellerNumber(randomNumber);
                 seller.setVerifySeller(Boolean.TRUE);
                 seller.setTotalOrderFinish(0);
+                seller.setRatingPoint(0);
                 user.setSeller(seller);
                 user.setActivityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER));
                 user.setJoinSellingAt(new Date());

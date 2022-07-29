@@ -12,7 +12,8 @@ import java.util.UUID;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LanguageRequest {
-    @NotBlank
+    @NotBlank(message = "Ngôn ngữ không được để trống")
+    @Size(min = 1, message = "Vui lòng nhập ngôn ngữ của bạn")
     String language;
 
     @NotNull

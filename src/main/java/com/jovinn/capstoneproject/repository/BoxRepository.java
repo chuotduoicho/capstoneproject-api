@@ -3,21 +3,21 @@ package com.jovinn.capstoneproject.repository;
 import com.jovinn.capstoneproject.model.Box;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface BoxRepository extends JpaRepository<Box, UUID> {
-    List<Box> findAllById(UUID sellerId);
+    Page<Box> findAllBySellerId(UUID sellerId, Pageable pageable);
 
     @Query("select b from Box b where b.subCategory.category.id = :catId")
-    List<Box> getAllServiceByCategoryId(@Param("catId") UUID catId);
+    Page<Box> getAllServiceByCategoryId(@Param("catId") UUID catId, Pageable pageable);
 
     long countBySubCategory_Category_Id(UUID catId);
 

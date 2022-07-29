@@ -1,9 +1,10 @@
 package com.jovinn.capstoneproject.repository;
 
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
-import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
 import com.jovinn.capstoneproject.enumerable.OrderStatus;
 import com.jovinn.capstoneproject.model.Contract;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,25 +16,22 @@ import java.util.UUID;
 
 @Repository
 public interface ContractRepository extends JpaRepository<Contract, UUID> {
-    List<Contract> findAllByOrderStatusAndBuyerId(OrderStatus status, UUID buyerId);
+    Page<Contract> findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus status, UUID buyerId, UUID sellerId, Pageable pageable);
+    Page<Contract> findAllByOrderStatusAndBuyerId(OrderStatus status, UUID buyerId, Pageable pageable);
     List<Contract> findAllByOrderStatusAndSellerId(OrderStatus status, UUID sellerId);
-    List<Contract> findAllByContractStatusAndBuyerId(ContractStatus status, UUID buyerId);
-    List<Contract> findAllByContractStatusAndSellerId(ContractStatus status, UUID sellerId);
     @Query(value = "select sum(total_price*0.1) as total_revenue from jovinn_server.contract where contract_status = \"COMPLETE\"", nativeQuery = true)
     BigDecimal countTotalRevenue();
-
+    Page<Contract> findAllByContractStatusAndBuyerId(ContractStatus status, UUID buyerId, Pageable pageable);
+    Page<Contract> findAllByContractStatusAndSellerIdOrBuyerId(ContractStatus status, UUID sellerId, UUID buyerId, Pageable pageable);
     List<Contract> findAllByContractStatusAndCreateAt(ContractStatus status, Date date);
     @Query(value = "select sum(total_price*0.1) as revenue from jovinn_server.contract where contract_status = \"COMPLETE\" and date(create_at) = date(now())", nativeQuery = true)
     BigDecimal countTotalRevenueToday();
-
     @Query(value = "select sum(total_price*0.1) as revenue \n" +
             "from jovinn_server.contract \n" +
             "where contract_status = \"COMPLETE\" \n" +
             "and YEAR(create_at) = YEAR(CURRENT_DATE - INTERVAL ?1 MONTH)\n" +
             "AND MONTH(create_at) = MONTH(CURRENT_DATE - INTERVAL ?1 MONTH)", nativeQuery = true)
     BigDecimal countTotalRevenueByMonth(Integer month);
-
     Long countContractByPostRequest_Category_Id(UUID catId);
-
     List<Contract> findAllByPostRequest_Category_Id(UUID catId);
 }

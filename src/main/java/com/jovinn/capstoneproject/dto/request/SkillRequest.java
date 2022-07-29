@@ -13,13 +13,15 @@ import java.util.UUID;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SkillRequest {
-    @NotBlank
+    @NotBlank(message = "Tên kỹ năng không được để trống")
     String name;
-    @NotBlank
+
     SkillLevel level;
-    @NotBlank
-    @Size
+
+    @NotBlank(message = "Mô tả ngắn về kỹ năng không được để trống")
+    @Size(min = 1)
     String shortDescribe;
+
     @NotNull
     UUID userId;
 }

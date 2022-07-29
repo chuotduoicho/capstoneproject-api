@@ -12,10 +12,10 @@ import java.math.BigDecimal;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WalletRequest {
-    @NotNull
-    @Min(1)
+    @NotNull(message = "Số tiền cần nạp không được để trống")
+    @Min(value = 1, message = "Số tiền nạp tối thiểu là 1$")
     BigDecimal charge;
-    @NotBlank
+    @NotBlank(message = "Vui lòng chọn mệnh giá quy đổi")
     String currency;
     //Auto generate field text is: "You want to buy ** coin in Jovinn"
 }

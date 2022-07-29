@@ -1,7 +1,11 @@
 package com.jovinn.capstoneproject.service.impl;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
 import com.jovinn.capstoneproject.dto.response.*;
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
+import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
 import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
@@ -12,7 +16,11 @@ import com.jovinn.capstoneproject.service.MilestoneContractService;
 import com.jovinn.capstoneproject.service.NotificationService;
 import com.jovinn.capstoneproject.service.PostRequestService;
 import com.jovinn.capstoneproject.service.UserService;
+import com.jovinn.capstoneproject.util.Pagination;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +28,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PostRequestServiceImpl implements PostRequestService {
@@ -36,18 +45,16 @@ public class PostRequestServiceImpl implements PostRequestService {
     private SkillRepository skillRepository;
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private  SellerRepository sellerRepository;
-
     @Autowired
     private MilestoneContractService milestoneContractService;
-
     @Autowired
     private NotificationService notificationService;
-
     @Autowired
     private UserService userService;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public ApiResponse addPostRequest(PostRequestRequest request, UserPrincipal currentUser) {
@@ -66,7 +73,7 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequest.setStatus(PostRequestStatus.OPEN);
             postRequest.setContractCancelFee(request.getContractCancelFee());
             List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
-            BigDecimal budget = new BigDecimal(0) ;
+            BigDecimal budget = new BigDecimal(0);
             for (MilestoneContract milestoneContract : milestoneContractList){
                 budget = budget.add(milestoneContract.getMilestoneFee());
             }
@@ -78,7 +85,9 @@ public class PostRequestServiceImpl implements PostRequestService {
                 notification = new Notification();
                 notification.setUser(userInvite);
                 notification.setLink("/getPostRequestDetails/" + buyer.getUser().getId().toString() + "");
-                notification.setShortContent("You have new invite from " + buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName()+"");
+                notification.setShortContent("Bạn có lời mời làm việc mới từ " +
+                        buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName() +
+                        " Kiểm tra ngay");
                 notificationService.saveNotification(notification);
             }
             PostRequest savedPostRequest = postRequestRepository.save(postRequest);
@@ -142,7 +151,7 @@ public class PostRequestServiceImpl implements PostRequestService {
     public List<PostRequestResponse> getPostRequestByBuyerCreated(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
-        List<PostRequest> postRequest ;
+        List<PostRequest> postRequest;
        // PostRequestResponse postRequestResponse;
         List<PostRequestResponse> postRequestResponses = new ArrayList<>();
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
@@ -159,9 +168,12 @@ public class PostRequestServiceImpl implements PostRequestService {
     }
 
     @Override
-    public List<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId) {
+    public PageResponse<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId, int page, int size, String sortBy, String sortDir) {
         List<PostRequestResponse> postRequestResponses = new ArrayList<>();
-        List<PostRequest> postRequests = postRequestRepository.findAllByCategory_Id(categoryId);
+        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+        Page<PostRequest> postRequests = postRequestRepository.findAllByCategory_Id(categoryId, pageable);
+        List<PostRequest> list = postRequests.getContent();
+
         for (PostRequest postRequest:postRequests){
             postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
                     postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
@@ -169,7 +181,13 @@ public class PostRequestServiceImpl implements PostRequestService {
                     postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkills(),
                     postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
         }
-        return postRequestResponses;
+
+        List<PostRequestResponse> content = list.stream().map(
+                        postRequest -> modelMapper.map(postRequest, PostRequestResponse.class))
+                        .collect(Collectors.toList());
+        return new PageResponse<>(content, postRequests.getNumber(), postRequests.getSize(), postRequests.getTotalElements(),
+                postRequests.getTotalPages(), postRequests.isLast());
+        //return postRequestResponses;
     }
 
     @Override
@@ -213,11 +231,19 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public ListSellerApplyPostRequestResponse getListSellerApply(UUID postRequestId, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "NOT FOUND"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bài đăng"));
+        //Pageable pageable = Pagination.paginationCommon(page, size, "sellerId", sortDir);
 
 //        List<Seller> sellers = postRequest.getSellersApplyRequest();
         if (postRequest.getUser().getId().equals(currentUser.getId())) {
-            return new ListSellerApplyPostRequestResponse(postRequest.getId(),postRequest.getSellersApplyRequest());
+//            Page<Seller> sellers = sellerRepository.findAllByPostRequestsId(postRequestId, pageable);
+//            List<Seller> list = sellers.getContent();
+//            List<ListSellerApplyPostRequestResponse> content = list.stream().map(
+//                            sellerApplyPostRequest -> modelMapper.map(sellerApplyPostRequest, ListSellerApplyPostRequestResponse.class))
+//                            .collect(Collectors.toList());
+//            return new PageResponse<>(content, sellers.getNumber(), sellers.getSize(), sellers.getTotalElements(),
+//                    sellers.getTotalPages(), sellers.isLast());
+            return new ListSellerApplyPostRequestResponse(postRequest.getId(), postRequest.getSellersApplyRequest());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");

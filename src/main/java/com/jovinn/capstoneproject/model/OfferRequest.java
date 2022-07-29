@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jovinn.capstoneproject.enumerable.OfferRequestStatus;
 import com.jovinn.capstoneproject.enumerable.OfferType;
 import lombok.*;
@@ -37,10 +38,12 @@ public class OfferRequest extends BaseEntity {
     OfferRequestStatus offerRequestStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "postRequestId", referencedColumnName = "id")
     PostRequest postRequest;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "sellerId", referencedColumnName = "id")
     Seller seller;
 }

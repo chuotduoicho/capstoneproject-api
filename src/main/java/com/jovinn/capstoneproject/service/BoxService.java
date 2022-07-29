@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.service;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.request.PackageRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.BoxResponse;
@@ -24,16 +25,16 @@ public interface BoxService {
     Box updateStatus(UUID id);
 
     //View List Service Buy SellerId
-    List<Box> getListServiceBySellerId(UUID sellerId);
+    PageResponse<BoxResponse> getListServiceBySellerId(UUID sellerId, int page, int size);
 
     //View All Service
-    List<Box> getAllService();
+    PageResponse<BoxResponse> getAllService(int page, int size, String sortBy, String sortDir);
 
     //Get Service By id
-    Box getServiceByID(UUID id);
+    BoxResponse getServiceByID(UUID id);
 
     //Get Service By Category ID
-    List<Box> getAllServiceByCategoryID(UUID categoryId);
+    PageResponse<BoxResponse> getAllServiceByCategoryID(UUID categoryId, int page, int size, String sortBy, String sortDir);
 
     //Get Service By Category ID Pagination
     Page<Box> getAllServiceByCatIdPagination(int offset, UUID categoryId);

@@ -1,25 +1,29 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.request.DeliveryHaveMilestoneRequest;
 import com.jovinn.capstoneproject.dto.request.DeliveryNotMilestoneRequest;
+import com.jovinn.capstoneproject.dto.request.RatingRequest;
+import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
-import com.jovinn.capstoneproject.dto.response.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.dto.response.DeliveryHaveMilestoneResponse;
 import com.jovinn.capstoneproject.dto.response.DeliveryNotMilestoneResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.model.Contract;
+import com.jovinn.capstoneproject.model.Rating;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ContractService;
 import com.jovinn.capstoneproject.service.DeliveryService;
+import com.jovinn.capstoneproject.service.RatingService;
+import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -30,7 +34,9 @@ public class ContractController {
     private ContractService contractService;
     @Autowired
     private DeliveryService deliveryService;
-    @GetMapping("/{id}")
+    @Autowired
+    private RatingService ratingService;
+    @GetMapping("/details/{id}")
     public ResponseEntity<Contract> getContractById(@PathVariable UUID id, @CurrentUser UserPrincipal currentUser) {
         Contract response = contractService.getContractById(id, currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -42,10 +48,10 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{postRequestId}")
-    public ResponseEntity<ContractResponse> createContractFromOffer(@PathVariable("postRequestId") UUID postRequestId,
+    @PostMapping("/{offerRequestId}")
+    public ResponseEntity<ContractResponse> createContractFromOffer(@PathVariable("offerRequestId") UUID offerRequestId,
                                                                     @CurrentUser UserPrincipal currentUser) {
-        ContractResponse response = contractService.createContractFromSellerOffer(postRequestId, currentUser);
+        ContractResponse response = contractService.createContractFromSellerOffer(offerRequestId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -109,24 +115,72 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PutMapping("/delivery-accept-milestone/{contractId}/{milestoneId}")
+    public ResponseEntity<ApiResponse> acceptDeliveryContractFromBuyer(@PathVariable("contractId") UUID contractId,
+                                                                       @PathVariable("milestoneId") UUID milestoneId,
+                                                                       @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = contractService.acceptDeliveryForMilestone(contractId, milestoneId,  currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
     @GetMapping("/{status}")
-    public ResponseEntity<List<Contract>> getContractByStatus(@PathVariable ContractStatus status,
-                                                              @CurrentUser UserPrincipal currentUser) {
-        List<Contract> response = contractService.getContractByStatus(status, currentUser);
+    public ResponseEntity<PageResponse<Contract>> getContractByStatus(@PathVariable ContractStatus status,
+                                                              @CurrentUser UserPrincipal currentUser,
+                                                              @RequestParam(name = "page", required = false,
+                                                                      defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                              @RequestParam(name = "size", required = false,
+                                                                      defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                                              @RequestParam(value = "sortBy",
+                                                                      defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
+                                                              @RequestParam(value = "sortDir",
+                                                                      defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        PageResponse<Contract> response = contractService.getContractByStatus(status, currentUser, page, size, sortBy, sortDir);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/list-order")
-    public ResponseEntity<List<Contract>> getOrders(@CurrentUser UserPrincipal currentUser) {
-        List<Contract> response = contractService.getOrders(currentUser);
+    public ResponseEntity<PageResponse<Contract>> getOrders(@CurrentUser UserPrincipal currentUser,
+                                    @RequestParam(name = "page", required = false,
+                                            defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                    @RequestParam(name = "size", required = false,
+                                            defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                    @RequestParam(value = "sortBy",
+                                            defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
+                                    @RequestParam(value = "sortDir",
+                                            defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir){
+        PageResponse<Contract> response = contractService.getOrders(currentUser, page, size, sortBy, sortDir);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/list-contract")
-    public ResponseEntity<List<Contract>> getContracts(@CurrentUser UserPrincipal currentUser) {
-        List<Contract> response = contractService.getContracts(currentUser);
+    public ResponseEntity<PageResponse<Contract>> getContracts(@CurrentUser UserPrincipal currentUser,
+                                   @RequestParam(name = "page", required = false,
+                                           defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                   @RequestParam(name = "size", required = false,
+                                           defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                   @RequestParam(value = "sortBy",
+                                           defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
+                                   @RequestParam(value = "sortDir",
+                                           defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        PageResponse<Contract> response = contractService.getContracts(currentUser, page, size, sortBy, sortDir);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PostMapping("/rating/{contractId}")
+    public ResponseEntity<ApiResponse> ratingSellerFromBuyer(@PathVariable("contractId") UUID contractId,
+                                                    @Valid @RequestBody RatingRequest request,
+                                                    @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = ratingService.ratingSeller(contractId, request, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 
+    @GetMapping("/rating/{contractId}")
+    public ResponseEntity<PageResponse<Rating>> getRatingsForContract(@PathVariable("contractId") UUID contractId,
+                                                                      @RequestParam(name = "page", required = false,
+                                                                              defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                                      @RequestParam(name = "size", required = false,
+                                                                              defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size){
+        PageResponse<Rating> response = ratingService.getRatingsForContract(contractId, page, size);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

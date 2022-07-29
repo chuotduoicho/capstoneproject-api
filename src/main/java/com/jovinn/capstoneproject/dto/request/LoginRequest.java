@@ -6,9 +6,9 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 public class LoginRequest {
-    @NotBlank
+    @NotBlank(message = "Không được để trống tên tài khoản hoặc email")
     private String usernameOrEmail;
 
-    @NotBlank
+    @NotBlank(message = "Không được để trống mật khẩu")
     private String password;
 }

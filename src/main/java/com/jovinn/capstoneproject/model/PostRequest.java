@@ -1,11 +1,8 @@
 package com.jovinn.capstoneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
-import com.jovinn.capstoneproject.enumerable.RankSeller;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
@@ -41,15 +38,18 @@ public class PostRequest extends BaseEntity {
     Integer totalDeliveryTime;
     BigDecimal budget;
 
-    @ManyToOne(fetch =  FetchType.EAGER)
+    @ManyToOne(fetch =  FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "cat_service_id", referencedColumnName = "id")
     Category category;
 
-    @ManyToOne(fetch =  FetchType.EAGER)
+    @ManyToOne(fetch =  FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "sub_cat_service_id", referencedColumnName = "id")
     SubCategory subCategory;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JsonIgnore
     @JoinTable(
             name = "post_request_skill",
             joinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id"),
@@ -65,12 +65,14 @@ public class PostRequest extends BaseEntity {
     Contract contract;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "userId", referencedColumnName = "id")
     //@JsonBackReference
     User user;
 
 //    @JsonIgnore
     @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JsonIgnore
     @JoinTable(
             name = "post_request_seller",
             joinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id"),
@@ -79,5 +81,6 @@ public class PostRequest extends BaseEntity {
     List<Seller> sellersApplyRequest;
 
     @OneToMany(mappedBy = "postRequest" ,fetch = FetchType.LAZY)
+    @JsonIgnore
     List<OfferRequest> offerRequests;
 }
