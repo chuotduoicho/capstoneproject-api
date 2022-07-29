@@ -64,16 +64,16 @@ public class AdminController {
         return contractService.countTotalContractByCatId(catId);
     }
 
-    @GetMapping("/list-services-by-cat/{catId}")
-    public List<BoxResponse> getAllServiceByCategoryId(@PathVariable("catId") UUID catId){
-        return boxService.getAllServiceByCategoryID(catId).stream().map(box -> modelMapper.map(box, BoxResponse.class))
-                .collect(Collectors.toList());
-    }
-
-    @GetMapping("/list-postRequest-by-cat-id/{catId}")
-    public List<PostRequestResponse> getPostRequestByCategoryId(@PathVariable UUID catId){
-        return postRequestService.getPostRequestByCategoryId(catId);
-    }
+//    @GetMapping("/list-services-by-cat/{catId}")
+//    public List<BoxResponse> getAllServiceByCategoryId(@PathVariable("catId") UUID catId){
+//        return boxService.getAllServiceByCategoryID(catId).stream().map(box -> modelMapper.map(box, BoxResponse.class))
+//                .collect(Collectors.toList());
+//    }
+//
+//    @GetMapping("/list-postRequest-by-cat-id/{catId}")
+//    public List<PostRequestResponse> getPostRequestByCategoryId(@PathVariable UUID catId){
+//        return postRequestService.getPostRequestByCategoryId(catId);
+//    }
 
     @GetMapping("/list-contract-by-cat-id/{catId}")
     public List<AdminViewContractsResponse> getContractByCategoryId(@PathVariable UUID catId){
