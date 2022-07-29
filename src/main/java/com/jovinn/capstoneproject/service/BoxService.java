@@ -1,15 +1,13 @@
 package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.PageResponse;
-import com.jovinn.capstoneproject.dto.request.PackageRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.BoxResponse;
-import com.jovinn.capstoneproject.dto.response.CountServiceResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountServiceResponse;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface BoxService {

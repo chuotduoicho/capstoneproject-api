@@ -3,7 +3,6 @@ package com.jovinn.capstoneproject.controller;
 import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.BoxResponse;
-import com.jovinn.capstoneproject.dto.response.CountServiceResponse;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
@@ -16,9 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/box")

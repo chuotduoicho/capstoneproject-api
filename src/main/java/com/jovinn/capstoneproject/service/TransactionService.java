@@ -1,6 +1,6 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.response.AdminViewTransactionResponse;
+import com.jovinn.capstoneproject.dto.adminsite.AdminViewTransactionResponse;
 
 import java.util.List;
 import java.util.UUID;

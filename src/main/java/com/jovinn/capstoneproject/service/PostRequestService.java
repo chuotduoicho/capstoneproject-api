@@ -1,11 +1,10 @@
 package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.PageResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountPostRequestResponse;
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
 import com.jovinn.capstoneproject.dto.response.*;
-import com.jovinn.capstoneproject.model.PostRequest;
 import com.jovinn.capstoneproject.security.UserPrincipal;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;

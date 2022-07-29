@@ -1,8 +1,8 @@
 package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.PageResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountPostRequestResponse;
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
-import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
 import com.jovinn.capstoneproject.dto.response.PostRequestResponse;

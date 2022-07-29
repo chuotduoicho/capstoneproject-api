@@ -1,27 +1,26 @@
-package com.jovinn.capstoneproject.dto.response;
+package com.jovinn.capstoneproject.dto.adminsite;
 
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 import java.util.UUID;
-
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AdminProfileResponse {
+public class AdminViewUserResponse {
     UUID id;
     String firstName;
     String lastName;
-    String adminAccount;
+    String email;
     String phoneNumber;
-    Double jCoin;
+    String userName;
 
-    public AdminProfileResponse(UUID id, String firstName, String lastName, String adminAccount, String phoneNumber, Double jCoin) {
+    public AdminViewUserResponse(UUID id, String firstName, String lastName, String email, String phoneNumber, String userName) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.adminAccount = adminAccount;
+        this.email = email;
         this.phoneNumber = phoneNumber;
-        this.jCoin = jCoin;
+        this.userName = userName;
     }
 }
