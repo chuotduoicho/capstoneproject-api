@@ -24,7 +24,6 @@ public class TransactionResponse {
     UUID userId;
     UUID walletId;
     String message;
-
     Date paymentAt;
     TransactionType type;
 

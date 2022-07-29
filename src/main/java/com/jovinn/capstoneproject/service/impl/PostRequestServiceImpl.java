@@ -1,9 +1,9 @@
 package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.PageResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountPostRequestResponse;
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.BoxResponse;
 import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
 import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
 import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -263,5 +262,10 @@ public class PostRequestServiceImpl implements PostRequestService {
                     postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
         }
         return postRequestResponses;
+    }
+
+    @Override
+    public CountPostRequestResponse countTotalPostRequestByCatId(UUID catId) {
+        return new CountPostRequestResponse(postRequestRepository.countPostRequestByCategory_Id(catId));
     }
 }

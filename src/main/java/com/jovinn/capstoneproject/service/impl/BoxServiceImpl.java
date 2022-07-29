@@ -1,20 +1,15 @@
 package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.PageResponse;
-import com.jovinn.capstoneproject.dto.request.PackageRequest;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.BoxResponse;
-import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
-import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.dto.adminsite.CountServiceResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Box;
-import com.jovinn.capstoneproject.model.Category;
-import com.jovinn.capstoneproject.model.Package;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.repository.BoxRepository;
-import com.jovinn.capstoneproject.repository.CategoryRepository;
 import com.jovinn.capstoneproject.repository.PackageRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
@@ -25,13 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -88,7 +80,12 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public Boolean deleteBox(UUID id) {
-        boxRepository.deleteById(id);
+        try {
+            boxRepository.deleteById(id);
+        }catch (Exception e){
+            return false;
+        }
+
         return true;
     }
 
@@ -151,5 +148,15 @@ public class BoxServiceImpl implements BoxService {
     @Override
     public Page<Box> searchServiceByCatNameBySubCateName(int offset, String catName, String subCatName) {
         return boxRepository.findAllBySubCategory_NameContainsOrSubCategory_Category_NameContains(subCatName,catName,PageRequest.of(offset,8));
+    }
+
+    @Override
+    public CountServiceResponse countTotalService() {
+        return new CountServiceResponse(boxRepository.count());
+    }
+
+    @Override
+    public CountServiceResponse countTotalServiceByCat(UUID catId) {
+        return new CountServiceResponse(boxRepository.countBySubCategory_Category_Id(catId));
     }
 }

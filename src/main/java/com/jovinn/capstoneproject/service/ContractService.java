@@ -2,12 +2,14 @@ package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
+import com.jovinn.capstoneproject.dto.adminsite.AdminViewContractsResponse;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.response.ContractResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountContractResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.model.Contract;
 import com.jovinn.capstoneproject.security.UserPrincipal;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +24,9 @@ public interface ContractService {
     ContractResponse createContractFromSellerOffer(UUID offerRequestId, UserPrincipal currentUser);
     ContractResponse createContractFromSellerApply(UUID postRequestId, UUID sellerId, UserPrincipal currentUser);
     Contract getContractById(UUID id, UserPrincipal currentUser);
+    CountTotalRevenueResponse getTotalRevenue();
+    CountContractResponse countTotalContractByCatId(UUID catId);
+    List<AdminViewContractsResponse> getContractsByCategoryId(UUID catId);
     PageResponse<Contract> getContractByStatus(ContractStatus status, UserPrincipal currentUser, int page, int size, String sortBy, String sortDir);
     PageResponse<Contract> getOrders(UserPrincipal currentUser, int page, int size, String sortBy, String sortDir);
     PageResponse<Contract> getContracts(UserPrincipal currentUser, int page, int size, String sortBy, String sortDir);

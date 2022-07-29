@@ -19,6 +19,8 @@ public interface BoxRepository extends JpaRepository<Box, UUID> {
     @Query("select b from Box b where b.subCategory.category.id = :catId")
     Page<Box> getAllServiceByCategoryId(@Param("catId") UUID catId, Pageable pageable);
 
+    long countBySubCategory_Category_Id(UUID catId);
+
     Page<Box> findAllBySubCategory_Category_Id(UUID catId, PageRequest pageRequest);
 
     Page<Box> findAllBySubCategory_NameContainsOrSubCategory_Category_NameContains(String subCatName, String catName, PageRequest pageRequest);

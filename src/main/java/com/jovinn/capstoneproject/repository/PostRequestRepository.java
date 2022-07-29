@@ -18,4 +18,6 @@ public interface PostRequestRepository extends JpaRepository<PostRequest, UUID> 
     Optional<PostRequest> findById(UUID uuid);
     PostRequest findPostRequestById(UUID postRequestId);
     Integer countPostRequestByUser_Id(UUID UserId);
+
+    Long countPostRequestByCategory_Id(UUID catId);
 }

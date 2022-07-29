@@ -1,9 +1,11 @@
 package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.PageResponse;
+import com.jovinn.capstoneproject.dto.adminsite.AdminViewContractsResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountContractResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.dto.request.ContractRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ContractResponse;
+import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.enumerable.*;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
@@ -592,6 +594,37 @@ public class ContractServiceImpl implements ContractService {
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public CountTotalRevenueResponse getTotalRevenue() {
+//        List<Contract> contracts = contractRepository.findAllByContractStatus(ContractStatus.COMPLETE);
+//        BigDecimal totalRevenue = new BigDecimal(0);
+//        BigDecimal number = new BigDecimal(0.1);
+//        for (Contract contract:contracts){
+//            totalRevenue.add(contract.getTotalPrice());
+//        }
+        return new CountTotalRevenueResponse(contractRepository.countTotalRevenue());
+    }
+
+    @Override
+    public CountContractResponse countTotalContractByCatId(UUID catId) {
+        return new CountContractResponse(contractRepository.countContractByPostRequest_Category_Id(catId));
+    }
+
+    @Override
+    public List<AdminViewContractsResponse> getContractsByCategoryId(UUID catId) {
+        List<Contract> contracts = contractRepository.findAllByPostRequest_Category_Id(catId);
+        List<AdminViewContractsResponse> contractResponses = new ArrayList<>();
+        for (Contract newContract:
+             contracts) {
+            contractResponses.add(new AdminViewContractsResponse(newContract.getContractCode(),
+                    newContract.getPostRequest().getUser().getUsername(),
+                    newContract.getPostRequest().getUser().getFirstName()+" "+
+                            newContract.getPostRequest().getUser().getLastName(),newContract.getTotalPrice(),
+                    newContract.getCreateAt()));
+        }
+        return contractResponses;
     }
 
     private ContractResponse getUpdateResponse(Contract contract, DeliveryStatus deliveryStatus,

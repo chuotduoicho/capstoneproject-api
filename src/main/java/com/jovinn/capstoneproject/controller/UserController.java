@@ -10,7 +10,6 @@ import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.OfferRequest;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
-import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.OfferRequestService;
