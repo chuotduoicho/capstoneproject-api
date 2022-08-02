@@ -82,10 +82,9 @@ public class BoxServiceImpl implements BoxService {
     public Boolean deleteBox(UUID id) {
         try {
             boxRepository.deleteById(id);
-        }catch (Exception e){
+        } catch (Exception e){
             return false;
         }
-
         return true;
     }
 
@@ -96,26 +95,28 @@ public class BoxServiceImpl implements BoxService {
 
     //Dang loi :V
     @Override
-    public PageResponse<BoxResponse> getListServiceBySellerId(UUID sellerId, int page, int size) {
-        Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
-        Page<Box> boxes = boxRepository.findAllBySellerId(sellerId, pageable);
-        List<BoxResponse> content = boxes.getContent().stream().map(
-                        box -> modelMapper.map(box, BoxResponse.class))
-                .collect(Collectors.toList());
-        return new PageResponse<>(content, boxes.getNumber(), boxes.getSize(), boxes.getTotalElements(),
-                boxes.getTotalPages(), boxes.isLast());
+    public List<Box> getListServiceBySellerId(UUID sellerId) {
+        return boxRepository.findAllBySellerId(sellerId);
+//        Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
+//        Page<Box> boxes = boxRepository.findAllBySellerId(sellerId, pageable);
+//        List<BoxResponse> content = boxes.getContent().stream().map(
+//                        box -> modelMapper.map(box, BoxResponse.class))
+//                .collect(Collectors.toList());
+//        return new PageResponse<>(content, boxes.getNumber(), boxes.getSize(), boxes.getTotalElements(),
+//                boxes.getTotalPages(), boxes.isLast());
     }
 
     @Override
-    public PageResponse<BoxResponse> getAllService(int page, int size, String sortBy, String sortDir) {
-        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
-        Page<Box> boxes = boxRepository.findAll(pageable);
-        List<Box> lists = boxes.getContent();
-        List<BoxResponse> content = lists.stream().map(
-                box -> modelMapper.map(box, BoxResponse.class))
-                .collect(Collectors.toList());
-        return new PageResponse<>(content, boxes.getNumber(), boxes.getSize(), boxes.getTotalElements(),
-                boxes.getTotalPages(), boxes.isLast());
+    public List<Box> getAllService() {
+        return boxRepository.findAll();
+//        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+//        Page<Box> boxes = boxRepository.findAll(pageable);
+//        List<Box> lists = boxes.getContent();
+//        List<BoxResponse> content = lists.stream().map(
+//                box -> modelMapper.map(box, BoxResponse.class))
+//                .collect(Collectors.toList());
+//        return new PageResponse<>(content, boxes.getNumber(), boxes.getSize(), boxes.getTotalElements(),
+//                boxes.getTotalPages(), boxes.isLast());
     }
 
     @Override
@@ -128,16 +129,16 @@ public class BoxServiceImpl implements BoxService {
     }
 
     @Override
-    public PageResponse<BoxResponse> getAllServiceByCategoryID(UUID categoryId, int page, int size, String sortBy, String sortDir) {
-        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
-        Page<Box> boxes = boxRepository.getAllServiceByCategoryId(categoryId, pageable);
-        List<BoxResponse> content = boxes.getContent().stream().map(
-                        box -> modelMapper.map(box, BoxResponse.class))
-                .collect(Collectors.toList());
-        return new PageResponse<>(content, boxes.getNumber(), boxes.getSize(), boxes.getTotalElements(),
-                boxes.getTotalPages(), boxes.isLast());
+    public List<Box> getAllServiceByCategoryID(UUID categoryId) {
+        return boxRepository.getAllServiceByCategoryId(categoryId) ;
+//        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+//        Page<Box> boxes = boxRepository.getAllServiceByCategoryId(categoryId, pageable);
+//        List<BoxResponse> content = boxes.getContent().stream().map(
+//                        box -> modelMapper.map(box, BoxResponse.class))
+//                .collect(Collectors.toList());
+//        return new PageResponse<>(content, boxes.getNumber(), boxes.getSize(), boxes.getTotalElements(),
+//                boxes.getTotalPages(), boxes.isLast());
         //Pageable pageable = PageRequest.of(page,8, Sort.Direction.DESC);
-        //return boxRepository.getAllServiceByCategoryId(categoryId) ;
     }
 
     @Override

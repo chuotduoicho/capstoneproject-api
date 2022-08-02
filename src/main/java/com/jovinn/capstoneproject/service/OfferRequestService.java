@@ -13,6 +13,6 @@ import java.util.UUID;
 public interface OfferRequestService {
     OfferRequestResponse sendOfferToBuyer(UUID postRequestId, OfferRequestRequest request, UserPrincipal currentUser);
     OfferRequestResponse sendOfferApplyToBuyer(UUID postRequestId, OfferRequestRequest request, UserPrincipal currentUser);
-    PageResponse<OfferRequest> getOffers(UserPrincipal currentUser, int page, int size, String sortBy, String sortDir);
-    PageResponse<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser, int page, int size, String sortBy, String sortDir);
+    List<OfferRequest> getOffers(UserPrincipal currentUser);
+    List<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser);
 }

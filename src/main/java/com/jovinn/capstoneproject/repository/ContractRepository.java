@@ -16,13 +16,13 @@ import java.util.UUID;
 
 @Repository
 public interface ContractRepository extends JpaRepository<Contract, UUID> {
-    Page<Contract> findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus status, UUID buyerId, UUID sellerId, Pageable pageable);
-    Page<Contract> findAllByOrderStatusAndBuyerId(OrderStatus status, UUID buyerId, Pageable pageable);
+    List<Contract> findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus status, UUID buyerId, UUID sellerId);
+    List<Contract> findAllByOrderStatusAndBuyerId(OrderStatus status, UUID buyerId);
     List<Contract> findAllByOrderStatusAndSellerId(OrderStatus status, UUID sellerId);
     @Query(value = "select sum(total_price*0.1) as total_revenue from jovinn_server.contract where contract_status = \"COMPLETE\"", nativeQuery = true)
     BigDecimal countTotalRevenue();
-    Page<Contract> findAllByContractStatusAndBuyerId(ContractStatus status, UUID buyerId, Pageable pageable);
-    Page<Contract> findAllByContractStatusAndSellerIdOrBuyerId(ContractStatus status, UUID sellerId, UUID buyerId, Pageable pageable);
+    List<Contract> findAllByContractStatusAndBuyerId(ContractStatus status, UUID buyerId);
+    List<Contract> findAllByContractStatusAndSellerIdOrBuyerId(ContractStatus status, UUID sellerId, UUID buyerId);
     List<Contract> findAllByContractStatusAndCreateAt(ContractStatus status, Date date);
     @Query(value = "select sum(total_price*0.1) as revenue from jovinn_server.contract where contract_status = \"COMPLETE\" and date(create_at) = date(now())", nativeQuery = true)
     BigDecimal countTotalRevenueToday();

@@ -1,8 +1,8 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.adminsite.CountPostRequestResponse;
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
+import com.jovinn.capstoneproject.dto.request.TargetSellerRequest;
 import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
@@ -23,8 +23,10 @@ public interface PostRequestService {
     //Buyer view their request list created
     List<PostRequestResponse> getPostRequestByBuyerCreated(UserPrincipal currentUser);
 
+    List<ListSellerTargetPostRequestResponse> getTargetSeller(TargetSellerRequest request);
+
     //View list post request by category id
-    PageResponse<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId, int page, int size, String sortBy, String sortDir);
+    List<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId);
 
     //View Post Request Detail
     PostRequestResponse getPostRequestDetails(UUID postRequestId);

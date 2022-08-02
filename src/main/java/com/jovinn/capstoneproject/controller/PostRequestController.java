@@ -3,10 +3,8 @@ package com.jovinn.capstoneproject.controller;
 import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.request.OfferRequestRequest;
 import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
-import com.jovinn.capstoneproject.dto.response.OfferRequestResponse;
-import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
+import com.jovinn.capstoneproject.dto.request.TargetSellerRequest;
+import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.OfferRequestService;
@@ -48,18 +46,9 @@ public class PostRequestController {
         ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    @GetMapping("/getPostRequestByCategoryId/{id}")
-    public ResponseEntity<PageResponse<PostRequestResponse>> getPostRequestByCategoryId(@PathVariable UUID id,
-                                                                @CurrentUser UserPrincipal currentUser,
-                                                                @RequestParam(name = "page", required = false,
-                                                                        defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
-                                                                @RequestParam(name = "size", required = false,
-                                                                        defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
-                                                                @RequestParam(value = "sortBy",
-                                                                        defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
-                                                                @RequestParam(value = "sortDir",
-                                                                        defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
-        PageResponse<PostRequestResponse> response = postRequestService.getPostRequestByCategoryId(id, page, size, sortBy, sortDir);
+    @GetMapping("/getPostRequestByCategoryId/{catId}")
+    public ResponseEntity<List<PostRequestResponse>> getPostRequestByCategoryId(@PathVariable("catId") UUID catId) {
+        List<PostRequestResponse> response = postRequestService.getPostRequestByCategoryId(catId);
         return new ResponseEntity<>(response, HttpStatus.OK);
         //return postRequestService.getPostRequestByCategoryId(id);
     }
@@ -96,14 +85,19 @@ public class PostRequestController {
         return new ResponseEntity<>(response,HttpStatus.CREATED);
     }
 
-//    @GetMapping("/getListSellerApply/{postRequestId}")
-//    public  ResponseEntity<ListSellerApplyPostRequestResponse> getListSellerApply(@PathVariable UUID postRequestId, @CurrentUser UserPrincipal currentUser){
-//        ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId,currentUser);
-//        return new ResponseEntity<>(response,HttpStatus.CREATED);
-//    }
-
+    @PostMapping("/get-ten-seller-target")
+    public ResponseEntity<List<ListSellerTargetPostRequestResponse>> getTenSellerTarget(@RequestBody TargetSellerRequest request) {
+        List<ListSellerTargetPostRequestResponse> responses = postRequestService.getTargetSeller(request);
+        return new ResponseEntity<>(responses, HttpStatus.OK);
+    }
     @GetMapping("/getAllPostRequest")
     public List<PostRequestResponse> getAllPostRequest(){
         return postRequestService.getAllPostRequest();
     }
+//    @GetMapping("/getListSellerApply/{postRequestId}")
+//    public  ResponseEntity<ListSellerApplyPostRequestResponse> getListSellerApply(@PathVariable UUID postRequestId, @CurrentUser UserPrincipal currentUser){
+//        ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId,currentUser);
+//        return new ResponseEntity<>(response,HttpStatus.CREATED);
+
+//    }
 }

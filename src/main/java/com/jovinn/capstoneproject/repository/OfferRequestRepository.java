@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface OfferRequestRepository extends JpaRepository<OfferRequest, UUID> {
     Page<OfferRequest> findAllByPostRequestId(UUID postRequestId, Pageable pageable);
     List<OfferRequest> findAllByPostRequestId(UUID postRequestId);
-    Page<OfferRequest> findAllBySellerId(UUID sellerId, Pageable pageable);
+    List<OfferRequest> findAllBySellerId(UUID sellerId);
 }

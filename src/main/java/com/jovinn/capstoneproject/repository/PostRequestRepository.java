@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface PostRequestRepository extends JpaRepository<PostRequest, UUID> {
     List<PostRequest> findAllByUser_Id(UUID userId);
-    Page<PostRequest> findAllByCategory_Id(UUID categoryId, Pageable pageable);
+    List<PostRequest> findAllByCategory_Id(UUID categoryId);
     @Override
     Optional<PostRequest> findById(UUID uuid);
     PostRequest findPostRequestById(UUID postRequestId);

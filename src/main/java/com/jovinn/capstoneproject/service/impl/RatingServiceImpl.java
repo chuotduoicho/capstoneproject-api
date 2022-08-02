@@ -67,20 +67,22 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public PageResponse<Rating> getRatingsForSeller(UUID sellerId, int page, int size) {
-        Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
-        Page<Rating> ratings = ratingRepository.findAllBySellerId(sellerId, pageable);
-        List<Rating> content = ratings.getNumberOfElements() == 0 ? Collections.emptyList() : ratings.getContent();
-        return new PageResponse<>(content, ratings.getNumber(), ratings.getSize(), ratings.getTotalElements(),
-                ratings.getTotalPages(), ratings.isLast());
+    public List<Rating> getRatingsForSeller(UUID sellerId) {
+        return ratingRepository.findAllBySellerId(sellerId);
+//        Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
+//        Page<Rating> ratings = ratingRepository.findAllBySellerId(sellerId, pageable);
+//        List<Rating> content = ratings.getNumberOfElements() == 0 ? Collections.emptyList() : ratings.getContent();
+//        return new PageResponse<>(content, ratings.getNumber(), ratings.getSize(), ratings.getTotalElements(),
+//                ratings.getTotalPages(), ratings.isLast());
     }
 
     @Override
-    public PageResponse<Rating> getRatingsForContract(UUID contractId, int page, int size) {
-        Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
-        Page<Rating> ratings = ratingRepository.findAllByContractId(contractId, pageable);
-        List<Rating> content = ratings.getNumberOfElements() == 0 ? Collections.emptyList() : ratings.getContent();
-        return new PageResponse<>(content, ratings.getNumber(), ratings.getSize(), ratings.getTotalElements(),
-                ratings.getTotalPages(), ratings.isLast());
+    public List<Rating> getRatingsForContract(UUID contractId) {
+        return ratingRepository.findAllByContractId(contractId);
+//        Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
+//        Page<Rating> ratings = ratingRepository.findAllByContractId(contractId, pageable);
+//        List<Rating> content = ratings.getNumberOfElements() == 0 ? Collections.emptyList() : ratings.getContent();
+//        return new PageResponse<>(content, ratings.getNumber(), ratings.getSize(), ratings.getTotalElements(),
+//                ratings.getTotalPages(), ratings.isLast());
     }
 }

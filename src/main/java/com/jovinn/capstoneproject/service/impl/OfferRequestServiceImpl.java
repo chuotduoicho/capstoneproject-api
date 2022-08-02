@@ -100,19 +100,18 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     }
 
     @Override
-    public PageResponse<OfferRequest> getOffers(UserPrincipal currentUser,
-                                                int page, int size, String sortBy, String sortDir) {
+    public List<OfferRequest> getOffers(UserPrincipal currentUser) {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy seller"));
-        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+        //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
 
         //List<OfferRequest> offerRequest = offerRequestRepository.findAllBySellerId(seller.getId());
         if(seller.getUser().getId().equals(currentUser.getId())) {
-            Page<OfferRequest> offerRequests = offerRequestRepository.findAllBySellerId(seller.getId(), pageable);
-            List<OfferRequest> content = offerRequests.getNumberOfElements()  == 0 ? Collections.emptyList() : offerRequests.getContent();
-            return new PageResponse<>(content, offerRequests.getNumber(), offerRequests.getSize(), offerRequests.getTotalElements(),
-                    offerRequests.getTotalPages(), offerRequests.isLast());
-            //return offerRequestRepository.findAllBySellerId(seller.getId());
+//            Page<OfferRequest> offerRequests = offerRequestRepository.findAllBySellerId(seller.getId(), pageable);
+//            List<OfferRequest> content = offerRequests.getNumberOfElements()  == 0 ? Collections.emptyList() : offerRequests.getContent();
+//            return new PageResponse<>(content, offerRequests.getNumber(), offerRequests.getSize(), offerRequests.getTotalElements(),
+//                    offerRequests.getTotalPages(), offerRequests.isLast());
+            return offerRequestRepository.findAllBySellerId(seller.getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -120,18 +119,17 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     }
 
     @Override
-    public PageResponse<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser,
-                                                                int page, int size, String sortBy, String sortDir) {
+    public List<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tim thấy post"));
-        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+        //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
 
         if(postRequest.getUser().getId().equals(currentUser.getId())) {
-            Page<OfferRequest> offerRequests = offerRequestRepository.findAllByPostRequestId(postRequest.getId(), pageable);
-            List<OfferRequest> content = offerRequests.getNumberOfElements()  == 0 ? Collections.emptyList() : offerRequests.getContent();
-            return new PageResponse<>(content, offerRequests.getNumber(), offerRequests.getSize(), offerRequests.getTotalElements(),
-                    offerRequests.getTotalPages(), offerRequests.isLast());
-            //return offerRequestRepository.findAllByPostRequestId(postRequest.getId(), pageable);
+//            Page<OfferRequest> offerRequests = offerRequestRepository.findAllByPostRequestId(postRequest.getId(), pageable);
+//            List<OfferRequest> content = offerRequests.getNumberOfElements()  == 0 ? Collections.emptyList() : offerRequests.getContent();
+//            return new PageResponse<>(content, offerRequests.getNumber(), offerRequests.getSize(), offerRequests.getTotalElements(),
+//                    offerRequests.getTotalPages(), offerRequests.isLast());
+            return offerRequestRepository.findAllByPostRequestId(postRequest.getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
