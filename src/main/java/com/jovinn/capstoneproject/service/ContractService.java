@@ -27,7 +27,7 @@ public interface ContractService {
     CountTotalRevenueResponse getTotalRevenue();
     CountContractResponse countTotalContractByCatId(UUID catId);
     List<AdminViewContractsResponse> getContractsByCategoryId(UUID catId);
-    PageResponse<Contract> getContractByStatus(ContractStatus status, UserPrincipal currentUser, int page, int size, String sortBy, String sortDir);
-    PageResponse<Contract> getOrders(UserPrincipal currentUser, int page, int size, String sortBy, String sortDir);
-    PageResponse<Contract> getContracts(UserPrincipal currentUser, int page, int size, String sortBy, String sortDir);
+    List<Contract> getContractByStatus(ContractStatus status, UserPrincipal currentUser);
+    List<Contract> getOrders(UserPrincipal currentUser);
+    List<Contract> getContracts(UserPrincipal currentUser);
 }

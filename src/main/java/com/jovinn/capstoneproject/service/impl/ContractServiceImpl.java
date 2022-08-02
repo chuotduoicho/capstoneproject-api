@@ -520,26 +520,25 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public PageResponse<Contract> getContractByStatus(ContractStatus status, UserPrincipal currentUser,
-                                              int page, int size, String sortBy, String sortDir) {
+    public List<Contract> getContractByStatus(ContractStatus status, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
-        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+        //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
 
         if(buyer.getUser().getSeller() == null) {
-            Page<Contract> contracts = contractRepository.findAllByContractStatusAndBuyerId(status, buyer.getId(), pageable);
-            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
-            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
-                    contracts.getTotalPages(), contracts.isLast());
-            //return contractRepository.findAllByContractStatusAndBuyerId(status, buyer.getId(), pageable);
+//            Page<Contract> contracts = contractRepository.findAllByContractStatusAndBuyerId(status, buyer.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
+            return contractRepository.findAllByContractStatusAndBuyerId(status, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                     .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
-            Page<Contract> contracts = contractRepository.findAllByContractStatusAndSellerIdOrBuyerId(status, seller.getId(), buyer.getId(), pageable);
-            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
-            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
-                    contracts.getTotalPages(), contracts.isLast());
-            //return contractRepository.findAllByContractStatusAndSellerIdOrBuyerId(status, seller.getId(), buyer.getId(), pageable);
+//            Page<Contract> contracts = contractRepository.findAllByContractStatusAndSellerIdOrBuyerId(status, seller.getId(), buyer.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
+            return contractRepository.findAllByContractStatusAndSellerIdOrBuyerId(status, seller.getId(), buyer.getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -547,49 +546,49 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public PageResponse<Contract> getOrders(UserPrincipal currentUser, int page, int size, String sortBy, String sortDir) {
+    public List<Contract> getOrders(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
-        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+        //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
 
         if(buyer.getUser().getSeller() == null) {
-            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.PENDING, buyer.getId(), pageable);
-            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
-            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
-                    contracts.getTotalPages(), contracts.isLast());
-            //return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.PENDING, buyer.getId(), pageable);
+//            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.PENDING, buyer.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
+            return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.PENDING, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                     .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
-            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.PENDING, buyer.getId(), seller.getId(), pageable);
-            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
-            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
-                    contracts.getTotalPages(), contracts.isLast());
-            //return contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.PENDING, buyer.getId(), seller.getId(), pageable);
+//            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.PENDING, buyer.getId(), seller.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
+            return contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.PENDING, buyer.getId(), seller.getId());
         }
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }
 
     @Override
-    public PageResponse<Contract> getContracts(UserPrincipal currentUser, int page, int size, String sortBy, String sortDir) {
+    public List<Contract> getContracts(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
-        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+        //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
         if(buyer.getUser().getSeller() == null) {
-            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.TO_CONTRACT, buyer.getId(), pageable);
-            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
-            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
-                    contracts.getTotalPages(), contracts.isLast());
-            //return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.TO_CONTRACT, buyer.getId());
+//            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.TO_CONTRACT, buyer.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
+            return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.TO_CONTRACT, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                     .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
-            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.TO_CONTRACT, buyer.getId(), seller.getId(), pageable);
-            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
-            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
-                    contracts.getTotalPages(), contracts.isLast());
-            //return contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.TO_CONTRACT, buyer.getId(), seller.getId());
+//            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.TO_CONTRACT, buyer.getId(), seller.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
+            return contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.TO_CONTRACT, buyer.getId(), seller.getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");

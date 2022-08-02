@@ -11,6 +11,6 @@ import java.util.UUID;
 
 @Repository
 public interface RatingRepository extends JpaRepository<Rating, UUID> {
-    Page<Rating> findAllBySellerId(UUID sellerId, Pageable pageable);
-    Page<Rating> findAllByContractId(UUID contractId, Pageable pageable);
+    List<Rating> findAllBySellerId(UUID sellerId);
+    List<Rating> findAllByContractId(UUID contractId);
 }

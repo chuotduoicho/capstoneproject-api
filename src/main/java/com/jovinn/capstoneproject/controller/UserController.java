@@ -90,16 +90,9 @@ public class UserController {
     }
 
     @GetMapping("/list-offer/{postRequestId}")
-    public ResponseEntity<PageResponse<OfferRequest>> getOfferRequests(@PathVariable("postRequestId") UUID postRequestId, @CurrentUser UserPrincipal currentUser,
-                                                       @RequestParam(name = "page", required = false,
-                                                       defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
-                                                       @RequestParam(name = "size", required = false,
-                                                       defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
-                                                       @RequestParam(value = "sortBy",
-                                                       defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
-                                                       @RequestParam(value = "sortDir",
-                                                       defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
-        PageResponse<OfferRequest> response = offerRequestService.getAllOffersByPostRequest(postRequestId, currentUser, page, size, sortBy, sortDir);
+    public ResponseEntity<List<OfferRequest>> getOfferRequests(@PathVariable("postRequestId") UUID postRequestId,
+                                                                       @CurrentUser UserPrincipal currentUser) {
+        List<OfferRequest> response = offerRequestService.getAllOffersByPostRequest(postRequestId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
         //return offerRequestService.getAllOffersByPostRequest(postRequestId, currentUser);
     }

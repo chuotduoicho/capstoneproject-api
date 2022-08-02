@@ -15,7 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/box")
@@ -48,12 +50,10 @@ public class BoxController {
 
     //Api get Service By Seller Id
     @GetMapping("/list-service-by-sellerId/{sellerId}")
-    public ResponseEntity<PageResponse<BoxResponse>> getBoxServiceBySellerId(@PathVariable UUID sellerId,
-                                                @RequestParam(name = "page", required = false,
-                                                        defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
-                                                @RequestParam(name = "size", required = false,
-                                                        defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size){
-        PageResponse<BoxResponse> response = boxService.getListServiceBySellerId(sellerId, page, size);
+    public ResponseEntity<List<BoxResponse>> getBoxServiceBySellerId(@PathVariable UUID sellerId){
+        List<BoxResponse> response = boxService.getListServiceBySellerId(sellerId).stream()
+                .map(box -> modelMapper.map(box, BoxResponse.class))
+                .collect(Collectors.toList());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -64,16 +64,12 @@ public class BoxController {
 //    }
 
     @GetMapping("/box-services")
-    public ResponseEntity<PageResponse<BoxResponse>> getAllPosts(@RequestParam(name = "page", required = false,
-                                                    defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
-                                         @RequestParam(name = "size", required = false,
-                                                    defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
-                                         @RequestParam(value = "sortBy",
-                                                    defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
-                                         @RequestParam(value = "sortDir",
-                                                    defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
-        PageResponse<BoxResponse> response = boxService.getAllService(page, size, sortBy, sortDir);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<List<BoxResponse>> getAllPosts() {
+        List<BoxResponse> responses = boxService.getAllService().stream()
+                .map(box -> modelMapper.map(box, BoxResponse.class))
+                .collect(Collectors.toList());
+//        BoxResponse response = boxService.getAllService();
+        return new ResponseEntity<>(responses, HttpStatus.OK);
 //        return boxService.getAllService(page, size, sortBy, sortDir).stream().map(box -> modelMapper.map(box, BoxResponse.class))
 //                .collect(Collectors.toList());
     }
@@ -85,16 +81,10 @@ public class BoxController {
     }
 
     @GetMapping("/list-services-by-cat/{catId}")
-    public ResponseEntity<PageResponse<BoxResponse>> getAllServiceByCategoryId(@PathVariable("catId") UUID catId,
-                                                       @RequestParam(name = "page", required = false,
-                                                               defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
-                                                       @RequestParam(name = "size", required = false,
-                                                               defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
-                                                       @RequestParam(value = "sortBy",
-                                                               defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
-                                                       @RequestParam(value = "sortDir",
-                                                               defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
-        PageResponse<BoxResponse> response = boxService.getAllServiceByCategoryID(catId, page, size, sortBy, sortDir);
+    public ResponseEntity<List<BoxResponse>> getAllServiceByCategoryId(@PathVariable("catId") UUID catId) {
+        List<BoxResponse> response = boxService.getAllServiceByCategoryID(catId).stream()
+                .map(box -> modelMapper.map(box, BoxResponse.class))
+                .collect(Collectors.toList());
         return new ResponseEntity<>(response, HttpStatus.OK);
 //        return boxService.getAllServiceByCategoryID(catId).stream().map(box -> modelMapper.map(box, BoxResponse.class))
 //                .collect(Collectors.toList());

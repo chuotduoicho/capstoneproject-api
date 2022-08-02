@@ -8,6 +8,7 @@ import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface BoxService {
@@ -23,16 +24,16 @@ public interface BoxService {
     Box updateStatus(UUID id);
 
     //View List Service Buy SellerId
-    PageResponse<BoxResponse> getListServiceBySellerId(UUID sellerId, int page, int size);
+    List<Box> getListServiceBySellerId(UUID sellerId);
 
     //View All Service
-    PageResponse<BoxResponse> getAllService(int page, int size, String sortBy, String sortDir);
+    List<Box> getAllService();
 
     //Get Service By id
     BoxResponse getServiceByID(UUID id);
 
     //Get Service By Category ID
-    PageResponse<BoxResponse> getAllServiceByCategoryID(UUID categoryId, int page, int size, String sortBy, String sortDir);
+    List<Box> getAllServiceByCategoryID(UUID categoryId);
 
     //Get Service By Category ID Pagination
     Page<Box> getAllServiceByCatIdPagination(int offset, UUID categoryId);

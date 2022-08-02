@@ -2,7 +2,6 @@ package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

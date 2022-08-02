@@ -77,26 +77,14 @@ public class SellerController {
     }
 
     @GetMapping("/rating/{sellerId}")
-    public ResponseEntity<PageResponse<Rating>> getRatingsBySeller(@PathVariable("sellerId") UUID sellerId,
-                                                                  @RequestParam(name = "page", required = false,
-                                                                        defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
-                                                                  @RequestParam(name = "size", required = false,
-                                                                        defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size){
-        PageResponse<Rating> response = ratingService.getRatingsForSeller(sellerId, page, size);
+    public ResponseEntity<List<Rating>> getRatingsBySeller(@PathVariable("sellerId") UUID sellerId) {
+        List<Rating> response = ratingService.getRatingsForSeller(sellerId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/list-offer")
-    public ResponseEntity<PageResponse<OfferRequest>> getOfferRequests(@CurrentUser UserPrincipal currentUser,
-                                               @RequestParam(name = "page", required = false,
-                                                       defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
-                                               @RequestParam(name = "size", required = false,
-                                                       defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
-                                               @RequestParam(value = "sortBy",
-                                                       defaultValue = WebConstant.DEFAULT_SORT_BY, required = false) String sortBy,
-                                               @RequestParam(value = "sortDir",
-                                                       defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
-        PageResponse<OfferRequest> response = offerRequestService.getOffers(currentUser, page, size, sortBy, sortDir);
+    public ResponseEntity<List<OfferRequest>> getOfferRequests(@CurrentUser UserPrincipal currentUser) {
+        List<OfferRequest> response = offerRequestService.getOffers(currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
         //return offerRequestService.getOffers(currentUser);
     }
