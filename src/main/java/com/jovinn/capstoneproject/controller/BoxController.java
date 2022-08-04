@@ -1,7 +1,7 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.BoxResponse;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.BoxResponse;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
@@ -48,8 +48,11 @@ public class BoxController {
 
     //Api get Service By Seller Id
     @GetMapping("/list-service-by-sellerId/{sellerId}")
-    public List<Box> getBoxServiceBySellerId(@PathVariable UUID sellerId){
-        return boxService.getListServiceBySellerId(sellerId);
+    public ResponseEntity<List<BoxResponse>> getBoxServiceBySellerId(@PathVariable UUID sellerId){
+        List<BoxResponse> response = boxService.getListServiceBySellerId(sellerId).stream()
+                .map(box -> modelMapper.map(box, BoxResponse.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //Api get all Service
@@ -59,20 +62,30 @@ public class BoxController {
 //    }
 
     @GetMapping("/box-services")
-    public List<BoxResponse> getAllPosts() {
-        return boxService.getAllService().stream().map(box -> modelMapper.map(box, BoxResponse.class))
+    public ResponseEntity<List<BoxResponse>> getAllPosts() {
+        List<BoxResponse> responses = boxService.getAllService().stream()
+                .map(box -> modelMapper.map(box, BoxResponse.class))
                 .collect(Collectors.toList());
+//        BoxResponse response = boxService.getAllService();
+        return new ResponseEntity<>(responses, HttpStatus.OK);
+//        return boxService.getAllService(page, size, sortBy, sortDir).stream().map(box -> modelMapper.map(box, BoxResponse.class))
+//                .collect(Collectors.toList());
     }
     //Api view detail Service
     @GetMapping("/box-details/{id}")
-    public Box getServiceById(@PathVariable UUID id){
-        return boxService.getServiceByID(id);
+    public ResponseEntity<BoxResponse> getServiceById(@PathVariable UUID id){
+        BoxResponse response = boxService.getServiceByID(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/list-services-by-cat/{catId}")
-    public List<BoxResponse> getAllServiceByCategoryId(@PathVariable("catId") UUID catId){
-        return boxService.getAllServiceByCategoryID(catId).stream().map(box -> modelMapper.map(box, BoxResponse.class))
+    public ResponseEntity<List<BoxResponse>> getAllServiceByCategoryId(@PathVariable("catId") UUID catId) {
+        List<BoxResponse> response = boxService.getAllServiceByCategoryID(catId).stream()
+                .map(box -> modelMapper.map(box, BoxResponse.class))
                 .collect(Collectors.toList());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+//        return boxService.getAllServiceByCategoryID(catId).stream().map(box -> modelMapper.map(box, BoxResponse.class))
+//                .collect(Collectors.toList());
     }
 
     @GetMapping("/paginate-list-services-by-cat/{catId}/{page}")

@@ -1,7 +1,7 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.request.PackageRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.request.PackageRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;

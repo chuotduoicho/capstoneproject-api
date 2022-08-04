@@ -1,25 +1,19 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.request.OfferRequestRequest;
-import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
-import com.jovinn.capstoneproject.dto.response.OfferRequestResponse;
-import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
-import com.jovinn.capstoneproject.model.PostRequest;
+import com.jovinn.capstoneproject.dto.client.request.OfferRequestRequest;
+import com.jovinn.capstoneproject.dto.client.request.PostRequestRequest;
+import com.jovinn.capstoneproject.dto.client.request.TargetSellerRequest;
+import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.OfferRequestService;
 import com.jovinn.capstoneproject.service.PostRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
 import javax.validation.Valid;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,7 +28,7 @@ public class PostRequestController {
 
     @PostMapping("/addPostRequest")
     public ResponseEntity<ApiResponse> addPostRequestByBuyer(@Valid @RequestBody PostRequestRequest postRequest,
-                                                            @CurrentUser UserPrincipal currentUser){
+                                                             @CurrentUser UserPrincipal currentUser){
         ApiResponse apiResponse =  postRequestService.addPostRequest(postRequest,currentUser);
         return new ResponseEntity< >(apiResponse, HttpStatus.CREATED);
     }
@@ -50,9 +44,11 @@ public class PostRequestController {
         ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    @GetMapping("/getPostRequestByCategoryId/{id}")
-    public List<PostRequestResponse> getPostRequestByCategoryId(@PathVariable UUID id){
-        return postRequestService.getPostRequestByCategoryId(id);
+    @GetMapping("/getPostRequestByCategoryId/{catId}")
+    public ResponseEntity<List<PostRequestResponse>> getPostRequestByCategoryId(@PathVariable("catId") UUID catId) {
+        List<PostRequestResponse> response = postRequestService.getPostRequestByCategoryId(catId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+        //return postRequestService.getPostRequestByCategoryId(id);
     }
 
     @GetMapping("/getPostRequestDetails/{postRequestId}")
@@ -87,14 +83,19 @@ public class PostRequestController {
         return new ResponseEntity<>(response,HttpStatus.CREATED);
     }
 
-    @GetMapping("/getListSellerApply/{postRequestId}")
-    public  ResponseEntity<ListSellerApplyPostRequestResponse> getListSellerApply(@PathVariable UUID postRequestId, @CurrentUser UserPrincipal currentUser){
-        ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId,currentUser);
-        return new ResponseEntity<>(response,HttpStatus.CREATED);
+    @PostMapping("/get-ten-seller-target")
+    public ResponseEntity<List<ListSellerTargetPostRequestResponse>> getTenSellerTarget(@RequestBody TargetSellerRequest request) {
+        List<ListSellerTargetPostRequestResponse> responses = postRequestService.getTargetSeller(request);
+        return new ResponseEntity<>(responses, HttpStatus.OK);
     }
-
     @GetMapping("/getAllPostRequest")
     public List<PostRequestResponse> getAllPostRequest(){
         return postRequestService.getAllPostRequest();
     }
+//    @GetMapping("/getListSellerApply/{postRequestId}")
+//    public  ResponseEntity<ListSellerApplyPostRequestResponse> getListSellerApply(@PathVariable UUID postRequestId, @CurrentUser UserPrincipal currentUser){
+//        ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId,currentUser);
+//        return new ResponseEntity<>(response,HttpStatus.CREATED);
+
+//    }
 }

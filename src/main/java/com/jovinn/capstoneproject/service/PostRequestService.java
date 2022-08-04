@@ -1,12 +1,13 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
-import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
-import com.jovinn.capstoneproject.model.PostRequest;
+import com.jovinn.capstoneproject.dto.adminsite.CountPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.request.PostRequestRequest;
+import com.jovinn.capstoneproject.dto.client.request.TargetSellerRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ListSellerApplyPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.response.ListSellerTargetPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.response.PostRequestResponse;
 import com.jovinn.capstoneproject.security.UserPrincipal;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +26,8 @@ public interface PostRequestService {
     //Buyer view their request list created
     List<PostRequestResponse> getPostRequestByBuyerCreated(UserPrincipal currentUser);
 
+    List<ListSellerTargetPostRequestResponse> getTargetSeller(TargetSellerRequest request);
+
     //View list post request by category id
     List<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId);
 
@@ -37,4 +40,6 @@ public interface PostRequestService {
     ListSellerApplyPostRequestResponse getListSellerApply(UUID postRequestId, UserPrincipal currentUser);
 
     List<PostRequestResponse> getAllPostRequest();
+
+    CountPostRequestResponse countTotalPostRequestByCatId(UUID catId);
 }

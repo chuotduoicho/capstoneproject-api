@@ -2,9 +2,10 @@ package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.config.payment.PaypalPaymentIntent;
 import com.jovinn.capstoneproject.config.payment.PaypalPaymentMethod;
-import com.jovinn.capstoneproject.dto.request.WalletRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.TransactionResponse;
+import com.jovinn.capstoneproject.dto.client.request.WalletRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.TransactionResponse;
+import com.jovinn.capstoneproject.dto.client.response.WalletResponse;
 import com.jovinn.capstoneproject.enumerable.PaymentConfirmStatus;
 import com.jovinn.capstoneproject.enumerable.TransactionType;
 import com.jovinn.capstoneproject.exception.ApiException;
@@ -22,11 +23,6 @@ import com.jovinn.capstoneproject.service.payment.PaymentService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -54,13 +50,13 @@ public class WalletServiceImpl implements WalletService {
                 try {
                     Payment payment = paymentService.createPayment(request.getCharge(), request.getCurrency(),
                             PaypalPaymentMethod.PAYPAL, PaypalPaymentIntent.SALE, "BUY " + request.getCharge() + " JCOIN",
-                            "http://localhost:8080/api/v1/payment/cancel",  "http://localhost:8080/api/v1/payment/success");
+                            "http://localhost:8080/api/v1/payment/cancel",  "http://localhost:3000/buyerhome/manageWallet");
                     System.out.println(payment.toJSON());
                     wallet.setConfirmPayStatus(PaymentConfirmStatus.READY);
                     walletRepository.save(wallet);
                     for(Links link:payment.getLinks()) {
                         if (link.getRel().equals("approval_url")) {
-                            return "redirect:" + link.getHref();
+                            return link.getHref();
                         }
                     }
                 } catch (PayPalRESTException e) {
@@ -76,9 +72,10 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public Wallet getWallet(UserPrincipal currentUser) {
-        if (currentUser.getId() != null) {
-            return walletRepository.findWalletByUserId(currentUser.getId());
+    public WalletResponse getWallet(UserPrincipal currentUser) {
+        Wallet wallet = walletRepository.findWalletByUserId(currentUser.getId());
+        if (wallet.getUser().getId().equals(currentUser.getId())) {
+            return new WalletResponse(wallet.getId(), wallet.getIncome(), wallet.getWithdraw(), wallet.getTransactions());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");

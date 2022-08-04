@@ -52,6 +52,7 @@ public class PaymentService {
         redirectUrls.setCancelUrl(cancelUrl);
         redirectUrls.setReturnUrl(successUrl);
         payment.setRedirectUrls(redirectUrls);
+        apiContext.setMaskRequestId(true);
 
         return payment.create(apiContext);
     }

@@ -1,7 +1,7 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.request.RatingRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.request.RatingRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
@@ -15,7 +15,6 @@ import com.jovinn.capstoneproject.repository.RatingRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.RatingService;
-import com.jovinn.capstoneproject.util.ValidInputRating;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -64,11 +63,20 @@ public class RatingServiceImpl implements RatingService {
     @Override
     public List<Rating> getRatingsForSeller(UUID sellerId) {
         return ratingRepository.findAllBySellerId(sellerId);
+//        Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
+//        Page<Rating> ratings = ratingRepository.findAllBySellerId(sellerId, pageable);
+//        List<Rating> content = ratings.getNumberOfElements() == 0 ? Collections.emptyList() : ratings.getContent();
+//        return new PageResponse<>(content, ratings.getNumber(), ratings.getSize(), ratings.getTotalElements(),
+//                ratings.getTotalPages(), ratings.isLast());
     }
 
     @Override
     public List<Rating> getRatingsForContract(UUID contractId) {
-        ratingRepository.findAllByContractId(contractId);
         return ratingRepository.findAllByContractId(contractId);
+//        Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
+//        Page<Rating> ratings = ratingRepository.findAllByContractId(contractId, pageable);
+//        List<Rating> content = ratings.getNumberOfElements() == 0 ? Collections.emptyList() : ratings.getContent();
+//        return new PageResponse<>(content, ratings.getNumber(), ratings.getSize(), ratings.getTotalElements(),
+//                ratings.getTotalPages(), ratings.isLast());
     }
 }

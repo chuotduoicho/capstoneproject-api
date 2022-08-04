@@ -1,8 +1,8 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.request.OfferRequestRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.OfferRequestResponse;
+import com.jovinn.capstoneproject.dto.client.request.OfferRequestRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.OfferRequestResponse;
 import com.jovinn.capstoneproject.enumerable.OfferRequestStatus;
 import com.jovinn.capstoneproject.enumerable.OfferType;
 import com.jovinn.capstoneproject.exception.ApiException;
@@ -98,8 +98,14 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     public List<OfferRequest> getOffers(UserPrincipal currentUser) {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy seller"));
+        //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+
         //List<OfferRequest> offerRequest = offerRequestRepository.findAllBySellerId(seller.getId());
         if(seller.getUser().getId().equals(currentUser.getId())) {
+//            Page<OfferRequest> offerRequests = offerRequestRepository.findAllBySellerId(seller.getId(), pageable);
+//            List<OfferRequest> content = offerRequests.getNumberOfElements()  == 0 ? Collections.emptyList() : offerRequests.getContent();
+//            return new PageResponse<>(content, offerRequests.getNumber(), offerRequests.getSize(), offerRequests.getTotalElements(),
+//                    offerRequests.getTotalPages(), offerRequests.isLast());
             return offerRequestRepository.findAllBySellerId(seller.getId());
         }
 
@@ -111,7 +117,13 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     public List<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tim thấy post"));
+        //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+
         if(postRequest.getUser().getId().equals(currentUser.getId())) {
+//            Page<OfferRequest> offerRequests = offerRequestRepository.findAllByPostRequestId(postRequest.getId(), pageable);
+//            List<OfferRequest> content = offerRequests.getNumberOfElements()  == 0 ? Collections.emptyList() : offerRequests.getContent();
+//            return new PageResponse<>(content, offerRequests.getNumber(), offerRequests.getSize(), offerRequests.getTotalElements(),
+//                    offerRequests.getTotalPages(), offerRequests.isLast());
             return offerRequestRepository.findAllByPostRequestId(postRequest.getId());
         }
 

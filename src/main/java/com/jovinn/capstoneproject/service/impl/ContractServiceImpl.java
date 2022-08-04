@@ -1,8 +1,11 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.request.ContractRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ContractResponse;
+import com.jovinn.capstoneproject.dto.adminsite.AdminViewContractsResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountContractResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountTotalRevenueResponse;
+import com.jovinn.capstoneproject.dto.client.request.ContractRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ContractResponse;
 import com.jovinn.capstoneproject.enumerable.*;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
@@ -25,10 +28,7 @@ import javax.mail.MessagingException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.jovinn.capstoneproject.util.GenerateRandom.getRandomContractNumber;
 
@@ -94,7 +94,7 @@ public class ContractServiceImpl implements ContractService {
                 Contract contract = new Contract(request.getPackageId(), contractCode,
                         request.getRequirement(), request.getQuantity(), contractCancelFee,
                         serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
-                        null, OrderStatus.PENDING,null, ContractType.SERVICE, buyer, seller);
+                        null, OrderStatus.PENDING,null, ContractType.SERVICE, buyer, seller, Boolean.FALSE);
                 Contract newContract = contractRepository.save(contract);
 
                 String linkOrderForSeller = WebConstant.DOMAIN + "/dashboard/" + seller.getBrandName() + "/order/" + newContract.getId();
@@ -412,7 +412,7 @@ public class ContractServiceImpl implements ContractService {
                             postRequest.getShortRequirement(), 1, offerRequest.getCancelFee(),
                             serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
                             DeliveryStatus.PENDING, OrderStatus.TO_CONTRACT, ContractStatus.PROCESSING,
-                            ContractType.REQUEST, buyer, seller);
+                            ContractType.REQUEST, buyer, seller, Boolean.FALSE);
                     if (postRequest.getMilestoneContracts() != null) {
                         List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(postRequest.getId());
                         for(MilestoneContract milestoneContract : milestoneContracts) {
@@ -472,7 +472,7 @@ public class ContractServiceImpl implements ContractService {
                         postRequest.getShortRequirement(), 1, postRequest.getContractCancelFee(),
                         serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
                         DeliveryStatus.PENDING, OrderStatus.TO_CONTRACT, ContractStatus.PROCESSING,
-                        ContractType.REQUEST, buyer, seller);
+                        ContractType.REQUEST, buyer, seller, Boolean.FALSE);
                 if (postRequest.getMilestoneContracts() != null) {
                     List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(postRequest.getId());
                     for(MilestoneContract milestoneContract : milestoneContracts) {
@@ -505,9 +505,54 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
+    public ApiResponse flagNotAcceptDelivery(UUID contractId, UserPrincipal currentUser) {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
+        boolean checkAllFinish = Boolean.FALSE;
+        if(contract.getBuyer().getId().equals(currentUser.getId())) {
+            if(contract.getPostRequest().getMilestoneContracts() != null) {
+                List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(contract.getPostRequest().getId());
+                for(MilestoneContract milestoneContract : milestoneContracts) {
+                    if(milestoneContract.getStatus().equals(MilestoneStatus.COMPLETE)) {
+                        checkAllFinish = Boolean.TRUE;
+                    } else {
+                        checkAllFinish = Boolean.FALSE;
+                        break;
+                    }
+                }
+
+                if(!checkAllFinish) {
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể đánh cờ do chưa hoàn thành hết các bàn giao");
+                }
+            }
+
+            Delivery delivery = deliveryRepository.findByContractId(contractId);
+            if(delivery == null || !checkAllFinish) {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể cắm cờ vì chưa có bàn giao tải lên từ phía người bán" +
+                                                                " hoặc các giai đoạn chưa được hoàn thành");
+            } else {
+                Date autoCompleteExpectDate = dateDelivery.expectDate(delivery.getCreateAt().getDay(), 3);
+                if(contract.getDeliveryStatus().equals(DeliveryStatus.SENDING) &&
+                        contract.getContractStatus().equals(ContractStatus.PROCESSING) &&
+                        autoCompleteExpectDate.compareTo(new Date()) < 0) {
+                    contract.setFlag(Boolean.TRUE);
+                    contractRepository.save(contract);
+                    return new ApiResponse(Boolean.TRUE, "Bạn đã đặt cờ từ chối bàn giao thành công");
+                } else {
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn không thể đặt cờ từ chối bàn giao tự động " +
+                            "do đã hệ thống đã chấp nhận tự động hoặc đã hoàn thành hợp đồng này ");
+                }
+            }
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
     public Contract getContractById(UUID id, UserPrincipal currentUser) {
         Contract contract = contractRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Contract", "Contract not found ", id));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         if (contract.getBuyer().getUser().getId().equals(currentUser.getId())
             || contract.getSeller().getUser().getId().equals(currentUser.getId())) {
             return contract;
@@ -520,11 +565,21 @@ public class ContractServiceImpl implements ContractService {
     public List<Contract> getContractByStatus(ContractStatus status, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
+        //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+
         if(buyer.getUser().getSeller() == null) {
+//            Page<Contract> contracts = contractRepository.findAllByContractStatusAndBuyerId(status, buyer.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
             return contractRepository.findAllByContractStatusAndBuyerId(status, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                     .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+//            Page<Contract> contracts = contractRepository.findAllByContractStatusAndSellerIdOrBuyerId(status, seller.getId(), buyer.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
             return contractRepository.findAllByContractStatusAndSellerIdOrBuyerId(status, seller.getId(), buyer.getId());
         }
 
@@ -536,12 +591,21 @@ public class ContractServiceImpl implements ContractService {
     public List<Contract> getOrders(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
+        //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
 
         if(buyer.getUser().getSeller() == null) {
+//            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.PENDING, buyer.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
             return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.PENDING, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                     .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+//            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.PENDING, buyer.getId(), seller.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
             return contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.PENDING, buyer.getId(), seller.getId());
         }
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -552,17 +616,75 @@ public class ContractServiceImpl implements ContractService {
     public List<Contract> getContracts(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
-
+        //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
         if(buyer.getUser().getSeller() == null) {
+//            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.TO_CONTRACT, buyer.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
             return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.TO_CONTRACT, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                     .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+//            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.TO_CONTRACT, buyer.getId(), seller.getId(), pageable);
+//            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
+//            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
+//                    contracts.getTotalPages(), contracts.isLast());
             return contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.TO_CONTRACT, buyer.getId(), seller.getId());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public ApiResponse autoCheckCompleteContract() {
+        List<Contract>  contracts = contractRepository.findAllByContractStatus(ContractStatus.PROCESSING);
+        List<Contract> list = new ArrayList<>();
+        for(Contract contract : contracts) {
+            Delivery delivery = deliveryRepository.findByContractId(contract.getId());
+            if(delivery != null) {
+                Date autoCompleteExpectDate = dateDelivery.expectDate(delivery.getCreateAt().getDay(), 3);
+                if(contract.getDeliveryStatus().equals(DeliveryStatus.SENDING) &&
+                        autoCompleteExpectDate.compareTo(new Date()) > 0) {
+                    contract.setContractStatus(ContractStatus.COMPLETE);
+                    contractRepository.save(contract);
+                    list.add(contract);
+                }
+            }
+        }
+        return new ApiResponse(Boolean.TRUE, "Đã thay đổi trạng thái của " + list.size() + " hợp đồng");
+    }
+
+    @Override
+    public CountTotalRevenueResponse getTotalRevenue() {
+//        List<Contract> contracts = contractRepository.findAllByContractStatus(ContractStatus.COMPLETE);
+//        BigDecimal totalRevenue = new BigDecimal(0);
+//        BigDecimal number = new BigDecimal(0.1);
+//        for (Contract contract:contracts){
+//            totalRevenue.add(contract.getTotalPrice());
+//        }
+        return new CountTotalRevenueResponse(contractRepository.countTotalRevenue());
+    }
+
+    @Override
+    public CountContractResponse countTotalContractByCatId(UUID catId) {
+        return new CountContractResponse(contractRepository.countContractByPostRequest_Category_Id(catId));
+    }
+
+    @Override
+    public List<AdminViewContractsResponse> getContractsByCategoryId(UUID catId) {
+        List<Contract> contracts = contractRepository.findAllByPostRequest_Category_Id(catId);
+        List<AdminViewContractsResponse> contractResponses = new ArrayList<>();
+        for (Contract newContract:
+             contracts) {
+            contractResponses.add(new AdminViewContractsResponse(newContract.getContractCode(),
+                    newContract.getPostRequest().getUser().getUsername(),
+                    newContract.getPostRequest().getUser().getFirstName()+" "+
+                            newContract.getPostRequest().getUser().getLastName(),newContract.getTotalPrice(),
+                    newContract.getCreateAt()));
+        }
+        return contractResponses;
     }
 
     private ContractResponse getUpdateResponse(Contract contract, DeliveryStatus deliveryStatus,

@@ -1,8 +1,8 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.request.EducationRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.EducationResponse;
+import com.jovinn.capstoneproject.dto.client.request.EducationRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.EducationResponse;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
 import java.util.UUID;

@@ -1,20 +1,22 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
-import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.request.PostRequestRequest;
+import com.jovinn.capstoneproject.dto.client.request.TargetSellerRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ListSellerApplyPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.response.ListSellerTargetPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.response.PostRequestResponse;
 import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.security.UserPrincipal;
-import com.jovinn.capstoneproject.service.MilestoneContractService;
-import com.jovinn.capstoneproject.service.NotificationService;
-import com.jovinn.capstoneproject.service.PostRequestService;
-import com.jovinn.capstoneproject.service.UserService;
+import com.jovinn.capstoneproject.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -38,16 +40,14 @@ public class PostRequestServiceImpl implements PostRequestService {
     private SkillRepository skillRepository;
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private  SellerRepository sellerRepository;
-
+    @Autowired
+    private BoxRepository boxRepository;
     @Autowired
     private MilestoneContractService milestoneContractService;
-
     @Autowired
     private NotificationService notificationService;
-
     @Autowired
     private UserService userService;
 
@@ -146,33 +146,58 @@ public class PostRequestServiceImpl implements PostRequestService {
     public List<PostRequestResponse> getPostRequestByBuyerCreated(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
-        List<PostRequest> postRequest ;
+        List<PostRequest> postRequests;
        // PostRequestResponse postRequestResponse;
         List<PostRequestResponse> postRequestResponses = new ArrayList<>();
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
                 buyer.getUser().getIsEnabled().equals(Boolean.TRUE)) {
-            postRequest = postRequestRepository.findAllByUser_Id(currentUser.getId());
-            for (PostRequest postRequest1 : postRequest) {
-                postRequestResponses.add(new PostRequestResponse(postRequest1.getId(), postRequest1.getCategory().getId(), postRequest1.getSubCategory().getId(),
-                        postRequest1.getRecruitLevel(), postRequest1.getSkills(), postRequest1.getJobTitle(), postRequest1.getShortRequirement(),
-                        postRequest1.getAttachFile(), postRequest1.getMilestoneContracts(), postRequest1.getContractCancelFee(), postRequest1.getBudget(),
-                        userService.getListUserInvitedByPostRequestId(postRequest1.getId())));
+            postRequests = postRequestRepository.findAllByUser_Id(currentUser.getId());
+            for (PostRequest postRequest : postRequests) {
+                postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(), postRequest.getSubCategory().getId(),
+                        postRequest.getRecruitLevel(), postRequest.getSkills(), postRequest.getJobTitle(), postRequest.getShortRequirement(),
+                        postRequest.getAttachFile(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee(), postRequest.getBudget(),
+                        userService.getListUserInvitedByPostRequestId(postRequest.getId())));
             }
         }
         return postRequestResponses;
     }
 
     @Override
+    public List<ListSellerTargetPostRequestResponse> getTargetSeller(TargetSellerRequest request) {
+        List<String> boxes = boxRepository.getTenSellerBySubCategoryId(request.getSubCategoryId(), request.getRankSeller(),
+                                                                    request.getSkillName(), PageRequest.of(0,10));
+        List<ListSellerTargetPostRequestResponse> responses = new ArrayList<>();
+        for(String box : boxes) {
+            Seller seller = sellerRepository.findById(UUID.fromString(box))
+                    .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy seller"));
+            responses.add(new ListSellerTargetPostRequestResponse(seller.getUser().getId(), seller.getId(), seller.getUser().getAvatar(),
+                    seller.getUser().getLastName() + " " + seller.getUser().getFirstName(), seller.getBrandName(),
+                    seller.getTotalOrderFinish(), seller.getRatingPoint(), seller.getSkills().get(0).getName(),seller.getRankSeller()));
+        }
+        return responses;
+    }
+
+    @Override
     public List<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId) {
         List<PostRequestResponse> postRequestResponses = new ArrayList<>();
         List<PostRequest> postRequests = postRequestRepository.findAllByCategory_Id(categoryId);
-        for (PostRequest postRequest:postRequests){
+        //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+        //Page<PostRequest> postRequests = postRequestRepository.findAllByCategory_Id(categoryId, pageable);
+        //List<PostRequest> list = postRequests.getContent();
+
+        for (PostRequest postRequest : postRequests){
             postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
                     postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
                     postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
                     postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkills(),
                     postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
         }
+
+//        List<PostRequestResponse> content = list.stream().map(
+//                        postRequest -> modelMapper.map(postRequest, PostRequestResponse.class))
+//                        .collect(Collectors.toList());
+//        return new PageResponse<>(content, postRequests.getNumber(), postRequests.getSize(), postRequests.getTotalElements(),
+//                postRequests.getTotalPages(), postRequests.isLast());
         return postRequestResponses;
     }
 
@@ -217,11 +242,19 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public ListSellerApplyPostRequestResponse getListSellerApply(UUID postRequestId, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "NOT FOUND"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bài đăng"));
+        //Pageable pageable = Pagination.paginationCommon(page, size, "sellerId", sortDir);
 
 //        List<Seller> sellers = postRequest.getSellersApplyRequest();
         if (postRequest.getUser().getId().equals(currentUser.getId())) {
-            return new ListSellerApplyPostRequestResponse(postRequest.getId(),postRequest.getSellersApplyRequest());
+//            Page<Seller> sellers = sellerRepository.findAllByPostRequestsId(postRequestId, pageable);
+//            List<Seller> list = sellers.getContent();
+//            List<ListSellerApplyPostRequestResponse> content = list.stream().map(
+//                            sellerApplyPostRequest -> modelMapper.map(sellerApplyPostRequest, ListSellerApplyPostRequestResponse.class))
+//                            .collect(Collectors.toList());
+//            return new PageResponse<>(content, sellers.getNumber(), sellers.getSize(), sellers.getTotalElements(),
+//                    sellers.getTotalPages(), sellers.isLast());
+            return new ListSellerApplyPostRequestResponse(postRequest.getId(), postRequest.getSellersApplyRequest());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -240,5 +273,10 @@ public class PostRequestServiceImpl implements PostRequestService {
                     postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
         }
         return postRequestResponses;
+    }
+
+    @Override
+    public CountPostRequestResponse countTotalPostRequestByCatId(UUID catId) {
+        return new CountPostRequestResponse(postRequestRepository.countPostRequestByCategory_Id(catId));
     }
 }

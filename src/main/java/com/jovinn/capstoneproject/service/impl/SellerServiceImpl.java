@@ -1,6 +1,6 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.*;

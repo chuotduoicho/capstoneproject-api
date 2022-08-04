@@ -1,9 +1,9 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.request.DeliveryHaveMilestoneRequest;
-import com.jovinn.capstoneproject.dto.request.DeliveryNotMilestoneRequest;
-import com.jovinn.capstoneproject.dto.response.DeliveryHaveMilestoneResponse;
-import com.jovinn.capstoneproject.dto.response.DeliveryNotMilestoneResponse;
+import com.jovinn.capstoneproject.dto.client.request.DeliveryHaveMilestoneRequest;
+import com.jovinn.capstoneproject.dto.client.request.DeliveryNotMilestoneRequest;
+import com.jovinn.capstoneproject.dto.client.response.DeliveryHaveMilestoneResponse;
+import com.jovinn.capstoneproject.dto.client.response.DeliveryNotMilestoneResponse;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
 import java.util.UUID;

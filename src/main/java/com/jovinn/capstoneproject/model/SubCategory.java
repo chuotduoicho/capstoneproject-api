@@ -36,6 +36,11 @@ public class SubCategory extends  BaseEntity {
     @JsonBackReference
     Category category;
 
+    @OneToMany(mappedBy = "subCategory", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @PrimaryKeyJoinColumn
+    List<SkillMetaData> skillMetaData;
+
 //    @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @JsonManagedReference
 //    @PrimaryKeyJoinColumn

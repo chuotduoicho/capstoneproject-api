@@ -1,7 +1,7 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.google.api.services.drive.model.About;
-import com.jovinn.capstoneproject.dto.file.UploadFileResponse;
+import com.jovinn.capstoneproject.dto.client.file.UploadFileResponse;
 import com.jovinn.capstoneproject.enumerable.ImageType;
 import com.jovinn.capstoneproject.thirdapi.FileManagerService;
 import lombok.RequiredArgsConstructor;

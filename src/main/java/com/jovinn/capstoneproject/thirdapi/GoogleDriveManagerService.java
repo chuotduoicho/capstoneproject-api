@@ -4,7 +4,7 @@ import com.google.api.client.http.InputStreamContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.About;
 import com.google.api.services.drive.model.File;
-import com.jovinn.capstoneproject.dto.file.UploadFileResponse;
+import com.jovinn.capstoneproject.dto.client.file.UploadFileResponse;
 import com.jovinn.capstoneproject.enumerable.ImageType;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class GoogleDriveManagerService implements FileManagerService {
                     .setFields("id, webContentLink")
                     .execute();
             return UploadFileResponse.builder()
-                    .url(uploadFile.getWebContentLink())
+                    .url(uploadFile.getWebContentLink().replace("&export=download", ""))
                     .id(uploadFile.getId())
                     .build();
         } catch (Exception e) {

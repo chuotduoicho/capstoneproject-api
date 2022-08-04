@@ -1,14 +1,14 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
-import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
-import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
+import com.jovinn.capstoneproject.dto.client.request.ResetPasswordRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.WalletResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.OfferRequest;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
-import com.jovinn.capstoneproject.model.Wallet;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.OfferRequestService;
@@ -75,21 +75,24 @@ public class UserController {
     }
 
     @PostMapping("/join-selling")
-    public ResponseEntity<Seller> joinSelling(@RequestBody Seller seller,
-                                                   @CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<Seller> joinSelling(@Valid @RequestBody Seller seller,
+                                              @CurrentUser UserPrincipal currentUser) {
         Seller sellerInfo = sellerService.becomeSeller(seller, currentUser);
         return new ResponseEntity<>(sellerInfo, HttpStatus.CREATED);
     }
 
     @GetMapping("/wallet")
-    public ResponseEntity<Wallet> getWallet(@CurrentUser UserPrincipal currentUser) {
-        Wallet response = walletService.getWallet(currentUser);
+    public ResponseEntity<WalletResponse> getWallet(@CurrentUser UserPrincipal currentUser) {
+        WalletResponse response = walletService.getWallet(currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/list-offer/{postRequestId}")
-    public List<OfferRequest> getOfferRequests(@PathVariable("postRequestId") UUID postRequestId, @CurrentUser UserPrincipal currentUser) {
-        return offerRequestService.getAllOffersByPostRequest(postRequestId, currentUser);
+    public ResponseEntity<List<OfferRequest>> getOfferRequests(@PathVariable("postRequestId") UUID postRequestId,
+                                                                       @CurrentUser UserPrincipal currentUser) {
+        List<OfferRequest> response = offerRequestService.getAllOffersByPostRequest(postRequestId, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+        //return offerRequestService.getAllOffersByPostRequest(postRequestId, currentUser);
     }
 
     @PostMapping("/reset-password")

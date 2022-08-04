@@ -1,6 +1,8 @@
 package com.jovinn.capstoneproject.repository;
 
 import com.jovinn.capstoneproject.model.PostRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +18,6 @@ public interface PostRequestRepository extends JpaRepository<PostRequest, UUID> 
     Optional<PostRequest> findById(UUID uuid);
     PostRequest findPostRequestById(UUID postRequestId);
     Integer countPostRequestByUser_Id(UUID UserId);
+
+    Long countPostRequestByCategory_Id(UUID catId);
 }

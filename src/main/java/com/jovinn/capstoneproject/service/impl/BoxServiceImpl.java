@@ -1,32 +1,26 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.request.PackageRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.BoxResponse;
-import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
-import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.BoxResponse;
+import com.jovinn.capstoneproject.dto.adminsite.CountServiceResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Box;
-import com.jovinn.capstoneproject.model.Category;
-import com.jovinn.capstoneproject.model.Package;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.repository.BoxRepository;
-import com.jovinn.capstoneproject.repository.CategoryRepository;
 import com.jovinn.capstoneproject.repository.PackageRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -38,6 +32,8 @@ public class BoxServiceImpl implements BoxService {
     private PackageRepository packageRepository;
     @Autowired
     private SellerRepository sellerRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public ApiResponse saveBox(Box box, UserPrincipal currentUser) {
@@ -80,7 +76,11 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public Boolean deleteBox(UUID id) {
-        boxRepository.deleteById(id);
+        try {
+            boxRepository.deleteById(id);
+        } catch (Exception e){
+            return false;
+        }
         return true;
     }
 
@@ -92,23 +92,49 @@ public class BoxServiceImpl implements BoxService {
     //Dang loi :V
     @Override
     public List<Box> getListServiceBySellerId(UUID sellerId) {
-        return boxRepository.findAllById(sellerId);
+        return boxRepository.findAllBySellerId(sellerId);
+//        Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
+//        Page<Box> boxes = boxRepository.findAllBySellerId(sellerId, pageable);
+//        List<BoxResponse> content = boxes.getContent().stream().map(
+//                        box -> modelMapper.map(box, BoxResponse.class))
+//                .collect(Collectors.toList());
+//        return new PageResponse<>(content, boxes.getNumber(), boxes.getSize(), boxes.getTotalElements(),
+//                boxes.getTotalPages(), boxes.isLast());
     }
 
     @Override
     public List<Box> getAllService() {
         return boxRepository.findAll();
+//        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+//        Page<Box> boxes = boxRepository.findAll(pageable);
+//        List<Box> lists = boxes.getContent();
+//        List<BoxResponse> content = lists.stream().map(
+//                box -> modelMapper.map(box, BoxResponse.class))
+//                .collect(Collectors.toList());
+//        return new PageResponse<>(content, boxes.getNumber(), boxes.getSize(), boxes.getTotalElements(),
+//                boxes.getTotalPages(), boxes.isLast());
     }
 
     @Override
-    public Box getServiceByID(UUID id) {
-        return boxRepository.findById(id).orElse(null);
+    public BoxResponse getServiceByID(UUID id) {
+        Box box = boxRepository.findById(id)
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy box"));
+        return new BoxResponse(box.getId(), box.getCreateAt(), box.getUpdatedAt(), box.getSeller(),
+                box.getSeller().getId(), box.getTitle(), box.getDescription(), box.getImpression(),
+                box.getInteresting(), box.getStatus(), box.getSubCategory(), box.getPackages(), box.getGallery());
     }
 
     @Override
     public List<Box> getAllServiceByCategoryID(UUID categoryId) {
-        //Pageable pageable = PageRequest.of(page,8, Sort.Direction.DESC);
         return boxRepository.getAllServiceByCategoryId(categoryId) ;
+//        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
+//        Page<Box> boxes = boxRepository.getAllServiceByCategoryId(categoryId, pageable);
+//        List<BoxResponse> content = boxes.getContent().stream().map(
+//                        box -> modelMapper.map(box, BoxResponse.class))
+//                .collect(Collectors.toList());
+//        return new PageResponse<>(content, boxes.getNumber(), boxes.getSize(), boxes.getTotalElements(),
+//                boxes.getTotalPages(), boxes.isLast());
+        //Pageable pageable = PageRequest.of(page,8, Sort.Direction.DESC);
     }
 
     @Override
@@ -119,5 +145,15 @@ public class BoxServiceImpl implements BoxService {
     @Override
     public Page<Box> searchServiceByCatNameBySubCateName(int offset, String catName, String subCatName) {
         return boxRepository.findAllBySubCategory_NameContainsOrSubCategory_Category_NameContains(subCatName,catName,PageRequest.of(offset,8));
+    }
+
+    @Override
+    public CountServiceResponse countTotalService() {
+        return new CountServiceResponse(boxRepository.count());
+    }
+
+    @Override
+    public CountServiceResponse countTotalServiceByCat(UUID catId) {
+        return new CountServiceResponse(boxRepository.countBySubCategory_Category_Id(catId));
     }
 }

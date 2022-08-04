@@ -1,8 +1,8 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.request.CommentRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.CommentResponse;
+import com.jovinn.capstoneproject.dto.client.request.CommentRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.CommentResponse;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.CommentService;
