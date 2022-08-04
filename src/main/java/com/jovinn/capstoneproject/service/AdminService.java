@@ -1,9 +1,9 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.adminsite.AdminCountDataResponse;
-import com.jovinn.capstoneproject.dto.adminsite.AdminProfileResponse;
-import com.jovinn.capstoneproject.dto.adminsite.AdminViewUserResponse;
-import com.jovinn.capstoneproject.dto.adminsite.CountTotalRevenueResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminCountDataResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminProfileResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.model.Admin;
 

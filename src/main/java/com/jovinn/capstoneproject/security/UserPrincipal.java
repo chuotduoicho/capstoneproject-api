@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.jovinn.capstoneproject.model.Admin;
 import com.jovinn.capstoneproject.model.User;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,9 +1,9 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.adminsite.AdminCountDataResponse;
-import com.jovinn.capstoneproject.dto.adminsite.AdminProfileResponse;
-import com.jovinn.capstoneproject.dto.adminsite.AdminViewUserResponse;
-import com.jovinn.capstoneproject.dto.adminsite.CountTotalRevenueResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminCountDataResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminProfileResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.Admin;
@@ -13,9 +13,13 @@ import com.jovinn.capstoneproject.repository.BoxRepository;
 import com.jovinn.capstoneproject.repository.ContractRepository;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.repository.payment.TransactionRepository;
+import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -81,7 +85,6 @@ public class AdminServiceImpl implements AdminService {
         newAdmin.setAdminAccount(admin.getAdminAccount());
         newAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
         newAdmin.setPhoneNumber(admin.getPhoneNumber());
-        newAdmin.setJCoin(admin.getJCoin());
         adminRepository.save(newAdmin);
         return new ApiResponse(Boolean.TRUE, "Tạo mới thành công");
 
@@ -100,7 +103,6 @@ public class AdminServiceImpl implements AdminService {
         existAdmin.setAdminAccount(admin.getAdminAccount());
         existAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
         existAdmin.setPhoneNumber(admin.getPhoneNumber());
-        existAdmin.setJCoin(admin.getJCoin());
         adminRepository.save(existAdmin);
 
         return new ApiResponse(Boolean.TRUE, "Cập nhật thành công");
@@ -119,7 +121,7 @@ public class AdminServiceImpl implements AdminService {
         for (Admin admin : admins
         ) {
             responseList.add(new AdminProfileResponse(admin.getId(), admin.getFirstName(), admin.getLastName(), admin.getAdminAccount(),
-                    admin.getPhoneNumber(), admin.getJCoin()));
+                    admin.getPhoneNumber()));
         }
         return responseList;
     }
@@ -130,6 +132,6 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản admin"));
 
         return new AdminProfileResponse(admin.getId(), admin.getFirstName(), admin.getFirstName(), admin.getAdminAccount(),
-                admin.getPhoneNumber(), admin.getJCoin());
+                admin.getPhoneNumber());
     }
 }

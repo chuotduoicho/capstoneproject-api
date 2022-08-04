@@ -30,5 +30,4 @@ public class Admin extends BaseEntity {
     String adminAccount;
     String password;
     String phoneNumber;
-    Double jCoin;
 }

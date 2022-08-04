@@ -1,5 +1,8 @@
 package com.jovinn.capstoneproject;
 
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.model.ActivityType;
+import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.BoxService;
 import com.jovinn.capstoneproject.service.CategoryService;
@@ -14,7 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.convert.Jsr310Converters;
 
 import javax.annotation.PostConstruct;
-import java.util.TimeZone;
+import java.util.*;
 
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @EntityScan(basePackageClasses = { CapstoneprojectApplication.class, Jsr310Converters.class })
@@ -31,8 +34,21 @@ public class CapstoneprojectApplication {
 //            buyers.setActivityType(UserActivityType.BUYER);
 //            ActivityType sell = new ActivityType();
 //            sell.setActivityType(UserActivityType.SELLER);
+//            ActivityType admin = new ActivityType();
+//            admin.setActivityType(UserActivityType.ADMIN);
 //            activityTypeService.saveType(buyers);
 //            activityTypeService.saveType(sell);
+//            activityTypeService.saveType(admin);
+//            User user = new User();
+//            user.setFirstName("admin");
+//            user.setLastName("admin");
+//            user.setUsername("admin");
+//            user.setPhoneNumber("0942520358");
+//            user.setIsEnabled(true);
+//            user.setPassword("admin");
+//            user.setEmail("admin@gmail.com");
+//            user.setActivityType(activityTypeService.getByActivityType(UserActivityType.ADMIN));
+//            userService.saveUser(user);
         };
 
     }

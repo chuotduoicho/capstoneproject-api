@@ -4,9 +4,9 @@ import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.request.SignUpRequest;
-import com.jovinn.capstoneproject.dto.adminsite.AdminViewUserResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
 import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.adminsite.CountUserResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountUserResponse;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
@@ -34,4 +34,6 @@ public interface UserService {
     ApiResponse banOrUnbanUser(UUID userId);
 
     AdminViewUserResponse getUserById(UUID id);
+
+    User getUserByUserName(String name);
 }
