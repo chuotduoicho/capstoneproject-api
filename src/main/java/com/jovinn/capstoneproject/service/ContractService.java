@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.service;
 import com.jovinn.capstoneproject.dto.client.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.adminsite.AdminViewContractsResponse;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.AvatarResponse;
 import com.jovinn.capstoneproject.dto.client.response.ContractResponse;
 import com.jovinn.capstoneproject.dto.adminsite.CountContractResponse;
 import com.jovinn.capstoneproject.dto.adminsite.CountTotalRevenueResponse;
@@ -31,4 +32,5 @@ public interface ContractService {
     List<Contract> getOrders(UserPrincipal currentUser);
     List<Contract> getContracts(UserPrincipal currentUser);
     ApiResponse autoCheckCompleteContract();
+    AvatarResponse getAvatarBoth(UUID contractId);
 }

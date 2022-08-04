@@ -31,7 +31,7 @@ public class Delivery extends BaseEntity {
     UUID milestoneId;
     String file;
     String description;
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contractId", referencedColumnName = "id")
     @JsonBackReference
     Contract contract;

@@ -108,6 +108,7 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
         notification.setUser(user);
         notification.setShortContent(shortContent);
         notification.setLink(link);
+        notification.setUnread(Boolean.TRUE);
         notificationRepository.save(notification);
     }
 }
