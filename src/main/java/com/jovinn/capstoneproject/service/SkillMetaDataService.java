@@ -2,7 +2,7 @@ package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.adminsite.SkillMetaDataRequest;
 import com.jovinn.capstoneproject.dto.adminsite.SkillMetaDataResponse;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 
 import java.util.List;
 import java.util.UUID;

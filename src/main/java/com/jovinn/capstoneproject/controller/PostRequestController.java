@@ -1,15 +1,13 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.PageResponse;
-import com.jovinn.capstoneproject.dto.request.OfferRequestRequest;
-import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
-import com.jovinn.capstoneproject.dto.request.TargetSellerRequest;
-import com.jovinn.capstoneproject.dto.response.*;
+import com.jovinn.capstoneproject.dto.client.request.OfferRequestRequest;
+import com.jovinn.capstoneproject.dto.client.request.PostRequestRequest;
+import com.jovinn.capstoneproject.dto.client.request.TargetSellerRequest;
+import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.OfferRequestService;
 import com.jovinn.capstoneproject.service.PostRequestService;
-import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +28,7 @@ public class PostRequestController {
 
     @PostMapping("/addPostRequest")
     public ResponseEntity<ApiResponse> addPostRequestByBuyer(@Valid @RequestBody PostRequestRequest postRequest,
-                                                            @CurrentUser UserPrincipal currentUser){
+                                                             @CurrentUser UserPrincipal currentUser){
         ApiResponse apiResponse =  postRequestService.addPostRequest(postRequest,currentUser);
         return new ResponseEntity< >(apiResponse, HttpStatus.CREATED);
     }
@@ -42,7 +40,7 @@ public class PostRequestController {
 
     @GetMapping("/get-list-seller-apply/{postRequestId}")
     public ResponseEntity<ListSellerApplyPostRequestResponse> getListSellerApplyRequest(@PathVariable("postRequestId") UUID postRequestId,
-                                                                                                      @CurrentUser UserPrincipal currentUser) {
+                                                                                        @CurrentUser UserPrincipal currentUser) {
         ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(postRequestId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

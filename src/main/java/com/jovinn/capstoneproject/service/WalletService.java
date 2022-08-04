@@ -1,11 +1,8 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.request.WalletRequest;
-import com.jovinn.capstoneproject.dto.response.TransactionResponse;
-import com.jovinn.capstoneproject.dto.response.WalletResponse;
-import com.jovinn.capstoneproject.model.Transaction;
-import com.jovinn.capstoneproject.model.Wallet;
-import com.jovinn.capstoneproject.repository.payment.TransactionRepository;
+import com.jovinn.capstoneproject.dto.client.request.WalletRequest;
+import com.jovinn.capstoneproject.dto.client.response.TransactionResponse;
+import com.jovinn.capstoneproject.dto.client.response.WalletResponse;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
 import java.io.IOException;

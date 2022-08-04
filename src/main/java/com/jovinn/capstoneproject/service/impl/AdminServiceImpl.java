@@ -4,7 +4,8 @@ import com.jovinn.capstoneproject.dto.adminsite.AdminCountDataResponse;
 import com.jovinn.capstoneproject.dto.adminsite.AdminProfileResponse;
 import com.jovinn.capstoneproject.dto.adminsite.AdminViewUserResponse;
 import com.jovinn.capstoneproject.dto.adminsite.CountTotalRevenueResponse;
-import com.jovinn.capstoneproject.dto.response.*;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.Admin;
 import com.jovinn.capstoneproject.model.User;
@@ -84,8 +85,6 @@ public class AdminServiceImpl implements AdminService {
         newAdmin.setJCoin(admin.getJCoin());
         adminRepository.save(newAdmin);
         return new ApiResponse(Boolean.TRUE, "Tạo mới thành công");
-
-
     }
 
     @Override
@@ -116,8 +115,7 @@ public class AdminServiceImpl implements AdminService {
     public List<AdminProfileResponse> getListAdmin() {
         List<Admin> admins = adminRepository.findAll();
         List<AdminProfileResponse> responseList = new ArrayList<>();
-        for (Admin admin : admins
-        ) {
+        for (Admin admin : admins) {
             responseList.add(new AdminProfileResponse(admin.getId(), admin.getFirstName(), admin.getLastName(), admin.getAdminAccount(),
                     admin.getPhoneNumber(), admin.getJCoin()));
         }

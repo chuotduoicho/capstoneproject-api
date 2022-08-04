@@ -1,14 +1,11 @@
 package com.jovinn.capstoneproject.repository;
 
-import com.jovinn.capstoneproject.dto.response.SellerSkillResponse;
 import com.jovinn.capstoneproject.enumerable.SkillLevel;
-import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.Skill;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Repository

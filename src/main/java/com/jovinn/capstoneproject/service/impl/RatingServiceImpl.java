@@ -1,8 +1,7 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.PageResponse;
-import com.jovinn.capstoneproject.dto.request.RatingRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.request.RatingRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
@@ -16,15 +15,10 @@ import com.jovinn.capstoneproject.repository.RatingRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.RatingService;
-import com.jovinn.capstoneproject.util.Pagination;
-import com.jovinn.capstoneproject.util.ValidInputRating;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 

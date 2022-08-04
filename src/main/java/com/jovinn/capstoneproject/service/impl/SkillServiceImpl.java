@@ -1,9 +1,9 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.request.SkillRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.SellerSkillResponse;
-import com.jovinn.capstoneproject.dto.response.SkillResponse;
+import com.jovinn.capstoneproject.dto.client.request.SkillRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.SellerSkillResponse;
+import com.jovinn.capstoneproject.dto.client.response.SkillResponse;
 import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;

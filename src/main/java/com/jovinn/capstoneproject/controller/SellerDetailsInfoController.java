@@ -1,7 +1,7 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.request.*;
-import com.jovinn.capstoneproject.dto.response.*;
+import com.jovinn.capstoneproject.dto.client.request.*;
+import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.*;

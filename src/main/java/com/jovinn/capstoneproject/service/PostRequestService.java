@@ -1,9 +1,12 @@
 package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.adminsite.CountPostRequestResponse;
-import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
-import com.jovinn.capstoneproject.dto.request.TargetSellerRequest;
-import com.jovinn.capstoneproject.dto.response.*;
+import com.jovinn.capstoneproject.dto.client.request.PostRequestRequest;
+import com.jovinn.capstoneproject.dto.client.request.TargetSellerRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ListSellerApplyPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.response.ListSellerTargetPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.response.PostRequestResponse;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
 import java.util.List;

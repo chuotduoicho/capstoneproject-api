@@ -1,11 +1,9 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.PageResponse;
-import com.jovinn.capstoneproject.dto.request.OfferRequestRequest;
-import com.jovinn.capstoneproject.dto.response.OfferRequestResponse;
+import com.jovinn.capstoneproject.dto.client.request.OfferRequestRequest;
+import com.jovinn.capstoneproject.dto.client.response.OfferRequestResponse;
 import com.jovinn.capstoneproject.model.OfferRequest;
 import com.jovinn.capstoneproject.security.UserPrincipal;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.UUID;

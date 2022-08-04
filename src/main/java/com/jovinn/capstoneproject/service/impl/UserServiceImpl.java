@@ -2,10 +2,10 @@ package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
-import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
-import com.jovinn.capstoneproject.dto.request.SignUpRequest;
+import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
+import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
 import com.jovinn.capstoneproject.dto.adminsite.AdminViewUserResponse;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.adminsite.CountUserResponse;
 import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;

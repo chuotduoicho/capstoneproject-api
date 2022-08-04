@@ -1,13 +1,12 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.adminsite.CountPostRequestResponse;
-import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
-import com.jovinn.capstoneproject.dto.request.TargetSellerRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
-import com.jovinn.capstoneproject.dto.response.ListSellerTargetPostRequestResponse;
-import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.request.PostRequestRequest;
+import com.jovinn.capstoneproject.dto.client.request.TargetSellerRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ListSellerApplyPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.response.ListSellerTargetPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.response.PostRequestResponse;
 import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
@@ -16,12 +15,8 @@ import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.*;
-import com.jovinn.capstoneproject.util.Pagination;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +24,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class PostRequestServiceImpl implements PostRequestService {
@@ -176,7 +170,7 @@ public class PostRequestServiceImpl implements PostRequestService {
         for(String box : boxes) {
             Seller seller = sellerRepository.findById(UUID.fromString(box))
                     .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy seller"));
-            responses.add(new ListSellerTargetPostRequestResponse(seller.getId(), seller.getUser().getAvatar(),
+            responses.add(new ListSellerTargetPostRequestResponse(seller.getUser().getId(), seller.getId(), seller.getUser().getAvatar(),
                     seller.getUser().getLastName() + " " + seller.getUser().getFirstName(), seller.getBrandName(),
                     seller.getTotalOrderFinish(), seller.getRatingPoint(), seller.getSkills().get(0).getName(),seller.getRankSeller()));
         }
