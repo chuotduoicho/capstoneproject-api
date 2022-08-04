@@ -4,7 +4,7 @@ import com.jovinn.capstoneproject.dto.adminsite.AdminCountDataResponse;
 import com.jovinn.capstoneproject.dto.adminsite.AdminProfileResponse;
 import com.jovinn.capstoneproject.dto.adminsite.AdminViewUserResponse;
 import com.jovinn.capstoneproject.dto.adminsite.CountTotalRevenueResponse;
-import com.jovinn.capstoneproject.dto.response.*;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.model.Admin;
 
 import java.math.BigDecimal;

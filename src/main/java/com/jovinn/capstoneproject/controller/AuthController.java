@@ -1,9 +1,9 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.JwtAuthenticationResponse;
-import com.jovinn.capstoneproject.dto.request.LoginRequest;
-import com.jovinn.capstoneproject.dto.request.SignUpRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.JwtAuthenticationResponse;
+import com.jovinn.capstoneproject.dto.client.request.LoginRequest;
+import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;

@@ -1,10 +1,12 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.adminsite.*;
-import com.jovinn.capstoneproject.dto.response.*;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.model.Admin;
 import com.jovinn.capstoneproject.service.*;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.A;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -123,34 +125,47 @@ public class AdminController {
         ApiResponse response = adminService.saveAdmin(admin);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
     @PutMapping("/update-admin/{id}")
     public ResponseEntity<ApiResponse> updateAdmin(@RequestBody Admin admin,@PathVariable UUID id){
         ApiResponse response = adminService.updateAdmin(id,admin);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+
     @DeleteMapping("/delete-admin/{id}")
     public ResponseEntity<ApiResponse> deleteAdmin(@PathVariable UUID id){
         ApiResponse response = adminService.deleteAdmin(id);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+
     @GetMapping("/get-list-admin")
     public List<AdminProfileResponse> getListAdmin(){
         return adminService.getListAdmin();
     }
+
     @GetMapping("/get-admin-by-id/{id}")
     public AdminProfileResponse getAdminById(@PathVariable UUID id){
         return adminService.getAdminById(id);
     }
+
     @GetMapping("/get-user-by-id/{id}")
     public AdminViewUserResponse getUserById(@PathVariable UUID id){
         return userService.getUserById(id);
     }
+
     @GetMapping("/get-all-transaction-by-userId/{userId}")
     public List<AdminViewTransactionResponse> getAllTransactionByUserId(@PathVariable UUID userId){
         return transactionService.getAllTransactionByUserId(userId);
     }
+
     @GetMapping("/get-transaction-by-id/{id}")
     public AdminViewTransactionResponse getTransactionById(@PathVariable UUID id){
         return transactionService.getTransactionById(id);
+    }
+
+    @PutMapping("/auto-complete-contract")
+    public ResponseEntity<ApiResponse> autoCompleteContract() {
+        ApiResponse response = contractService.autoCheckCompleteContract();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

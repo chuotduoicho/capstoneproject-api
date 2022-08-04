@@ -9,4 +9,5 @@ import java.util.UUID;
 @Repository
 public interface DeliveryRepository extends JpaRepository<Delivery, UUID> {
     Boolean existsByMilestoneId(UUID milestoneId);
+    Delivery findByContractId(UUID contractId);
 }

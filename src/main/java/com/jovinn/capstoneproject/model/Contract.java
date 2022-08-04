@@ -52,7 +52,7 @@ public class Contract extends BaseEntity {
     ContractStatus contractStatus;
     @Enumerated(EnumType.STRING)
     ContractType type;
-
+    Boolean flag;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id", referencedColumnName = "id")
     Buyer buyer;
@@ -81,7 +81,7 @@ public class Contract extends BaseEntity {
                     BigDecimal totalPrice, Integer totalDeliveryTime,
                     Date expectCompleteDate, DeliveryStatus deliveryStatus,
                     OrderStatus orderStatus, ContractStatus contractStatus,
-                    ContractType type, Buyer buyer, Seller seller) {
+                    ContractType type, Buyer buyer, Seller seller, Boolean flag) {
         this.packageId = packageId;
         this.contractCode = contractCode;
         this.requirement = requirement;
@@ -97,6 +97,7 @@ public class Contract extends BaseEntity {
         this.type = type;
         this.buyer = buyer;
         this.seller = seller;
+        this.flag = flag;
     }
 
     @JsonIgnore

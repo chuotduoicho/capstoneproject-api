@@ -1,13 +1,10 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.request.ContractRequest;
-import com.jovinn.capstoneproject.dto.request.DeliveryHaveMilestoneRequest;
-import com.jovinn.capstoneproject.dto.request.DeliveryNotMilestoneRequest;
-import com.jovinn.capstoneproject.dto.request.RatingRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ContractResponse;
-import com.jovinn.capstoneproject.dto.response.DeliveryHaveMilestoneResponse;
-import com.jovinn.capstoneproject.dto.response.DeliveryNotMilestoneResponse;
+import com.jovinn.capstoneproject.dto.client.request.*;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ContractResponse;
+import com.jovinn.capstoneproject.dto.client.response.DeliveryHaveMilestoneResponse;
+import com.jovinn.capstoneproject.dto.client.response.DeliveryNotMilestoneResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.model.Contract;
 import com.jovinn.capstoneproject.model.Rating;
@@ -15,6 +12,7 @@ import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ContractService;
 import com.jovinn.capstoneproject.service.DeliveryService;
+import com.jovinn.capstoneproject.service.ExtraOfferService;
 import com.jovinn.capstoneproject.service.RatingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +33,8 @@ public class ContractController {
     private DeliveryService deliveryService;
     @Autowired
     private RatingService ratingService;
+    @Autowired
+    private ExtraOfferService extraOfferService;
     @GetMapping("/details/{id}")
     public ResponseEntity<Contract> getContractById(@PathVariable UUID id, @CurrentUser UserPrincipal currentUser) {
         Contract response = contractService.getContractById(id, currentUser);
@@ -122,6 +122,22 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PostMapping("/extra-offer/{contractId}")
+    public ResponseEntity<ApiResponse> createExtraOffer(@PathVariable("contractId") UUID contractId,
+                                                        @Valid @RequestBody ExtraOfferRequest request,
+                                                        @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = extraOfferService.createExtraOffer(contractId, request, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/extra-offer/accept/{contractId}/{extraOfferId}")
+    public ResponseEntity<ApiResponse> acceptExtraOfferFromSeller(@PathVariable("contractId") UUID contractId,
+                                                                  @PathVariable("extraOfferId") UUID extraOfferId,
+                                                                  @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = extraOfferService.sellerAcceptExtraOffer(contractId, extraOfferId, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/{status}")
     public ResponseEntity<List<Contract>> getContractByStatus(@PathVariable ContractStatus status,
                                                               @CurrentUser UserPrincipal currentUser) {
@@ -152,6 +168,13 @@ public class ContractController {
     @GetMapping("/rating/{contractId}")
     public ResponseEntity<List<Rating>> getRatingsForContract(@PathVariable("contractId") UUID contractId){
         List<Rating> response = ratingService.getRatingsForContract(contractId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/flag/{contractId}")
+    public ResponseEntity<ApiResponse> flagContractFromBuyer(@PathVariable("contractId") UUID contractId,
+                                                             @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = contractService.flagNotAcceptDelivery(contractId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -1,7 +1,6 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.PageResponse;
-import com.jovinn.capstoneproject.dto.response.SellerSkillResponse;
+import com.jovinn.capstoneproject.dto.client.response.SellerSkillResponse;
 import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import com.jovinn.capstoneproject.model.OfferRequest;
 import com.jovinn.capstoneproject.model.Rating;
@@ -13,7 +12,6 @@ import com.jovinn.capstoneproject.service.OfferRequestService;
 import com.jovinn.capstoneproject.service.RatingService;
 import com.jovinn.capstoneproject.service.SellerService;
 import com.jovinn.capstoneproject.service.SkillService;
-import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

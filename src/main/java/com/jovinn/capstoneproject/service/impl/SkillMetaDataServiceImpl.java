@@ -2,8 +2,7 @@ package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.adminsite.SkillMetaDataRequest;
 import com.jovinn.capstoneproject.dto.adminsite.SkillMetaDataResponse;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.BoxResponse;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.exception.BadRequestException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.model.SkillMetaData;

@@ -10,6 +10,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -27,10 +28,10 @@ public class ExtraOffer extends BaseEntity {
     UUID id;
     String title;
     String shortDescription;
-    Double extraPrice;
+    BigDecimal extraPrice;
     Integer additionTime;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contractId", referencedColumnName = "id")
     Contract contract;
 }
