@@ -30,6 +30,7 @@ public class ExtraOffer extends BaseEntity {
     String shortDescription;
     BigDecimal extraPrice;
     Integer additionTime;
+    Boolean opened;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contractId", referencedColumnName = "id")

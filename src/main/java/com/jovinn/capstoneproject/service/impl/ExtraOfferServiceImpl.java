@@ -46,6 +46,7 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
                 extraOffer.setShortDescription(request.getShortDescription());
                 extraOffer.setExtraPrice(request.getExtraPrice());
                 extraOffer.setAdditionTime(request.getAdditionTime());
+                extraOffer.setOpened(Boolean.TRUE);
                 ExtraOffer save = extraOfferRepository.save(extraOffer);
                 sendNotification(WebConstant.DOMAIN + "/contract/" + contractId,
                         "Bạn nhận được lời đề nghị mới cho hợp đồng với giá " + extraOffer.getExtraPrice(), contract.getSeller().getUser());
@@ -66,13 +67,33 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         if(contract.getSeller().getUser().getId().equals(currentUser.getId())) {
-            if(contract.getContractStatus().equals(ContractStatus.COMPLETE)) {
+            if(contract.getContractStatus().equals(ContractStatus.COMPLETE) && extraOffer.getOpened().equals(Boolean.TRUE)) {
                 Date completeExpectDateWithExtra = dateDelivery.expectDate(contract.getExpectCompleteDate().getDay(), extraOffer.getAdditionTime());
                 contract.setTotalPrice(contract.getTotalPrice().add(extraOffer.getExtraPrice()));
                 contract.setExpectCompleteDate(completeExpectDateWithExtra);
                 contract.setServiceDeposit(contract.getServiceDeposit().add(extraOffer.getExtraPrice().multiply(new BigDecimal(10/100))));
                 contractRepository.save(contract);
                 return new ApiResponse(Boolean.TRUE, "Bạn đã tiếp nhận lời đề nghị thành công");
+            } else {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể nhận lời đề nghị mới do hợp đồng đã hoàn thành hoặc bị hủy");
+            }
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public ApiResponse cancelExtraOffer(UUID contractId, UUID extraOfferId, UserPrincipal currentUser) {
+        ExtraOffer extraOffer = extraOfferRepository.findById(extraOfferId)
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy extra offer"));
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
+        if(contract.getSeller().getUser().getId().equals(currentUser.getId()) || contract.getBuyer().getUser().getId().equals(currentUser.getId()) ) {
+            if(extraOffer.getOpened().equals(Boolean.TRUE)) {
+                extraOffer.setOpened(Boolean.FALSE);
+                extraOfferRepository.save(extraOffer);
+                return new ApiResponse(Boolean.TRUE, "Bạn đã hủy lời đề nghị với mức giá " + extraOffer.getExtraPrice());
             } else {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể nhận lời đề nghị mới do hợp đồng đã hoàn thành hoặc bị hủy");
             }

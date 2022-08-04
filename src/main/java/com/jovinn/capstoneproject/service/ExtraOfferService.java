@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface ExtraOfferService {
     ApiResponse createExtraOffer(UUID contractId, ExtraOfferRequest request, UserPrincipal currentUser);
     ApiResponse sellerAcceptExtraOffer(UUID contractId, UUID extraOfferId, UserPrincipal currentUser);
+    ApiResponse cancelExtraOffer(UUID contractId, UUID extraOfferId, UserPrincipal currentUser);
 }

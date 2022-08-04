@@ -138,6 +138,14 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PutMapping("/extra-offer/cancel/{contractId}/{extraOfferId}")
+    public ResponseEntity<ApiResponse> cancelExtraOffer(@PathVariable("contractId") UUID contractId,
+                                                        @PathVariable("extraOfferId") UUID extraOfferId,
+                                                        @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = extraOfferService.cancelExtraOffer(contractId, extraOfferId, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/{status}")
     public ResponseEntity<List<Contract>> getContractByStatus(@PathVariable ContractStatus status,
                                                               @CurrentUser UserPrincipal currentUser) {
