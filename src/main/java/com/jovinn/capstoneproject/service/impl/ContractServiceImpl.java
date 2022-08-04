@@ -5,6 +5,7 @@ import com.jovinn.capstoneproject.dto.adminsite.CountContractResponse;
 import com.jovinn.capstoneproject.dto.adminsite.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.dto.client.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.AvatarResponse;
 import com.jovinn.capstoneproject.dto.client.response.ContractResponse;
 import com.jovinn.capstoneproject.enumerable.*;
 import com.jovinn.capstoneproject.exception.ApiException;
@@ -657,6 +658,13 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
+    public AvatarResponse getAvatarBoth(UUID contractId) {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
+        return new AvatarResponse(contract.getBuyer().getUser().getAvatar(), contract.getSeller().getUser().getAvatar());
+    }
+
+    @Override
     public CountTotalRevenueResponse getTotalRevenue() {
 //        List<Contract> contracts = contractRepository.findAllByContractStatus(ContractStatus.COMPLETE);
 //        BigDecimal totalRevenue = new BigDecimal(0);
@@ -736,6 +744,7 @@ public class ContractServiceImpl implements ContractService {
                 offerRequestRepository.save(offerRequest);
                 Notification notification = new Notification();
                 notification.setUser(offerRequest.getSeller().getUser());
+                notification.setUnread(Boolean.TRUE);
                 notification.setLink("Link tới post request mới");
                 notification.setShortContent("Bạn đã bị từ chối " + offerRequest.getId()
                         + " do bài đăng đã được ký kết hợp đồng."
@@ -748,6 +757,7 @@ public class ContractServiceImpl implements ContractService {
         for(Seller seller : listSellerApply) {
             Notification notification = new Notification();
             notification.setUser(seller.getUser());
+            notification.setUnread(Boolean.TRUE);
             notification.setLink("Link tới post request mới");
             notification.setShortContent("Bạn đã bị từ chối bài đăng của "
                     + postRequest.getUser().getLastName() + postRequest.getUser().getFirstName()

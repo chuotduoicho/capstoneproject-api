@@ -1,10 +1,7 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.client.request.*;
-import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.client.response.ContractResponse;
-import com.jovinn.capstoneproject.dto.client.response.DeliveryHaveMilestoneResponse;
-import com.jovinn.capstoneproject.dto.client.response.DeliveryNotMilestoneResponse;
+import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.model.Contract;
 import com.jovinn.capstoneproject.model.Rating;
@@ -183,6 +180,12 @@ public class ContractController {
     public ResponseEntity<ApiResponse> flagContractFromBuyer(@PathVariable("contractId") UUID contractId,
                                                              @CurrentUser UserPrincipal currentUser) {
         ApiResponse response = contractService.flagNotAcceptDelivery(contractId, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/avatar/{contractId}")
+    public ResponseEntity<AvatarResponse> getAvatarBoth(@PathVariable("contractId") UUID contractId) {
+        AvatarResponse response = contractService.getAvatarBoth(contractId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

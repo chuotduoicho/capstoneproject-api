@@ -63,8 +63,8 @@ public class Contract extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "contract")
     List<ExtraOffer> extraOffers;
 
-    @OneToOne(fetch = FetchType.EAGER, mappedBy = "contract")
-    Delivery delivery;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "contract")
+    List<Delivery> delivery;
 
     @OneToOne(mappedBy = "contract", fetch = FetchType.EAGER)
     PostRequest postRequest;
