@@ -122,8 +122,13 @@ public class UserController {
     }
 
     @GetMapping("/notifications")
+
     public ResponseEntity<NotificationResponse> getNotifications(@CurrentUser UserPrincipal currentUser) {
         NotificationResponse response = notificationService.getNotifications(currentUser);
         return new ResponseEntity< >(response, HttpStatus.OK);
+    }
+    @GetMapping("/recieve-notify")
+    public void registerEmitter(){
+        notificationService.registerClient();
     }
 }

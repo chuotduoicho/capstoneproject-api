@@ -4,8 +4,10 @@ import com.jovinn.capstoneproject.dto.client.request.OfferRequestRequest;
 import com.jovinn.capstoneproject.dto.client.request.PostRequestRequest;
 import com.jovinn.capstoneproject.dto.client.request.TargetSellerRequest;
 import com.jovinn.capstoneproject.dto.client.response.*;
+import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
+import com.jovinn.capstoneproject.service.NotificationService;
 import com.jovinn.capstoneproject.service.OfferRequestService;
 import com.jovinn.capstoneproject.service.PostRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class PostRequestController {
     private PostRequestService postRequestService;
     @Autowired
     private OfferRequestService offerRequestService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @PostMapping("/addPostRequest")
     public ResponseEntity<ApiResponse> addPostRequestByBuyer(@Valid @RequestBody PostRequestRequest postRequest,
@@ -91,6 +96,12 @@ public class PostRequestController {
     @GetMapping("/getAllPostRequest")
     public List<PostRequestResponse> getAllPostRequest(){
         return postRequestService.getAllPostRequest();
+    }
+
+    @PostMapping("/sendInvitations")
+    public ResponseEntity<String> inviteSeller(@RequestBody ListSellerTargetPostRequestResponse targetSeller){
+        notificationService.inviteUser(targetSeller);
+        return new ResponseEntity<>("invitation sent", HttpStatus.CREATED);
     }
 //    @GetMapping("/getListSellerApply/{postRequestId}")
 //    public  ResponseEntity<ListSellerApplyPostRequestResponse> getListSellerApply(@PathVariable UUID postRequestId, @CurrentUser UserPrincipal currentUser){
