@@ -16,6 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/api/v1/files")
+@CrossOrigin(origins = "*")
 @Validated
 public class FileController {
     private final FileManagerService fileManagerService;
