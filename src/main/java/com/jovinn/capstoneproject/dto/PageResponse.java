@@ -1,7 +1,9 @@
 package com.jovinn.capstoneproject.dto;
 
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,16 +11,28 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class PageResponse<T> {
-    private List<T> content;
-    private int page;
-    private int size;
-    private long totalElements;
-    private int totalPages;
-    private boolean last;
+    List<T> content;
+    String message;
+    int page;
+    int size;
+    long totalElements;
+    int totalPages;
+    boolean last;
 
     public PageResponse(List<T> content, int page, int size, long totalElements, int totalPages, boolean last) {
         setContent(content);
+        this.page = page;
+        this.size = size;
+        this.totalElements = totalElements;
+        this.totalPages = totalPages;
+        this.last = last;
+    }
+
+    public PageResponse(List<T> content, String message, int page, int size, long totalElements, int totalPages, boolean last) {
+        setContent(content);
+        this.message = message;
         this.page = page;
         this.size = size;
         this.totalElements = totalElements;

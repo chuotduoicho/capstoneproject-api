@@ -1,12 +1,19 @@
 package com.jovinn.capstoneproject.service;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
+import com.jovinn.capstoneproject.dto.client.boxsearch.BoxSearchRequest;
+import com.jovinn.capstoneproject.dto.client.boxsearch.BoxSearchResponse;
+import com.jovinn.capstoneproject.dto.client.boxsearch.ListBoxSearchResponse;
+import com.jovinn.capstoneproject.dto.client.request.BoxRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.BoxResponse;
 import com.jovinn.capstoneproject.dto.adminsite.CountServiceResponse;
+import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,16 +21,16 @@ public interface BoxService {
     //Add Service
     ApiResponse saveBox(Box box, UserPrincipal currentUser);
     //Update Service
-    BoxResponse updateBox(Box box, UUID id, UserPrincipal currentUser);
+    ApiResponse updateBox(UUID id, BoxRequest request, UserPrincipal currentUser);
 
     //Delete Service
-    Boolean deleteBox(UUID id);
+    ApiResponse deleteBox(UUID id, UserPrincipal currentUser);
 
     //Change Status
-    Box updateStatus(UUID id);
+    ApiResponse updateStatus(UUID boxId, UserPrincipal currentUser);
 
     //View List Service Buy SellerId
-    List<Box> getListServiceBySellerId(UUID sellerId);
+    List<Box> getAllServiceByCategoryID(UUID categoryId);
 
     //View All Service
     List<Box> getAllService();
@@ -32,7 +39,8 @@ public interface BoxService {
     BoxResponse getServiceByID(UUID id);
 
     //Get Service By Category ID
-    List<Box> getAllServiceByCategoryID(UUID categoryId);
+    PageResponse<BoxSearchResponse> getListServiceBySellerId(UUID sellerId, UserPrincipal currentUser,
+                                                       BoxServiceStatus status, int page, int size);
 
     //Get Service By Category ID Pagination
     Page<Box> getAllServiceByCatIdPagination(int offset, UUID categoryId);
@@ -43,4 +51,11 @@ public interface BoxService {
     CountServiceResponse countTotalService();
 
     CountServiceResponse countTotalServiceByCat(UUID catId);
+
+    PageResponse<BoxSearchResponse> getBoxes(UUID categoryId, UUID subCategoryId,
+                                             BigDecimal minPrice, BigDecimal maxPrice, int ratingPoint,
+                                             String searchKeyWord, int page, int size, String sortBy, String sortDir);
+    ListBoxSearchResponse search(BoxSearchRequest request);
+    PageResponse<BoxSearchResponse> searchResult(String searchKeyWord, UUID categoryId, UUID subCategoryId,  BigDecimal minPrice, BigDecimal maxPrice, int ratingPoint,
+                                                 int page, int size, String sortBy, String sortDir);
 }

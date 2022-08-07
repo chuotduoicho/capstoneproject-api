@@ -166,7 +166,7 @@ public class PostRequestServiceImpl implements PostRequestService {
 
     @Override
     public List<ListSellerTargetPostRequestResponse> getTargetSeller(TargetSellerRequest request) {
-        List<String> boxes = boxRepository.getTenSellerBySubCategoryId(request.getSubCategoryId(), request.getRankSeller(),
+        List<String> boxes = sellerRepository.getTenSellerBySubCategoryId(request.getSubCategoryId(), request.getRankSeller(),
                                                                     request.getSkillName(), PageRequest.of(0,10));
         List<ListSellerTargetPostRequestResponse> responses = new ArrayList<>();
         for(String box : boxes) {

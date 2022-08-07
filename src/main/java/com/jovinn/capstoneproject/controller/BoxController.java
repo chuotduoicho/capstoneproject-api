@@ -1,11 +1,18 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.PageResponse;
+import com.jovinn.capstoneproject.dto.client.boxsearch.BoxSearchRequest;
+import com.jovinn.capstoneproject.dto.client.boxsearch.BoxSearchResponse;
+import com.jovinn.capstoneproject.dto.client.boxsearch.ListBoxSearchResponse;
+import com.jovinn.capstoneproject.dto.client.request.BoxRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.BoxResponse;
+import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
+import com.jovinn.capstoneproject.util.WebConstant;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,38 +37,97 @@ public class BoxController {
     //API add Service
     @PostMapping("/add-box-service")
     public ResponseEntity<ApiResponse> addService(@RequestBody Box box, @CurrentUser UserPrincipal currentUser){
-        ApiResponse response = boxService.saveBox(box, currentUser);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(boxService.saveBox(box, currentUser), HttpStatus.CREATED);
     }
 
     //API update Service
     @PutMapping("/update-service")
-    public ResponseEntity<BoxResponse> updateService(@RequestParam("id")UUID id,
-                                                     @RequestBody Box box, @CurrentUser UserPrincipal currentUser){
-        BoxResponse response = boxService.updateBox(box, id, currentUser);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<ApiResponse> updateService(@RequestParam("id")UUID id,
+                                                     @RequestBody BoxRequest request, @CurrentUser UserPrincipal currentUser){
+        return new ResponseEntity<>(boxService.updateBox(id, request, currentUser), HttpStatus.OK);
     }
 
     //Api delete Service
     @DeleteMapping("/delete-service/{id}")
-    public boolean deleteBox(@PathVariable UUID id){
-        return boxService.deleteBox(id);
+    public ResponseEntity<ApiResponse> deleteBox(@PathVariable UUID id, @CurrentUser UserPrincipal currentUser) {
+        return new ResponseEntity<>(boxService.deleteBox(id, currentUser), HttpStatus.OK);
+    }
+
+    @GetMapping("/list-box")
+    public ResponseEntity<PageResponse<BoxSearchResponse>> getBoxes(@RequestParam(name = "categoryId", required = false,
+                                                                      defaultValue = "") UUID categoryId,
+                                                              @RequestParam(name = "subCategoryId", required = false,
+                                                                      defaultValue = "") UUID subCategoryId,
+                                                              @RequestParam(name = "minPrice", required = false,
+                                                                      defaultValue = WebConstant.MIN_PRICE) BigDecimal minPrice,
+                                                              @RequestParam(name = "maxPrice", required = false,
+                                                                      defaultValue = WebConstant.MAX_PRICE) BigDecimal maxPrice,
+                                                              @RequestParam(name = "ratingPoint", required = false,
+                                                                      defaultValue = WebConstant.MAX_PRICE) Integer ratingPoint,
+                                                              @RequestParam(name = "searchKeyWord", required = false,
+                                                                      defaultValue = "") String searchKeyWord,
+                                                              @RequestParam(name = "page", required = false,
+                                                                      defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                              @RequestParam(name = "size", required = false,
+                                                                      defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                                              @RequestParam(value = "sortBy",
+                                                                      defaultValue = WebConstant.DEFAULT_BOX_SORT_BY, required = false) String sortBy,
+                                                              @RequestParam(value = "sortDir",
+                                                                      defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        PageResponse<BoxSearchResponse> response = boxService.getBoxes(categoryId, subCategoryId, minPrice, maxPrice, ratingPoint,
+                                                                searchKeyWord, page, size, sortBy, sortDir);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ListBoxSearchResponse> search(@Valid @RequestBody BoxSearchRequest request) {
+        return new ResponseEntity<>(boxService.search(request), HttpStatus.OK);
+    }
+
+    @GetMapping("/search/{searchKeyWord}")
+    public ResponseEntity<PageResponse<BoxSearchResponse>> searchBySearchKeyWord(@PathVariable("searchKeyWord") String searchKeyWord,
+                                                                                 @RequestParam(name = "categoryId", required = false) UUID categoryId,
+                                                                                 @RequestParam(name = "subCategoryId", required = false) UUID subCategoryId,
+                                                                                 @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
+                                                                                 @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
+                                                                                 @RequestParam(name = "ratingPoint", required = false,
+                                                                                         defaultValue = WebConstant.MAX_PRICE) Integer ratingPoint,
+                                                                                 @RequestParam(name = "page", required = false,
+                                                                                         defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                                                 @RequestParam(name = "size", required = false,
+                                                                                         defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size,
+                                                                                 @RequestParam(value = "sortBy",
+                                                                                         defaultValue = WebConstant.DEFAULT_BOX_SORT_BY, required = false) String sortBy,
+                                                                                 @RequestParam(value = "sortDir",
+                                                                                         defaultValue = WebConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        return new ResponseEntity<>(
+                boxService.searchResult(searchKeyWord, categoryId, subCategoryId,
+                        minPrice, maxPrice, ratingPoint,
+                        page, size, sortBy, sortDir),
+                HttpStatus.OK
+        );
     }
 
     //Api get Service By Seller Id
     @GetMapping("/list-service-by-sellerId/{sellerId}")
-    public ResponseEntity<List<BoxResponse>> getBoxServiceBySellerId(@PathVariable UUID sellerId){
-        List<BoxResponse> response = boxService.getListServiceBySellerId(sellerId).stream()
-                .map(box -> modelMapper.map(box, BoxResponse.class))
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<PageResponse<BoxSearchResponse>> getBoxServiceBySellerId(@PathVariable UUID sellerId, @CurrentUser UserPrincipal currentUser,
+                                                                             @RequestParam(name = "status", required = false,
+                                                                                     defaultValue = WebConstant.DEFAULT_BOX_STATUS) BoxServiceStatus status,
+                                                                             @RequestParam(name = "page", required = false,
+                                                                                     defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page,
+                                                                             @RequestParam(name = "size", required = false,
+                                                                                     defaultValue = WebConstant.DEFAULT_PAGE_SIZE) Integer size){
+        return new ResponseEntity<>(
+                boxService.getListServiceBySellerId(sellerId, currentUser, status, page, size),
+                HttpStatus.OK
+        );
     }
 
-    //Api get all Service
-//    @GetMapping("/list-service")
-//    public List<Box> getAllService(){
-//        return boxService.getAllService();
-//    }
+    @PutMapping("/update-status/{boxId}")
+    public ResponseEntity<ApiResponse> getServiceById(@PathVariable("boxId") UUID boxId,
+                                                      @CurrentUser UserPrincipal currentUser){
+        return new ResponseEntity<>(boxService.updateStatus(boxId, currentUser), HttpStatus.OK);
+    }
 
     @GetMapping("/box-services")
     public ResponseEntity<List<BoxResponse>> getAllPosts() {
@@ -74,8 +142,7 @@ public class BoxController {
     //Api view detail Service
     @GetMapping("/box-details/{id}")
     public ResponseEntity<BoxResponse> getServiceById(@PathVariable UUID id){
-        BoxResponse response = boxService.getServiceByID(id);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(boxService.getServiceByID(id), HttpStatus.OK);
     }
 
     @GetMapping("/list-services-by-cat/{catId}")
@@ -90,11 +157,11 @@ public class BoxController {
 
     @GetMapping("/paginate-list-services-by-cat/{catId}/{page}")
     public Page<Box> getAllServiceByCategoryIdPagination(@PathVariable UUID catId, @PathVariable int page){
-        return  boxService.getAllServiceByCatIdPagination(page,catId);
+        return  boxService.getAllServiceByCatIdPagination(page, catId);
     }
 
     @GetMapping("/searchAllServiceByCatNameBySubCateName/{name}/{page}")
     public Page<Box> searchAllServiceByCatNameByServiceTypeName(@PathVariable String name, @PathVariable int page){
-        return boxService.searchServiceByCatNameBySubCateName(page,name,name);
+        return boxService.searchServiceByCatNameBySubCateName(page, name, name);
     }
 }
