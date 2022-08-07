@@ -80,7 +80,7 @@ public class AuthController {
         String token = RandomString.make(10);
         try {
             userService.updateResetPasswordToken(token, email);
-            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
+            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/auth/resetpassword/" + token;
             emailSender.sendEmailResetPassword(email, resetPasswordLink);
         } catch (ResourceNotFoundException ex) {
             return "User not found with email: " + email;

@@ -28,6 +28,6 @@ public class SignUpRequest {
     private String email;
 
     @NotBlank(message = "Mật khẩu Không được để trống")
-    @Size(min = 6, max = 255, message = "Mật khẩu cần ít nhất 6 ký tự trở lên")
+    @Size(min = 6, max = 30, message = "Mật khẩu cần ít nhất 6 ký tự và nhiều nhất 30 ký tự")
     private String password;
 }
