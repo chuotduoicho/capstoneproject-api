@@ -74,7 +74,7 @@ public class User extends BaseEntity {
     @JsonIgnore
     String resetPasswordToken;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_activity_type",
             joinColumns = @JoinColumn(name = "userId"),

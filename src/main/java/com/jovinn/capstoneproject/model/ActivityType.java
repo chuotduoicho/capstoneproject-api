@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,7 @@ public class ActivityType {
     UserActivityType activityType;
 
     @ManyToMany(mappedBy = "activityType", fetch = FetchType.EAGER)
+    @JsonIgnore
     //@JsonBackReference
     Set<User> users;
 
@@ -42,7 +44,7 @@ public class ActivityType {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ActivityType that = (ActivityType) o;
-        return Long.compare(id, that.id)==0 && activityType == that.activityType;
+        return Long.compare(id, that.id) == 0 && activityType == that.activityType;
     }
 
     @Override
