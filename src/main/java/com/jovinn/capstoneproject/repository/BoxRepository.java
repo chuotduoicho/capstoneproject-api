@@ -31,6 +31,7 @@ public interface BoxRepository extends JpaRepository<Box, UUID> {
 
     Page<Box> findAllBySubCategory_NameContainsOrSubCategory_Category_NameContains(String subCatName, String catName, PageRequest pageRequest);
 
+    List<Box> findAllBySellerId(UUID sellerId);
     @Query("SELECT b from Box b " +
             "INNER JOIN Package p on p.box.id = b.id " +
             "INNER JOIN Seller s on s.id = b.seller.id " +
@@ -77,5 +78,8 @@ public interface BoxRepository extends JpaRepository<Box, UUID> {
     Page<Box> findAllByTitleLike(@Param("searchKeyWord") String searchKeyWord,
                                  @Param("boxStatus") BoxServiceStatus boxStatus,
                                  Pageable pageable);
+    @Query("SELECT b FROM Box b WHERE b.status = ?1 ORDER BY b.impression DESC")
+    List<Box> getTop8ByImpression(BoxServiceStatus status, PageRequest pageRequest);
+    @Query("SELECT b FROM Box b WHERE b.status = ?1 AND b.subCategory.category.id = ?2 ORDER BY b.impression DESC")
+    List<Box> getTop8BoxByCategoryOrderByImpression(BoxServiceStatus status, UUID categoryId, PageRequest pageRequest);
 }
-

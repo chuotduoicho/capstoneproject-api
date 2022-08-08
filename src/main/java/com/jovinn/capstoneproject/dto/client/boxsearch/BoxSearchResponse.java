@@ -3,7 +3,6 @@ package com.jovinn.capstoneproject.dto.client.boxsearch;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.model.Package;
 import com.jovinn.capstoneproject.model.Seller;
-import com.jovinn.capstoneproject.model.Skill;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -52,6 +51,23 @@ public class BoxSearchResponse {
         this.packages = packages;
     }
 
+    public BoxSearchResponse(UUID id, Date createAt, Date updatedAt, Seller seller,
+                             String imageGallery1, String avatar, String branchName, RankSeller rankSeller,
+                             Integer totalOrderFinish, Integer ratingPoint, Integer impression, String title,
+                             BigDecimal fromPrice) {
+        this.id = id;
+        this.seller = seller;
+        this.imageGallery1 = imageGallery1;
+        this.avatar = avatar;
+        this.branchName = branchName;
+        this.rankSeller = rankSeller;
+        this.totalOrderFinish = totalOrderFinish;
+        this.ratingPoint = ratingPoint;
+        this.impression = impression;
+        this.title = title;
+        this.fromPrice = fromPrice;
+    }
+
     public String getBranchName() {
         return seller.getBrandName();
     }
@@ -88,7 +104,7 @@ public class BoxSearchResponse {
     }
 
     public BigDecimal getFromPrice() {
-        return fromPrice == null ? (packages.get(0) == null ? new BigDecimal(0) : packages.get(0).getPrice()) : fromPrice;
+        return fromPrice == null ? (packages.get(0) == null ? null : packages.get(0).getPrice()) : fromPrice;
     }
 
     public Date getCreateAt() {

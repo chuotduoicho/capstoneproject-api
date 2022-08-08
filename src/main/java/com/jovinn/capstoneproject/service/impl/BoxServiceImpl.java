@@ -9,15 +9,18 @@ import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.BoxResponse;
 import com.jovinn.capstoneproject.dto.adminsite.CountServiceResponse;
 import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
+import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.BadRequestException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.model.Gallery;
+import com.jovinn.capstoneproject.model.HistoryBox;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.repository.BoxRepository;
 import com.jovinn.capstoneproject.repository.GalleryRepository;
+import com.jovinn.capstoneproject.repository.HistoryBoxRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
@@ -52,24 +55,31 @@ public class BoxServiceImpl implements BoxService {
     @Autowired
     private SellerRepository sellerRepository;
     @Autowired
+    private HistoryBoxRepository historyBoxRepository;
+    @Autowired
     private GoogleDriveManagerService googleDriveManagerService;
     @Autowired
     private ModelMapper modelMapper;
 
     @Override
-    public ApiResponse saveBox(Box box, UserPrincipal currentUser) {
+    public ApiResponse addBox(Box box, UserPrincipal currentUser) {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản user"));
 
-       if (seller.getUser().getId().equals(currentUser.getId())) {
-           box.setSeller(seller);
-           box.setImpression(0);
-           box.setInteresting(0);
-           BigDecimal fromPrice = box.getPackages().get(0).getPrice();
-           box.setFromPrice(fromPrice);
-           boxRepository.save(box);
-           return new ApiResponse(Boolean.TRUE, "" + box.getId());
-       }
+        if (seller.getUser().getId().equals(currentUser.getId())) {
+            List<Box> boxes = boxRepository.findAllBySellerId(seller.getId());
+            if(boxes.size() >= 5 && seller.getRankSeller().equals(RankSeller.BEGINNER)) {
+                return new ApiResponse(Boolean.FALSE, "Bạn chỉ được tạo tối đa 5 hộp dịch vụ do chưa đạt cấp độ người bán cao hơn");
+            } else {
+                box.setSeller(seller);
+                box.setImpression(0);
+                box.setInteresting(0);
+                BigDecimal fromPrice = box.getPackages().get(0).getPrice();
+                box.setFromPrice(fromPrice);
+                boxRepository.save(box);
+                return new ApiResponse(Boolean.TRUE, "" + box.getId());
+            }
+        }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
@@ -163,11 +173,15 @@ public class BoxServiceImpl implements BoxService {
     }
 
     @Override
-    public BoxResponse getServiceByID(UUID id) {
+    public BoxResponse getServiceByID(UUID id, UserPrincipal currentUser) {
         Box box = checkExistBox(id);
-        box.setImpression(box.getImpression() + 1);
-        Box save = boxRepository.save(box);
-        return boxResponseConfig(save);
+        createHistoryBox(id, currentUser.getId());
+        if(!box.getSeller().getUser().getId().equals(currentUser.getId())) {
+            box.setImpression(box.getImpression() + 1);
+            Box save = boxRepository.save(box);
+            return boxResponseConfig(save);
+        }
+        return boxResponseConfig(box);
     }
 
     @Override
@@ -223,6 +237,36 @@ public class BoxServiceImpl implements BoxService {
 
         return new PageResponse<>(content, message, boxes.getNumber(), boxes.getSize(), boxes.getTotalElements(),
                 boxes.getTotalPages(), boxes.isLast());
+    }
+
+    @Override
+    public List<BoxSearchResponse> getListHistoryBox(UserPrincipal currentUser) {
+        List<String> boxIds = historyBoxRepository.findBoxIdFromUser(currentUser.getId());
+        List<BoxSearchResponse> responses = new ArrayList<>();
+        for(String boxId : boxIds) {
+            Box box = checkExistBox(UUID.fromString(boxId));
+            responses.add(new BoxSearchResponse(box.getId(), box.getCreateAt(), box.getUpdatedAt(),
+                    box.getSeller(), box.getGallery().getImageGallery1(), box.getSeller().getUser().getAvatar(),
+                    box.getSeller().getBrandName(), box.getSeller().getRankSeller(), box.getSeller().getTotalOrderFinish(),
+                    box.getSeller().getRatingPoint(), box.getImpression(), box.getTitle(), box.getFromPrice()));
+        }
+        return responses;
+    }
+
+    @Override
+    public List<BoxSearchResponse> getTop8BoxByImpression() {
+        List<Box> boxes = boxRepository.getTop8ByImpression(BoxServiceStatus.ACTIVE, PageRequest.of(0, 8));
+        return boxes.stream().map(
+                    box -> modelMapper.map(box, BoxSearchResponse.class))
+                    .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BoxSearchResponse> getTop8BoxByCategoryOrderByImpression(UUID categoryId) {
+        List<Box> boxes = boxRepository.getTop8BoxByCategoryOrderByImpression(BoxServiceStatus.ACTIVE, categoryId, PageRequest.of(0, 8));
+        return boxes.stream().map(
+                    box -> modelMapper.map(box, BoxSearchResponse.class))
+                    .collect(Collectors.toList());
     }
 
     @Override
@@ -340,5 +384,16 @@ public class BoxServiceImpl implements BoxService {
 
     private void deleteOldFileUploadOnDrive(String fileUrl) {
         googleDriveManagerService.deleteFile(fileUrl.substring(31));
+    }
+
+    private void createHistoryBox(UUID boxId, UUID userId) {
+        HistoryBox historyBox = new HistoryBox();
+        historyBox.setBoxId(boxId);
+        historyBox.setUserId(userId);
+        List<HistoryBox> listHistory = historyBoxRepository.findAllByUserIdOrderByCreateAtAsc(userId);
+        if(listHistory.size() >= 10) {
+            historyBoxRepository.deleteById(listHistory.get(0).getId());
+        }
+        historyBoxRepository.save(historyBox);
     }
 }

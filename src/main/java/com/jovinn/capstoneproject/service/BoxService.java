@@ -19,7 +19,7 @@ import java.util.UUID;
 
 public interface BoxService {
     //Add Service
-    ApiResponse saveBox(Box box, UserPrincipal currentUser);
+    ApiResponse addBox(Box box, UserPrincipal currentUser);
     //Update Service
     ApiResponse updateBox(UUID id, BoxRequest request, UserPrincipal currentUser);
 
@@ -36,7 +36,7 @@ public interface BoxService {
     List<Box> getAllService();
 
     //Get Service By id
-    BoxResponse getServiceByID(UUID id);
+    BoxResponse getServiceByID(UUID id, UserPrincipal currentUser);
 
     //Get Service By Category ID
     PageResponse<BoxSearchResponse> getListServiceBySellerId(UUID sellerId, UserPrincipal currentUser,
@@ -58,4 +58,9 @@ public interface BoxService {
     ListBoxSearchResponse search(BoxSearchRequest request);
     PageResponse<BoxSearchResponse> searchResult(String searchKeyWord, UUID categoryId, UUID subCategoryId,  BigDecimal minPrice, BigDecimal maxPrice, int ratingPoint,
                                                  int page, int size, String sortBy, String sortDir);
+    List<BoxSearchResponse> getListHistoryBox(UserPrincipal currentUser);
+
+    List<BoxSearchResponse> getTop8BoxByImpression();
+    List<BoxSearchResponse> getTop8BoxByCategoryOrderByImpression(UUID categoryId);
+
 }

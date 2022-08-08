@@ -13,6 +13,7 @@ import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
 import com.jovinn.capstoneproject.util.WebConstant;
+import org.apache.commons.collections4.Get;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,8 +37,8 @@ public class BoxController {
     private BoxService boxService;
     //API add Service
     @PostMapping("/add-box-service")
-    public ResponseEntity<ApiResponse> addService(@RequestBody Box box, @CurrentUser UserPrincipal currentUser){
-        return new ResponseEntity<>(boxService.saveBox(box, currentUser), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse> addBox(@RequestBody Box box, @CurrentUser UserPrincipal currentUser){
+        return new ResponseEntity<>(boxService.addBox(box, currentUser), HttpStatus.CREATED);
     }
 
     //API update Service
@@ -51,6 +52,21 @@ public class BoxController {
     @DeleteMapping("/delete-service/{id}")
     public ResponseEntity<ApiResponse> deleteBox(@PathVariable UUID id, @CurrentUser UserPrincipal currentUser) {
         return new ResponseEntity<>(boxService.deleteBox(id, currentUser), HttpStatus.OK);
+    }
+
+    @GetMapping("/top-8-impression")
+    public ResponseEntity<List<BoxSearchResponse>> getTop8BoxByImpression() {
+        return new ResponseEntity<>(boxService.getTop8BoxByImpression(), HttpStatus.OK);
+    }
+
+    @GetMapping("/top-8-impression/{categoryId}")
+    public ResponseEntity<List<BoxSearchResponse>> getTop8BoxByCategoryOrderByImpression(@PathVariable("categoryId") UUID categoryId) {
+        return new ResponseEntity<>(boxService.getTop8BoxByCategoryOrderByImpression(categoryId), HttpStatus.OK);
+    }
+
+    @GetMapping("/list-box-history")
+    public ResponseEntity<List<BoxSearchResponse>> getListBoxHistory(@CurrentUser UserPrincipal currentUser) {
+        return new ResponseEntity<>(boxService.getListHistoryBox(currentUser), HttpStatus.OK);
     }
 
     @GetMapping("/list-box")
@@ -124,7 +140,7 @@ public class BoxController {
     }
 
     @PutMapping("/update-status/{boxId}")
-    public ResponseEntity<ApiResponse> getServiceById(@PathVariable("boxId") UUID boxId,
+    public ResponseEntity<ApiResponse> updateBoxStatus(@PathVariable("boxId") UUID boxId,
                                                       @CurrentUser UserPrincipal currentUser){
         return new ResponseEntity<>(boxService.updateStatus(boxId, currentUser), HttpStatus.OK);
     }
@@ -134,15 +150,13 @@ public class BoxController {
         List<BoxResponse> responses = boxService.getAllService().stream()
                 .map(box -> modelMapper.map(box, BoxResponse.class))
                 .collect(Collectors.toList());
-//        BoxResponse response = boxService.getAllService();
         return new ResponseEntity<>(responses, HttpStatus.OK);
-//        return boxService.getAllService(page, size, sortBy, sortDir).stream().map(box -> modelMapper.map(box, BoxResponse.class))
-//                .collect(Collectors.toList());
     }
     //Api view detail Service
     @GetMapping("/box-details/{id}")
-    public ResponseEntity<BoxResponse> getServiceById(@PathVariable UUID id){
-        return new ResponseEntity<>(boxService.getServiceByID(id), HttpStatus.OK);
+    public ResponseEntity<BoxResponse> getServiceById(@PathVariable("id") UUID id,
+                                                      @CurrentUser UserPrincipal currentUser){
+        return new ResponseEntity<>(boxService.getServiceByID(id, currentUser), HttpStatus.OK);
     }
 
     @GetMapping("/list-services-by-cat/{catId}")
