@@ -1,31 +1,17 @@
 package com.jovinn.capstoneproject;
 
-import com.jovinn.capstoneproject.enumerable.*;
-import com.jovinn.capstoneproject.model.*;
-import com.jovinn.capstoneproject.model.Package;
-import com.jovinn.capstoneproject.repository.*;
-import com.jovinn.capstoneproject.repository.payment.WalletRepository;
-import com.jovinn.capstoneproject.service.*;
-import net.bytebuddy.utility.RandomString;
+
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.convert.Jsr310Converters;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.*;
 
-import static com.jovinn.capstoneproject.util.GenerateRandom.getRandomNumberString;
+import java.util.*;
 
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @EntityScan(basePackageClasses = { CapstoneprojectApplication.class, Jsr310Converters.class })
@@ -34,6 +20,7 @@ public class CapstoneprojectApplication {
     public static void main(String[] args) {
         SpringApplication.run(CapstoneprojectApplication.class, args);
     }
+
 
 //    @Bean
 //    CommandLineRunner run(UserService userService, UserRepository ur, PasswordEncoder passwordEncoder, BuyerRepository buy, WalletRepository wr, SubCategoryRepository sub, GalleryRepository gr, BoxRepository br, PackageRepository pr, SellerRepository sr, NotificationRepository r, ActivityTypeService activityTypeService, BoxService boxService, CategoryService categoryService, NotificationService n) {

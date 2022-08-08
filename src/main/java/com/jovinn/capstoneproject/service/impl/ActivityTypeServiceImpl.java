@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class ActivityTypeServiceImpl implements ActivityTypeService {
@@ -22,5 +23,11 @@ public class ActivityTypeServiceImpl implements ActivityTypeService {
     @Override
     public ActivityType saveType(ActivityType type) {
         return activityTypeRepository.save(type);
+    }
+
+    @Override
+    public UserActivityType getActivityTypeByUserId(UUID id) {
+        ActivityType activityType = activityTypeRepository.findByUsers_Id(id);
+        return activityType.getActivityType();
     }
 }

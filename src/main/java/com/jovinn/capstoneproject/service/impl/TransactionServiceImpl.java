@@ -1,6 +1,6 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.adminsite.AdminViewTransactionResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewTransactionResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.Transaction;
 import com.jovinn.capstoneproject.model.User;

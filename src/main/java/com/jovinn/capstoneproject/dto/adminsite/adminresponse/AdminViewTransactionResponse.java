@@ -1,4 +1,4 @@
-package com.jovinn.capstoneproject.dto.adminsite;
+package com.jovinn.capstoneproject.dto.adminsite.adminresponse;
 
 import com.jovinn.capstoneproject.enumerable.TransactionType;
 import lombok.AccessLevel;

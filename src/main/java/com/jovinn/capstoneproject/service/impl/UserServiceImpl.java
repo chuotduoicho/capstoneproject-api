@@ -2,11 +2,13 @@ package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
+
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
+
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountUserResponse;
 import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
-import com.jovinn.capstoneproject.dto.adminsite.AdminViewUserResponse;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.adminsite.CountUserResponse;
 import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
@@ -269,5 +271,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findUserById(id);
         return new AdminViewUserResponse(user.getId(),user.getFirstName(),user.getLastName(),user.getEmail(),
                 user.getPhoneNumber(),user.getUsername());
+    }
+
+    @Override
+    public User getUserByUserName(String name) {
+        return userRepository.findByUsername(name)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Not found user"));
     }
 }
