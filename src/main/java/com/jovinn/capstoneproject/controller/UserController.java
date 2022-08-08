@@ -1,22 +1,18 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.PageResponse;
 import com.jovinn.capstoneproject.dto.UserProfile;
-import com.jovinn.capstoneproject.dto.request.ChangePasswordRequest;
-import com.jovinn.capstoneproject.dto.request.ResetPasswordRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.WalletResponse;
+import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
+import com.jovinn.capstoneproject.dto.client.request.ResetPasswordRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.NotificationResponse;
+import com.jovinn.capstoneproject.dto.client.response.WalletResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.OfferRequest;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
-import com.jovinn.capstoneproject.service.OfferRequestService;
-import com.jovinn.capstoneproject.service.SellerService;
-import com.jovinn.capstoneproject.service.UserService;
-import com.jovinn.capstoneproject.service.WalletService;
-import com.jovinn.capstoneproject.util.WebConstant;
+import com.jovinn.capstoneproject.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,6 +37,8 @@ public class UserController {
     private WalletService walletService;
     @Autowired
     private OfferRequestService offerRequestService;
+    @Autowired
+    private NotificationService notificationService;
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
         UUID id = currentUser.getId();
@@ -106,7 +104,7 @@ public class UserController {
             return "Invalid token: " + token;
         } else {
             userService.updatePassword(user, password);
-            return "You have succcessfully changed your password.";
+            return "Bạn đã đổi mật khẩu thành công";
         }
     }
 
@@ -114,5 +112,18 @@ public class UserController {
     public ResponseEntity<ApiResponse> changePassword(@Valid @RequestBody ChangePasswordRequest request, @CurrentUser UserPrincipal currentUser) {
         ApiResponse response = userService.changePassword(request, currentUser);
         return new ResponseEntity< >(response, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/read-noti/{notificationId}")
+    public ResponseEntity<ApiResponse> readNotification(@PathVariable("notificationId") UUID notificationId,
+                                                        @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = notificationService.readNotification(notificationId, currentUser);
+        return new ResponseEntity< >(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/notifications")
+    public ResponseEntity<NotificationResponse> getNotifications(@CurrentUser UserPrincipal currentUser) {
+        NotificationResponse response = notificationService.getNotifications(currentUser);
+        return new ResponseEntity< >(response, HttpStatus.OK);
     }
 }

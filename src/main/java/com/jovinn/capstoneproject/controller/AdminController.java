@@ -2,16 +2,16 @@ package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminLoginRequest;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
-import com.jovinn.capstoneproject.dto.response.*;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.model.ActivityType;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.model.Admin;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
 import com.jovinn.capstoneproject.service.*;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.property.access.spi.Setter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,13 +21,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -147,36 +145,44 @@ public class AdminController {
         ApiResponse response = adminService.saveAdmin(admin);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
     @PutMapping("/update-admin/{id}")
     public ResponseEntity<ApiResponse> updateAdmin(@RequestBody Admin admin,@PathVariable UUID id){
         ApiResponse response = adminService.updateAdmin(id,admin);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+
     @DeleteMapping("/delete-admin/{id}")
     public ResponseEntity<ApiResponse> deleteAdmin(@PathVariable UUID id){
         ApiResponse response = adminService.deleteAdmin(id);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+
     @GetMapping("/get-list-admin")
     public List<AdminProfileResponse> getListAdmin(){
         return adminService.getListAdmin();
     }
+
     @GetMapping("/get-admin-by-id/{id}")
     public AdminProfileResponse getAdminById(@PathVariable UUID id){
         return adminService.getAdminById(id);
     }
+
     @GetMapping("/get-user-by-id/{id}")
     public AdminViewUserResponse getUserById(@PathVariable UUID id){
         return userService.getUserById(id);
     }
+
     @GetMapping("/get-all-transaction-by-userId/{userId}")
     public List<AdminViewTransactionResponse> getAllTransactionByUserId(@PathVariable UUID userId){
         return transactionService.getAllTransactionByUserId(userId);
     }
+
     @GetMapping("/get-transaction-by-id/{id}")
     public AdminViewTransactionResponse getTransactionById(@PathVariable UUID id){
         return transactionService.getTransactionById(id);
     }
+
     @PostMapping("/admin-sign-in")
     public ResponseEntity<JwtAuthenticationResponse> authenticationAdmin(@RequestBody AdminLoginRequest adminLoginRequest){
         try {
@@ -201,4 +207,9 @@ public class AdminController {
         }
     }
 
+    @PutMapping("/auto-complete-contract")
+    public ResponseEntity<ApiResponse> autoCompleteContract() {
+        ApiResponse response = contractService.autoCheckCompleteContract();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

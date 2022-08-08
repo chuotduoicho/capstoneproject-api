@@ -57,7 +57,7 @@ public class User extends BaseEntity {
     String avatar;
 
     @JsonIgnore
-    @Size(max = 100)
+    @Size(min = 6, max = 50)
     String password;
 
     @Temporal(TemporalType.DATE)
@@ -95,7 +95,7 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<PostRequest> postRequests;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
     List<Notification> notifications;
 }

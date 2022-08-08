@@ -2,7 +2,7 @@ package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.adminsite.SkillMetaDataRequest;
 import com.jovinn.capstoneproject.dto.adminsite.SkillMetaDataResponse;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.model.Skill;
 import com.jovinn.capstoneproject.service.SkillMetaDataService;
 import com.jovinn.capstoneproject.service.SkillService;

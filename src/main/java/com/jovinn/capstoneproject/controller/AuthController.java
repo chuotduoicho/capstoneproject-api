@@ -1,9 +1,9 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.JwtAuthenticationResponse;
-import com.jovinn.capstoneproject.dto.request.LoginRequest;
-import com.jovinn.capstoneproject.dto.request.SignUpRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.JwtAuthenticationResponse;
+import com.jovinn.capstoneproject.dto.client.request.LoginRequest;
+import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;
@@ -80,7 +80,7 @@ public class AuthController {
         String token = RandomString.make(10);
         try {
             userService.updateResetPasswordToken(token, email);
-            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/reset_password?token=" + token;
+            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/auth/resetpassword/" + token;
             emailSender.sendEmailResetPassword(email, resetPasswordLink);
         } catch (ResourceNotFoundException ex) {
             return "User not found with email: " + email;

@@ -1,11 +1,9 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.request.EducationRequest;
-import com.jovinn.capstoneproject.dto.request.SkillRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.EducationResponse;
-import com.jovinn.capstoneproject.dto.response.SellerSkillResponse;
-import com.jovinn.capstoneproject.dto.response.SkillResponse;
+import com.jovinn.capstoneproject.dto.client.request.SkillRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.SellerSkillResponse;
+import com.jovinn.capstoneproject.dto.client.response.SkillResponse;
 import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.model.Skill;

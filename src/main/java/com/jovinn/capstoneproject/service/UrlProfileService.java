@@ -1,8 +1,8 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.request.UrlProfileRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.UrlProfileResponse;
+import com.jovinn.capstoneproject.dto.client.request.UrlProfileRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.UrlProfileResponse;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
 import java.util.UUID;

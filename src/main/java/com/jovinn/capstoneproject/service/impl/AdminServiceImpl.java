@@ -4,7 +4,7 @@ import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminCountDataResp
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminProfileResponse;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountTotalRevenueResponse;
-import com.jovinn.capstoneproject.dto.response.*;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.Admin;
 import com.jovinn.capstoneproject.model.User;
@@ -13,13 +13,9 @@ import com.jovinn.capstoneproject.repository.BoxRepository;
 import com.jovinn.capstoneproject.repository.ContractRepository;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.repository.payment.TransactionRepository;
-import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -87,8 +83,6 @@ public class AdminServiceImpl implements AdminService {
         newAdmin.setPhoneNumber(admin.getPhoneNumber());
         adminRepository.save(newAdmin);
         return new ApiResponse(Boolean.TRUE, "Tạo mới thành công");
-
-
     }
 
     @Override
@@ -118,8 +112,7 @@ public class AdminServiceImpl implements AdminService {
     public List<AdminProfileResponse> getListAdmin() {
         List<Admin> admins = adminRepository.findAll();
         List<AdminProfileResponse> responseList = new ArrayList<>();
-        for (Admin admin : admins
-        ) {
+        for (Admin admin : admins) {
             responseList.add(new AdminProfileResponse(admin.getId(), admin.getFirstName(), admin.getLastName(), admin.getAdminAccount(),
                     admin.getPhoneNumber()));
         }

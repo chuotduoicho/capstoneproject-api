@@ -1,10 +1,10 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.request.DeliveryHaveMilestoneRequest;
-import com.jovinn.capstoneproject.dto.request.DeliveryNotMilestoneRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.DeliveryHaveMilestoneResponse;
-import com.jovinn.capstoneproject.dto.response.DeliveryNotMilestoneResponse;
+import com.jovinn.capstoneproject.dto.client.request.DeliveryHaveMilestoneRequest;
+import com.jovinn.capstoneproject.dto.client.request.DeliveryNotMilestoneRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.DeliveryHaveMilestoneResponse;
+import com.jovinn.capstoneproject.dto.client.response.DeliveryNotMilestoneResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
 import com.jovinn.capstoneproject.exception.ApiException;

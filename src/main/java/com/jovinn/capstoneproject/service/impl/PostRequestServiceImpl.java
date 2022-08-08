@@ -1,13 +1,13 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.PageResponse;
+
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountPostRequestResponse;
-import com.jovinn.capstoneproject.dto.request.PostRequestRequest;
-import com.jovinn.capstoneproject.dto.request.TargetSellerRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.ListSellerApplyPostRequestResponse;
-import com.jovinn.capstoneproject.dto.response.ListSellerTargetPostRequestResponse;
-import com.jovinn.capstoneproject.dto.response.PostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.request.PostRequestRequest;
+import com.jovinn.capstoneproject.dto.client.request.TargetSellerRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ListSellerApplyPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.response.ListSellerTargetPostRequestResponse;
+import com.jovinn.capstoneproject.dto.client.response.PostRequestResponse;
 import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
@@ -16,12 +16,9 @@ import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.*;
-import com.jovinn.capstoneproject.util.Pagination;
-import org.modelmapper.ModelMapper;
+import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +26,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class PostRequestServiceImpl implements PostRequestService {
@@ -53,7 +49,7 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Autowired
     private MilestoneContractService milestoneContractService;
     @Autowired
-    private NotificationService notificationService;
+    private NotificationRepository notificationRepository;
     @Autowired
     private UserService userService;
 
@@ -85,11 +81,12 @@ public class PostRequestServiceImpl implements PostRequestService {
             for (User userInvite: usersGetInvite){
                 notification = new Notification();
                 notification.setUser(userInvite);
-                notification.setLink("/getPostRequestDetails/" + buyer.getUser().getId().toString() + "");
+                notification.setUnread(Boolean.TRUE);
+                notification.setLink(WebConstant.DOMAIN + "/sellerhome/manageRequest/" + postRequest.getId());
                 notification.setShortContent("Bạn có lời mời làm việc mới từ " +
                         buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName() +
                         " Kiểm tra ngay");
-                notificationService.saveNotification(notification);
+                notificationRepository.save(notification);
             }
             PostRequest savedPostRequest = postRequestRepository.save(postRequest);
 
@@ -170,13 +167,13 @@ public class PostRequestServiceImpl implements PostRequestService {
 
     @Override
     public List<ListSellerTargetPostRequestResponse> getTargetSeller(TargetSellerRequest request) {
-        List<String> boxes = boxRepository.getTenSellerBySubCategoryId(request.getSubCategoryId(), request.getRankSeller(),
+        List<String> boxes = sellerRepository.getTenSellerBySubCategoryId(request.getSubCategoryId(), request.getRankSeller(),
                                                                     request.getSkillName(), PageRequest.of(0,10));
         List<ListSellerTargetPostRequestResponse> responses = new ArrayList<>();
         for(String box : boxes) {
             Seller seller = sellerRepository.findById(UUID.fromString(box))
                     .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy seller"));
-            responses.add(new ListSellerTargetPostRequestResponse(seller.getId(), seller.getUser().getAvatar(),
+            responses.add(new ListSellerTargetPostRequestResponse(seller.getUser().getId(), seller.getId(), seller.getUser().getAvatar(),
                     seller.getUser().getLastName() + " " + seller.getUser().getFirstName(), seller.getBrandName(),
                     seller.getTotalOrderFinish(), seller.getRatingPoint(), seller.getSkills().get(0).getName(),seller.getRankSeller()));
         }

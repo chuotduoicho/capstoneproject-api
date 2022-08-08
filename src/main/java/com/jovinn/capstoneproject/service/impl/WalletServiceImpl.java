@@ -2,10 +2,10 @@ package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.config.payment.PaypalPaymentIntent;
 import com.jovinn.capstoneproject.config.payment.PaypalPaymentMethod;
-import com.jovinn.capstoneproject.dto.request.WalletRequest;
-import com.jovinn.capstoneproject.dto.response.ApiResponse;
-import com.jovinn.capstoneproject.dto.response.TransactionResponse;
-import com.jovinn.capstoneproject.dto.response.WalletResponse;
+import com.jovinn.capstoneproject.dto.client.request.WalletRequest;
+import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.TransactionResponse;
+import com.jovinn.capstoneproject.dto.client.response.WalletResponse;
 import com.jovinn.capstoneproject.enumerable.PaymentConfirmStatus;
 import com.jovinn.capstoneproject.enumerable.TransactionType;
 import com.jovinn.capstoneproject.exception.ApiException;
@@ -20,14 +20,10 @@ import com.jovinn.capstoneproject.repository.payment.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.WalletService;
 import com.jovinn.capstoneproject.service.payment.PaymentService;
+import com.jovinn.capstoneproject.util.WebConstant;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -55,7 +51,7 @@ public class WalletServiceImpl implements WalletService {
                 try {
                     Payment payment = paymentService.createPayment(request.getCharge(), request.getCurrency(),
                             PaypalPaymentMethod.PAYPAL, PaypalPaymentIntent.SALE, "BUY " + request.getCharge() + " JCOIN",
-                            "http://localhost:8080/api/v1/payment/cancel",  "http://localhost:3000/buyerhome/manageWallet");
+                            "jovinnserver.site/api/v1/payment/cancel", WebConstant.DOMAIN + "/buyerhome/manageWallet");
                     System.out.println(payment.toJSON());
                     wallet.setConfirmPayStatus(PaymentConfirmStatus.READY);
                     walletRepository.save(wallet);

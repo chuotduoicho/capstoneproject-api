@@ -34,4 +34,5 @@ public interface ContractRepository extends JpaRepository<Contract, UUID> {
     BigDecimal countTotalRevenueByMonth(Integer month);
     Long countContractByPostRequest_Category_Id(UUID catId);
     List<Contract> findAllByPostRequest_Category_Id(UUID catId);
+    List<Contract> findAllByContractStatus(ContractStatus status);
 }

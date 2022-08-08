@@ -1,7 +1,7 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.google.api.services.drive.model.About;
-import com.jovinn.capstoneproject.dto.file.UploadFileResponse;
+import com.jovinn.capstoneproject.dto.client.file.UploadFileResponse;
 import com.jovinn.capstoneproject.enumerable.ImageType;
 import com.jovinn.capstoneproject.thirdapi.FileManagerService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/api/v1/files")
+@CrossOrigin(origins = "*")
 @Validated
 public class FileController {
     private final FileManagerService fileManagerService;
