@@ -334,7 +334,7 @@ public class BoxServiceImpl implements BoxService {
 
 
     private PageRequest getPageRequest(BoxSearchRequest request) {
-        return PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.getSortDirection(), "impression"));
+        return PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.getSortDir(), request.getSortBy()));
     }
 
     private ListBoxSearchResponse responseList(Page<Box> request) {

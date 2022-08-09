@@ -25,5 +25,7 @@ public class BaseSearchRequest {
     @Max(value = 100, message = "Size của trang cần nhỏ hơn 100")
     int size = 12;
     @Builder.Default
-    Sort.Direction sortDirection = Sort.Direction.DESC; //default
+    Sort.Direction sortDir = Sort.Direction.DESC; //default
+    @Builder.Default
+    String sortBy = "impression";
 }

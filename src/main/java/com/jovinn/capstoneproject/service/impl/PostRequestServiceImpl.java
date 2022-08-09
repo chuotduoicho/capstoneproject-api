@@ -217,9 +217,9 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public ApiResponse sellerApplyRequest(UUID postRequestId, UserPrincipal currentUser) {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
         PostRequest post = postRequestRepository.findById(postRequestId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Post Request not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bài đăng"));
         List<Seller> sellersApply;
         if (seller.getUser().getId().equals(currentUser.getId()) &&
                 seller.getUser().getIsEnabled().equals(Boolean.TRUE)){
@@ -227,14 +227,14 @@ public class PostRequestServiceImpl implements PostRequestService {
                 sellersApply = sellerRepository.findAllByPostRequests_Id(postRequestId);
                 for (Seller sellerApply: sellersApply){
                     if (sellerApply.getId().equals(seller.getId())){
-                        return new ApiResponse(Boolean.FALSE, "Bạn đã apply bài Post Request này");
+                        return new ApiResponse(Boolean.FALSE, "Bạn đã ứng cử vào bài đăng này");
                     }
                 }
                 sellersApply.add(seller);
                 post.setSellersApplyRequest(sellersApply);
                 postRequestRepository.save(post);
 
-            return new ApiResponse(Boolean.TRUE,"Apply Post Request thành công");
+            return new ApiResponse(Boolean.TRUE,"Ứng cử thành công");
 
         }
 
