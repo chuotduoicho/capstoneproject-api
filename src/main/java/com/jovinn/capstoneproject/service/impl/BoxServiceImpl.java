@@ -40,11 +40,11 @@ public class BoxServiceImpl implements BoxService {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản user"));
 
-       if (seller.getUser().getId().equals(currentUser.getId())) {
-           box.setSeller(seller);
-           boxRepository.save(box);
-           return new ApiResponse(Boolean.TRUE, "" + box.getId());
-       }
+        if (seller.getUser().getId().equals(currentUser.getId())) {
+            box.setSeller(seller);
+            boxRepository.save(box);
+            return new ApiResponse(Boolean.TRUE, "" + box.getId());
+        }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
@@ -55,7 +55,7 @@ public class BoxServiceImpl implements BoxService {
         Box boxExist = boxRepository.findById(id)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Not found box"));
         if (boxExist.getSeller().getUser().getId().equals(currentUser.getId())) {
-            if (box != null){
+            if (box != null) {
                 boxExist.setDescription(box.getDescription());
                 boxExist.setTitle(box.getTitle());
                 boxExist.setStatus(box.getStatus());
@@ -76,11 +76,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public Boolean deleteBox(UUID id) {
-        try {
-            boxRepository.deleteById(id);
-        } catch (Exception e){
-            return false;
-        }
+        boxRepository.deleteById(id);
         return true;
     }
 
@@ -89,7 +85,7 @@ public class BoxServiceImpl implements BoxService {
         return null;
     }
 
-    //Dang loi :V
+
     @Override
     public List<Box> getListServiceBySellerId(UUID sellerId) {
         return boxRepository.findAllBySellerId(sellerId);
@@ -126,7 +122,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public List<Box> getAllServiceByCategoryID(UUID categoryId) {
-        return boxRepository.getAllServiceByCategoryId(categoryId) ;
+        return boxRepository.getAllServiceByCategoryId(categoryId);
 //        Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
 //        Page<Box> boxes = boxRepository.getAllServiceByCategoryId(categoryId, pageable);
 //        List<BoxResponse> content = boxes.getContent().stream().map(
@@ -138,13 +134,13 @@ public class BoxServiceImpl implements BoxService {
     }
 
     @Override
-    public Page<Box> getAllServiceByCatIdPagination(int page,UUID categoryId) {
-        return boxRepository.findAllBySubCategory_Category_Id(categoryId,PageRequest.of(page,8));
+    public Page<Box> getAllServiceByCatIdPagination(int page, UUID categoryId) {
+        return boxRepository.findAllBySubCategory_Category_Id(categoryId, PageRequest.of(page, 8));
     }
 
     @Override
     public Page<Box> searchServiceByCatNameBySubCateName(int offset, String catName, String subCatName) {
-        return boxRepository.findAllBySubCategory_NameContainsOrSubCategory_Category_NameContains(subCatName,catName,PageRequest.of(offset,8));
+        return boxRepository.findAllBySubCategory_NameContainsOrSubCategory_Category_NameContains(subCatName, catName, PageRequest.of(offset, 8));
     }
 
     @Override
