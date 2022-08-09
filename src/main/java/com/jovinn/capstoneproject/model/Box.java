@@ -57,6 +57,8 @@ public class Box extends BaseEntity {
     @JsonManagedReference
     Gallery gallery;
 
+    @OneToMany(mappedBy = "box", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<Rating> ratings;
     public Box(String title, String description, Integer impression, Integer interesting, BoxServiceStatus status, Seller seller, SubCategory subCategory) {
         this.title = title;
         this.description = description;

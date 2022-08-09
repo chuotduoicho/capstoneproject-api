@@ -19,7 +19,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Table(schema = "jovinn_server")
-public class Rating {
+public class Rating extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid2", strategy = GenerationType.AUTO)
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
@@ -28,13 +28,13 @@ public class Rating {
     @Type(type = "uuid-char")
     UUID buyerId;
     @Type(type = "uuid-char")
-    UUID contractId;
+    UUID sellerId;
     @Min(1)
     @Max(5)
     Integer ratingPoint;
     String comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sellerId", referencedColumnName = "id")
-    Seller seller;
+    @JoinColumn(name = "boxId", referencedColumnName = "id")
+    Box box;
 }

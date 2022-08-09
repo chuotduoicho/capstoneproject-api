@@ -7,13 +7,14 @@ import com.jovinn.capstoneproject.dto.client.boxsearch.ListBoxSearchResponse;
 import com.jovinn.capstoneproject.dto.client.request.BoxRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.BoxResponse;
+import com.jovinn.capstoneproject.dto.client.response.RatingResponse;
 import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
 import com.jovinn.capstoneproject.model.Box;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
+import com.jovinn.capstoneproject.service.RatingService;
 import com.jovinn.capstoneproject.util.WebConstant;
-import org.apache.commons.collections4.Get;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,6 +36,8 @@ public class BoxController {
     private ModelMapper modelMapper;
     @Autowired
     private BoxService boxService;
+    @Autowired
+    private RatingService ratingService;
     //API add Service
     @PostMapping("/add-box-service")
     public ResponseEntity<ApiResponse> addBox(@RequestBody Box box, @CurrentUser UserPrincipal currentUser){
@@ -172,6 +175,17 @@ public class BoxController {
         return new ResponseEntity<>(response, HttpStatus.OK);
 //        return boxService.getAllServiceByCategoryID(catId).stream().map(box -> modelMapper.map(box, BoxResponse.class))
 //                .collect(Collectors.toList());
+    }
+    @GetMapping("/rating-top3/{boxId}")
+    public ResponseEntity<List<RatingResponse>> getRatingsForSeller(@PathVariable("boxId") UUID boxId) {
+        return new ResponseEntity<>(ratingService.getTop3Ratings(boxId), HttpStatus.OK);
+    }
+
+    @GetMapping("/rating-list/{boxId}")
+    public ResponseEntity<List<RatingResponse>> getRatingForBoxService(@PathVariable("boxId") UUID boxId,
+                                                                       @RequestParam(value = "page", required = false,
+                                                                               defaultValue = WebConstant.DEFAULT_PAGE_NUMBER) Integer page){
+        return new ResponseEntity<>(ratingService.getRatingsForBox(boxId, page), HttpStatus.OK);
     }
 
     @GetMapping("/paginate-list-services-by-cat/{catId}/{page}")

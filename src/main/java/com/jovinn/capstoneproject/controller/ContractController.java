@@ -164,16 +164,10 @@ public class ContractController {
 
     @PostMapping("/rating/{contractId}")
     public ResponseEntity<ApiResponse> ratingSellerFromBuyer(@PathVariable("contractId") UUID contractId,
-                                                    @Valid @RequestBody RatingRequest request,
-                                                    @CurrentUser UserPrincipal currentUser) {
+                                                             @Valid @RequestBody RatingRequest request,
+                                                             @CurrentUser UserPrincipal currentUser) {
         ApiResponse response = ratingService.ratingSeller(contractId, request, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-    @GetMapping("/rating/{contractId}")
-    public ResponseEntity<List<Rating>> getRatingsForContract(@PathVariable("contractId") UUID contractId){
-        List<Rating> response = ratingService.getRatingsForContract(contractId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/flag/{contractId}")
