@@ -159,4 +159,12 @@ public class BoxResponse {
     public Date getJoinSellingAt() {
         return seller.getUser().getJoinSellingAt();
     }
+
+    public String getPhoneNumber() {
+        return seller.getUser().getPhoneNumber();
+    }
+
+    public String getEmail() {
+        return seller.getUser().getEmail();
+    }
 }

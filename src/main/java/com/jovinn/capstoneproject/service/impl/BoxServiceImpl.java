@@ -156,7 +156,7 @@ public class BoxServiceImpl implements BoxService {
         }
 
         String message = boxes.getNumberOfElements() != 0 ?
-                "Bạn có " + boxes.getTotalElements() + "/8 dịch vụ"
+                "Bạn có " + boxes.getTotalElements() + "/5 dịch vụ"
                 : WebConstant.NOT_FOUND_BOX;
 
         List<BoxSearchResponse> content = boxes.getContent().stream().map(
@@ -181,6 +181,12 @@ public class BoxServiceImpl implements BoxService {
             Box save = boxRepository.save(box);
             return boxResponseConfig(save);
         }
+        return boxResponseConfig(box);
+    }
+
+    @Override
+    public BoxResponse getBoxByIdForGuest(UUID id) {
+        Box box = checkExistBox(id);
         return boxResponseConfig(box);
     }
 

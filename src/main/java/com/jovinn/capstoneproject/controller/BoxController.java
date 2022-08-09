@@ -95,7 +95,7 @@ public class BoxController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/search")
+    @PostMapping("/search-and-filter")
     public ResponseEntity<ListBoxSearchResponse> search(@Valid @RequestBody BoxSearchRequest request) {
         return new ResponseEntity<>(boxService.search(request), HttpStatus.OK);
     }
@@ -157,6 +157,11 @@ public class BoxController {
     public ResponseEntity<BoxResponse> getServiceById(@PathVariable("id") UUID id,
                                                       @CurrentUser UserPrincipal currentUser){
         return new ResponseEntity<>(boxService.getServiceByID(id, currentUser), HttpStatus.OK);
+    }
+
+    @GetMapping("/box-details-guest/{id}")
+    public ResponseEntity<BoxResponse> getBoxByIdForGuest(@PathVariable("id") UUID id){
+        return new ResponseEntity<>(boxService.getBoxByIdForGuest(id), HttpStatus.OK);
     }
 
     @GetMapping("/list-services-by-cat/{catId}")

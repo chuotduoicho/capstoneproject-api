@@ -39,7 +39,8 @@ public interface BoxService {
     //Get Service By id
     BoxResponse getServiceByID(UUID id, UserPrincipal currentUser);
 
-    //Get Service By Category ID
+    BoxResponse getBoxByIdForGuest(UUID id);
+
     PageResponse<BoxSearchResponse> getListServiceBySellerId(UUID sellerId, UserPrincipal currentUser,
                                                        BoxServiceStatus status, int page, int size);
 
