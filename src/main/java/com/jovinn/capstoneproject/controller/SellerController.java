@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.dto.client.response.RatingResponse;
 import com.jovinn.capstoneproject.dto.client.response.SellerSkillResponse;
 import com.jovinn.capstoneproject.enumerable.SkillLevel;
 import com.jovinn.capstoneproject.model.OfferRequest;
@@ -74,16 +75,9 @@ public class SellerController {
         return skillService.getSellerBySkillNameAndSkillLevel(names, level);
     }
 
-    @GetMapping("/rating/{sellerId}")
-    public ResponseEntity<List<Rating>> getRatingsBySeller(@PathVariable("sellerId") UUID sellerId) {
-        List<Rating> response = ratingService.getRatingsForSeller(sellerId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
     @GetMapping("/list-offer")
     public ResponseEntity<List<OfferRequest>> getOfferRequests(@CurrentUser UserPrincipal currentUser) {
         List<OfferRequest> response = offerRequestService.getOffers(currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
-        //return offerRequestService.getOffers(currentUser);
     }
 }

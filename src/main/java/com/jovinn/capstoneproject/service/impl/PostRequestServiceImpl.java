@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.adminsite.CountPostRequestResponse;
+
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountPostRequestResponse;
 import com.jovinn.capstoneproject.dto.client.request.PostRequestRequest;
 import com.jovinn.capstoneproject.dto.client.request.TargetSellerRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
@@ -170,7 +171,7 @@ public class PostRequestServiceImpl implements PostRequestService {
 
     @Override
     public List<ListSellerTargetPostRequestResponse> getTargetSeller(TargetSellerRequest request) {
-        List<String> boxes = boxRepository.getTenSellerBySubCategoryId(request.getSubCategoryId(), request.getRankSeller(),
+        List<String> boxes = sellerRepository.getTenSellerBySubCategoryId(request.getSubCategoryId(), request.getRankSeller(),
                                                                     request.getSkillName(), PageRequest.of(0,10));
         List<ListSellerTargetPostRequestResponse> responses = new ArrayList<>();
         for(String box : boxes) {

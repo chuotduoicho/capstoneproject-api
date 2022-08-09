@@ -3,13 +3,16 @@ package com.jovinn.capstoneproject.repository;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.model.Seller;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 @Repository
 public interface SellerRepository extends JpaRepository<Seller, UUID> {
@@ -24,4 +27,14 @@ public interface SellerRepository extends JpaRepository<Seller, UUID> {
     List<Seller> findAllByPostRequests_Id(UUID postRequestId);
     Page<Seller> findAllByPostRequests_Id(UUID postRequestId, Pageable pageable);
     List<Seller> findSellerByRankSeller(RankSeller rankSeller);
+    @Query("SELECT s.id from Seller s JOIN s.boxes b " +
+            "INNER JOIN Skill sk on sk.seller.id = s.id " +
+            "where b.subCategory.id = :subCategoryId " +
+            "and s.rankSeller = :rankSeller " +
+            "and sk.name IN :idsSkillName " +
+            "GROUP BY s.id " +
+            "ORDER BY RAND()")
+    List<String> getTenSellerBySubCategoryId(@Param("subCategoryId") UUID subCategoryId,
+                                             @Param("rankSeller") RankSeller rankSeller,
+                                             @Param("idsSkillName") Set<String> idsSkillName, PageRequest pageRequest);
 }

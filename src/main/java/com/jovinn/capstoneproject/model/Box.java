@@ -10,6 +10,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 @Entity
@@ -35,14 +36,15 @@ public class Box extends BaseEntity {
     Integer impression;
     Integer interesting;
 
+    BigDecimal fromPrice;
     @Enumerated(EnumType.STRING)
     BoxServiceStatus status;
 
-    @ManyToOne(fetch =  FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch =  FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
     Seller seller;
 
-    @ManyToOne(fetch =  FetchType.EAGER)
+    @ManyToOne(fetch =  FetchType.LAZY)
     @JoinColumn(name = "sub_category_id", referencedColumnName = "id")
     SubCategory subCategory;
 
@@ -54,4 +56,16 @@ public class Box extends BaseEntity {
     @OneToOne(mappedBy = "box", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     Gallery gallery;
+
+    @OneToMany(mappedBy = "box", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<Rating> ratings;
+    public Box(String title, String description, Integer impression, Integer interesting, BoxServiceStatus status, Seller seller, SubCategory subCategory) {
+        this.title = title;
+        this.description = description;
+        this.impression = impression;
+        this.interesting = interesting;
+        this.status = status;
+        this.seller = seller;
+        this.subCategory = subCategory;
+    }
 }

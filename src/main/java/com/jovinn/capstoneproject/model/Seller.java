@@ -77,7 +77,4 @@ public class Seller extends BaseEntity {
 
     @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)
     List<OfferRequest> offerRequests;
-
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
-    List<Rating> ratings;
 }
