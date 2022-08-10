@@ -20,6 +20,7 @@ import com.jovinn.capstoneproject.repository.payment.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.WalletService;
 import com.jovinn.capstoneproject.service.payment.PaymentService;
+import com.jovinn.capstoneproject.util.WebConstant;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
@@ -50,7 +51,7 @@ public class WalletServiceImpl implements WalletService {
                 try {
                     Payment payment = paymentService.createPayment(request.getCharge(), request.getCurrency(),
                             PaypalPaymentMethod.PAYPAL, PaypalPaymentIntent.SALE, "BUY " + request.getCharge() + " JCOIN",
-                            "http://localhost:8080/api/v1/payment/cancel",  "http://localhost:3000/buyerhome/manageWallet");
+                            "jovinnserver.site/api/v1/payment/cancel", WebConstant.DOMAIN + "/buyerhome/manageWallet");
                     System.out.println(payment.toJSON());
                     wallet.setConfirmPayStatus(PaymentConfirmStatus.READY);
                     walletRepository.save(wallet);

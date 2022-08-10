@@ -11,4 +11,6 @@ import java.util.UUID;
 @Repository
 public interface ActivityTypeRepository extends JpaRepository<ActivityType, UUID> {
     Set<ActivityType> findByActivityType(UserActivityType type);
+
+    ActivityType findByUsers_Id(UUID id);
 }

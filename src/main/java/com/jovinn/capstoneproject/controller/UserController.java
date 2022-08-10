@@ -104,7 +104,7 @@ public class UserController {
             return "Invalid token: " + token;
         } else {
             userService.updatePassword(user, password);
-            return "You have succcessfully changed your password.";
+            return "Bạn đã đổi mật khẩu thành công";
         }
     }
 

@@ -18,7 +18,7 @@ public class Pagination {
 
     public static void validatePageNumberAndSize(int page, int size) {
         if (page < 0) {
-            throw new JovinnException(HttpStatus.BAD_REQUEST, "Số trang không được nhỏ hơn 0");
+            throw new JovinnException(HttpStatus.BAD_REQUEST, "Vị trí trang không được nhỏ hơn 1");
         }
         if (size < 0) {
             throw new JovinnException(HttpStatus.BAD_REQUEST, "Size trang không được nhỏ hơn 0");

@@ -30,4 +30,25 @@ public class BoxServiceImplTests {
         boolean deleteBox = boxService.deleteBox(id);
         assertThat(deleteBox).isEqualTo(false);
     }
+
+//    @Test
+//    public void testAddAnMemberOrCollaboratorSuccess2() {
+//        List<User> users = Arrays.asList(createUser());
+//        List<Semester> semesters = Arrays.asList(semester());
+//        Iterable<User> iterable = users;
+//        UserDto userDto = createUserDto();
+//        userDto.setRoleId(10);
+//        ResponseMessage responseMessage = new ResponseMessage();
+//        responseMessage.setData(semesters);
+//        when(userRepository.findAll()).thenReturn(iterable);
+//        when(roleRepository.findById(anyInt())).thenReturn(Optional.of(role()));
+//        when(semesterService.getCurrentSemester()).thenReturn(responseMessage);
+//        ResponseMessage response = userService.addAnMemberOrCollaborator(userDto);
+//        assertEquals(response.getData().size(), 1);
+//    }
+//
+//    private User createUser() {
+//        User u = new User();
+//        return u;
+//    }
 }

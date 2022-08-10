@@ -1,25 +1,36 @@
 package com.jovinn.capstoneproject.controller;
 
-import com.jovinn.capstoneproject.dto.adminsite.*;
+import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminLoginRequest;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
+import com.jovinn.capstoneproject.exception.JovinnException;
+import com.jovinn.capstoneproject.model.ActivityType;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.model.Admin;
+import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.security.JwtTokenProvider;
 import com.jovinn.capstoneproject.service.*;
 import lombok.RequiredArgsConstructor;
-import org.checkerframework.checker.units.qual.A;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/admin")
 @CrossOrigin(origins = "*")
 public class AdminController {
 
@@ -43,6 +54,15 @@ public class AdminController {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private ActivityTypeService activityTypeService;
 
     @GetMapping("/get-total-service")
     public CountServiceResponse countTotalService(){
@@ -161,6 +181,30 @@ public class AdminController {
     @GetMapping("/get-transaction-by-id/{id}")
     public AdminViewTransactionResponse getTransactionById(@PathVariable UUID id){
         return transactionService.getTransactionById(id);
+    }
+
+    @PostMapping("/admin-sign-in")
+    public ResponseEntity<JwtAuthenticationResponse> authenticationAdmin(@RequestBody AdminLoginRequest adminLoginRequest){
+        try {
+            User user = userService.getUserByUserName(adminLoginRequest.getAdminAccount());
+            ActivityType activityType = new ActivityType(UserActivityType.ADMIN);
+            if (Objects.equals(activityTypeService.getActivityTypeByUserId(user.getId()), UserActivityType.ADMIN)
+                    && activityTypeService.getActivityTypeByUserId(user.getId()) != null){
+
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(adminLoginRequest.getAdminAccount(), adminLoginRequest.getPassword()));
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                String jwt = jwtTokenProvider.generateToken(authentication);
+                return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+            }else {
+                throw new BadCredentialsException("");
+            }
+
+        } catch (BadCredentialsException e) {
+            throw new JovinnException(HttpStatus.BAD_REQUEST, "Tài khoản/email hoặc password không đúng");
+        }
     }
 
     @PutMapping("/auto-complete-contract")

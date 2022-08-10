@@ -57,6 +57,20 @@ public class BoxResponse {
     public String getBrandName() {
         return seller.getBrandName();
     }
+    public UUID getSubCategoryId() {
+        return subCategory.getId();
+    }
+    public String getSubCategoryName() {
+        return subCategory.getName();
+    }
+
+    public UUID getCategoryId() {
+        return subCategory.getCategory().getId();
+    }
+
+    public String getCategoryName() {
+        return subCategory.getCategory().getName();
+    }
 
     public String getLastName() {
         return seller.getUser().getLastName();
@@ -112,10 +126,6 @@ public class BoxResponse {
 
     public Date getLastLogin() {
         return seller.getUser().getLastLogin();
-    }
-
-    public SubCategory getSubcategory() {
-        return subCategory;
     }
 
     public String getTitle() {

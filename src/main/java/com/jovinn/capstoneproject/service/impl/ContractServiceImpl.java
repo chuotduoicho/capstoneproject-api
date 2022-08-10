@@ -1,8 +1,8 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.adminsite.AdminViewContractsResponse;
-import com.jovinn.capstoneproject.dto.adminsite.CountContractResponse;
-import com.jovinn.capstoneproject.dto.adminsite.CountTotalRevenueResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewContractsResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountContractResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.dto.client.request.ContractRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.AvatarResponse;
