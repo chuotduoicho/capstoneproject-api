@@ -37,9 +37,9 @@ public class User extends BaseEntity {
     String firstName;
     String lastName;
     String username;
-    @Column(unique = true, length = 55, nullable = false)
+    @Column(unique = true, length = 100, nullable = false)
     String email;
-    @Column(unique = true, length = 15)
+    @Column(unique = true, length = 11)
     String phoneNumber;
 
     @JsonIgnore

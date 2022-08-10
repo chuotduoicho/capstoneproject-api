@@ -6,6 +6,7 @@ import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserRespo
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountUserResponse;
 import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
+import com.jovinn.capstoneproject.dto.client.request.UserChangeProfileRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.UserPrincipal;
@@ -22,7 +23,7 @@ public interface UserService {
     User getUserByResetPasswordToken(String token);
     void updatePassword(User user, String newPassword);
     void updateResetPasswordToken(String token, String email);
-    User update(User editUser, UUID id, UserPrincipal currentUser);
+    ApiResponse update(UUID id, UserChangeProfileRequest request, UserPrincipal currentUser);
     User getByUserId(UUID id);
     ApiResponse registerUser(SignUpRequest signUpRequest);
     User verifyRegistration(String verificationCode);

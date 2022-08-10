@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.repository;
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.validation.constraints.NotBlank;
@@ -26,5 +27,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     User findUserById(UUID id);
 
     List<User> findUserByPostRequests_Id(UUID postRequestId);
-    Boolean existsByPhoneNumber(String phoneNumber);
+    @Query("SELECT u FROM User u WHERE u.phoneNumber = ?1")
+    User findUserByPhoneNumber(String phoneNumber);
 }

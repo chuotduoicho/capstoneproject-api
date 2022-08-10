@@ -8,6 +8,7 @@ import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserRespo
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountUserResponse;
 import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
+import com.jovinn.capstoneproject.dto.client.request.UserChangeProfileRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
@@ -90,28 +91,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(User request, UUID id, UserPrincipal currentUser) {
+    public ApiResponse update(UUID id, UserChangeProfileRequest request, UserPrincipal currentUser) {
         User existUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "user not found ", id));
-
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy thông tin người dùng"));
         if (existUser.getId().equals(currentUser.getId())) {
-            if(Boolean.TRUE.equals(userRepository.existsByPhoneNumber(request.getPhoneNumber()))) {
-                throw new ApiException(HttpStatus.BAD_REQUEST, "Số điện thoại đã được sử dụng. vui lòng nhập số khác");
-            } else {
-                existUser.setFirstName(request.getFirstName());
-                existUser.setLastName(request.getLastName());
-                existUser.setPhoneNumber(request.getPhoneNumber());
-                existUser.setGender(request.getGender());
-                existUser.setBirthDate(request.getBirthDate());
-                existUser.setCity(request.getCity());
-                existUser.setCountry(request.getCountry());
-                existUser.setAvatar(request.getAvatar());
-
-                return userRepository.save(existUser);
+            existUser.setFirstName(request.getFirstName());
+            existUser.setLastName(request.getLastName());
+            if(request.getPhoneNumber() != null && !request.getPhoneNumber().equals(existUser.getPhoneNumber())) {
+                User existPhoneNumber = userRepository.findUserByPhoneNumber(request.getPhoneNumber());
+                if(existPhoneNumber != null) {
+                    throw new ApiException(HttpStatus.BAD_REQUEST, "Số điện thoại đã được sử dụng. vui lòng nhập số khác");
+                } else {
+                    existUser.setPhoneNumber(request.getPhoneNumber());
+                }
             }
+            existUser.setGender(request.getGender());
+            existUser.setBirthDate(request.getBirthDate());
+            existUser.setCity(request.getCity());
+            existUser.setCountry(request.getCountry());
+            existUser.setAvatar(request.getAvatar());
+            userRepository.save(existUser);
+            return new ApiResponse(Boolean.TRUE, "Cập nhật thông tin thành công");
         }
 
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to update profile of: " + existUser.getUsername());
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to update profile");
         throw new UnauthorizedException(apiResponse);
     }
 

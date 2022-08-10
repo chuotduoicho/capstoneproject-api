@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.controller;
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
 import com.jovinn.capstoneproject.dto.client.request.ResetPasswordRequest;
+import com.jovinn.capstoneproject.dto.client.request.UserChangeProfileRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.NotificationResponse;
 import com.jovinn.capstoneproject.dto.client.response.WalletResponse;
@@ -67,11 +68,10 @@ public class UserController {
     }
 
     @PutMapping("/profile/{id}")
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User editUser,
-                                           @PathVariable("id") UUID id,
-                                           @CurrentUser UserPrincipal currentUser) {
-        User updatedUser = userService.update(editUser, id, currentUser);
-        return new ResponseEntity< >(updatedUser, HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse> updateUser(@PathVariable("id") UUID id,
+                                                  @Valid @RequestBody UserChangeProfileRequest request,
+                                                  @CurrentUser UserPrincipal currentUser) {
+        return new ResponseEntity<>(userService.update(id, request, currentUser), HttpStatus.OK);
     }
 
     @PostMapping("/join-selling")
