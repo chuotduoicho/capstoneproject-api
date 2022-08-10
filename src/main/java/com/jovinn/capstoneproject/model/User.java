@@ -9,6 +9,7 @@ import com.jovinn.capstoneproject.enumerable.Gender;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
+import org.checkerframework.common.aliasing.qual.Unique;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
