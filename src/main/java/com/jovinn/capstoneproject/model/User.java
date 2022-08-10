@@ -57,7 +57,6 @@ public class User extends BaseEntity {
     String avatar;
 
     @JsonIgnore
-    @Size(min = 6, max = 50)
     String password;
 
     @Temporal(TemporalType.DATE)
