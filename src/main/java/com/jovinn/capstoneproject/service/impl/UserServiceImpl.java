@@ -90,21 +90,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(User editUser, UUID id, UserPrincipal currentUser) {
+    public User update(User request, UUID id, UserPrincipal currentUser) {
         User existUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "user not found ", id));
 
         if (existUser.getId().equals(currentUser.getId())) {
-            existUser.setFirstName(editUser.getFirstName());
-            existUser.setLastName(editUser.getLastName());
-            existUser.setPhoneNumber(editUser.getPhoneNumber());
-            existUser.setGender(editUser.getGender());
-            existUser.setBirthDate(editUser.getBirthDate());
-            existUser.setCity(editUser.getCity());
-            existUser.setCountry(editUser.getCountry());
-            existUser.setAvatar(editUser.getAvatar());
+            if(Boolean.TRUE.equals(userRepository.existsByPhoneNumber(request.getPhoneNumber()))) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "Số điện thoại đã được sử dụng. vui lòng nhập số khác");
+            } else {
+                existUser.setFirstName(request.getFirstName());
+                existUser.setLastName(request.getLastName());
+                existUser.setPhoneNumber(request.getPhoneNumber());
+                existUser.setGender(request.getGender());
+                existUser.setBirthDate(request.getBirthDate());
+                existUser.setCity(request.getCity());
+                existUser.setCountry(request.getCountry());
+                existUser.setAvatar(request.getAvatar());
 
-            return userRepository.save(existUser);
+                return userRepository.save(existUser);
+            }
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to update profile of: " + existUser.getUsername());
@@ -276,6 +280,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByUserName(String name) {
         return userRepository.findByUsername(name)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Not found user"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Người dùng không khả dụng"));
     }
 }

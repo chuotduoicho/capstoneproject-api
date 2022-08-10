@@ -22,9 +22,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Boolean existsByUsername(@NotBlank String username);
 
     Boolean existsByEmail(@NotBlank String email);
-    Optional<User> findById(UUID id);
     User findUserByVerificationCode(String code);
     User findUserById(UUID id);
 
     List<User> findUserByPostRequests_Id(UUID postRequestId);
+    Boolean existsByPhoneNumber(String phoneNumber);
 }
