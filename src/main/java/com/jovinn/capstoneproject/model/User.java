@@ -2,19 +2,16 @@ package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.Gender;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-import org.checkerframework.common.aliasing.qual.Unique;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.util.*;
 
 @Entity

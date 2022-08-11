@@ -11,6 +11,7 @@ import com.jovinn.capstoneproject.security.JwtTokenProvider;
 import com.jovinn.capstoneproject.service.UserService;
 import com.jovinn.capstoneproject.util.EmailSender;
 import com.jovinn.capstoneproject.util.RequestUtility;
+import com.jovinn.capstoneproject.util.WebConstant;
 import lombok.RequiredArgsConstructor;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,12 +81,12 @@ public class AuthController {
         String token = RandomString.make(10);
         try {
             userService.updateResetPasswordToken(token, email);
-            String resetPasswordLink = RequestUtility.getSiteURL(request) + "/auth/resetpassword/" + token;
+            String resetPasswordLink = WebConstant.DOMAIN + "/auth/resetPassword/" + token;
             emailSender.sendEmailResetPassword(email, resetPasswordLink);
         } catch (ResourceNotFoundException ex) {
-            return "User not found with email: " + email;
+            return "Không tìm thấy Email: " + email;
         } catch (UnsupportedEncodingException | MessagingException e) {
-            return "Error while sending email";
+            return "Có lỗi khi gửi Email";
         }
         return token;
     }

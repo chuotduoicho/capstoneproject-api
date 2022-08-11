@@ -96,16 +96,8 @@ public class UserController {
     }
 
     @PostMapping("/reset-password")
-    public String processResetPassword(@RequestBody ResetPasswordRequest request) {
-        String token = request.getToken();
-        String password = request.getPassword();
-        User user = userService.getUserByResetPasswordToken(token);
-        if (user == null) {
-            return "Invalid token: " + token;
-        } else {
-            userService.updatePassword(user, password);
-            return "Bạn đã đổi mật khẩu thành công";
-        }
+    public ResponseEntity<ApiResponse> processResetPassword(@RequestBody ResetPasswordRequest request) {
+        return new ResponseEntity<>(userService.resetPassword(request), HttpStatus.OK);
     }
 
     @PutMapping("/change-password")

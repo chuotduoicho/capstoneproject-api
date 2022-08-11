@@ -71,6 +71,7 @@ public class Contract extends BaseEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "contract")
     @JsonManagedReference
+    @JsonIgnore
     List<Comment> comments;
 //
 //    @OneToMany(mappedBy = "contract", fetch = FetchType.EAGER)

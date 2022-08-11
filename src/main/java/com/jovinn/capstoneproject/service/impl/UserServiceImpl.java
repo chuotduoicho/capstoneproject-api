@@ -7,6 +7,7 @@ import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserRespo
 
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountUserResponse;
 import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
+import com.jovinn.capstoneproject.dto.client.request.ResetPasswordRequest;
 import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
 import com.jovinn.capstoneproject.dto.client.request.UserChangeProfileRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
@@ -124,8 +125,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByResetPasswordToken(String token) {
-        return userRepository.findByResetPasswordToken(token);
+    public ApiResponse resetPassword(ResetPasswordRequest request) {
+        String token = request.getToken();
+        String password = request.getPassword();
+        User user = userRepository.findByResetPasswordToken(token);
+        if (user == null) {
+            return new ApiResponse(Boolean.FALSE,"Token đã hết hạn: " + token);
+        } else {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String encodedPassword = passwordEncoder.encode(password);
+            user.setResetPasswordToken(null);
+            user.setPassword(encodedPassword);
+            user.setResetPasswordToken(null);
+            userRepository.save(user);
+            return new ApiResponse(Boolean.TRUE,
+            "Bạn đã đổi mật khẩu thành công");
+        }
     }
 
     @Override
@@ -141,7 +156,7 @@ public class UserServiceImpl implements UserService {
     public void updateResetPasswordToken(String token, String email) throws ResourceNotFoundException {
         User user = userRepository.findUserByEmail(email)
                 .orElseThrow(() ->
-                        new ApiException(HttpStatus.BAD_REQUEST, "Email not present "));
+                        new ApiException(HttpStatus.BAD_REQUEST, "Email không tồn tại"));
 
         if (user != null){
             user.setResetPasswordToken(token);

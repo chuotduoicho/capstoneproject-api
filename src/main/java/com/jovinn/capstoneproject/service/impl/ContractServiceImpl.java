@@ -45,6 +45,8 @@ public class ContractServiceImpl implements ContractService {
     @Autowired
     private SellerRepository sellerRepository;
     @Autowired
+    private BoxRepository boxRepository;
+    @Autowired
     private PackageRepository packageRepository;
     @Autowired
     private OfferRequestRepository offerRequestRepository;
@@ -328,7 +330,7 @@ public class ContractServiceImpl implements ContractService {
                         sellerRepository.save(seller);
                         return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
                     } else {
-                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chưa đánh dấu hoàn thành tất cả các milestone");
+                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chưa đánh dấu hoàn thành tất cả các giai đoạn");
                     }
                 } else {
                     walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
@@ -341,9 +343,9 @@ public class ContractServiceImpl implements ContractService {
                     Seller seller = contract.getSeller();
                     seller.setTotalOrderFinish(seller.getTotalOrderFinish() + 1);
                     sellerRepository.save(seller);
+                    updateTotalFinalContract(contract.getPackageId());
                     return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
                 }
-
 //                String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
 //                try {
 //                    emailSender.sendEmailNotiRejectContractToSeller(contract.getSeller().getUser().getEmail(),
@@ -734,6 +736,15 @@ public class ContractServiceImpl implements ContractService {
         postRequest.setStatus(PostRequestStatus.CLOSE);
         postRequest.setUpdatedAt(new Date());
         postRequestRepository.save(postRequest);
+    }
+
+    private void updateTotalFinalContract(UUID packageId) {
+        Package pack = packageRepository.findById(packageId)
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy gói dịch vụ"));
+        Box box = boxRepository.findById(pack.getBox().getId())
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hộp dịch vụ"));
+        box.setTotalFinalContract(box.getTotalFinalContract() + 1);
+        boxRepository.save(box);
     }
 
     private void changeStatusAllOfferRejected(PostRequest postRequest) {

@@ -58,13 +58,13 @@ public class BoxController {
     }
 
     @GetMapping("/top-8-impression")
-    public ResponseEntity<List<BoxSearchResponse>> getTop8BoxByImpression() {
-        return new ResponseEntity<>(boxService.getTop8BoxByImpression(), HttpStatus.OK);
+    public ResponseEntity<List<BoxSearchResponse>> getTop8BoxByTotalContract() {
+        return new ResponseEntity<>(boxService.getTop8BoxByTotalContract(), HttpStatus.OK);
     }
 
     @GetMapping("/top-8-impression/{categoryId}")
     public ResponseEntity<List<BoxSearchResponse>> getTop8BoxByCategoryOrderByImpression(@PathVariable("categoryId") UUID categoryId) {
-        return new ResponseEntity<>(boxService.getTop8BoxByCategoryOrderByImpression(categoryId), HttpStatus.OK);
+        return new ResponseEntity<>(boxService.getTop8BoxByCategoryOrderByTotalContract(categoryId), HttpStatus.OK);
     }
 
     @GetMapping("/list-box-history")

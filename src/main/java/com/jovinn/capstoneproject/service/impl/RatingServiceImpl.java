@@ -1,6 +1,5 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.client.boxsearch.BoxSearchResponse;
 import com.jovinn.capstoneproject.dto.client.request.RatingRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.RatingResponse;
@@ -9,7 +8,6 @@ import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.*;
-import com.jovinn.capstoneproject.model.Package;
 import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.RatingService;

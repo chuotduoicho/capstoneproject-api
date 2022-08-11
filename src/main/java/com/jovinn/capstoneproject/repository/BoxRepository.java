@@ -78,8 +78,8 @@ public interface BoxRepository extends JpaRepository<Box, UUID> {
     Page<Box> findAllByTitleLike(@Param("searchKeyWord") String searchKeyWord,
                                  @Param("boxStatus") BoxServiceStatus boxStatus,
                                  Pageable pageable);
-    @Query("SELECT b FROM Box b WHERE b.status = ?1 ORDER BY b.impression DESC")
-    List<Box> getTop8ByImpression(BoxServiceStatus status, PageRequest pageRequest);
-    @Query("SELECT b FROM Box b WHERE b.status = ?1 AND b.subCategory.category.id = ?2 ORDER BY b.impression DESC")
-    List<Box> getTop8BoxByCategoryOrderByImpression(BoxServiceStatus status, UUID categoryId, PageRequest pageRequest);
+    @Query("SELECT b FROM Box b WHERE b.status = ?1 ORDER BY b.totalFinalContract DESC")
+    List<Box> getTop8ByTotalFinalContract(BoxServiceStatus status, PageRequest pageRequest);
+    @Query("SELECT b FROM Box b WHERE b.status = ?1 AND b.subCategory.category.id = ?2 ORDER BY b.totalFinalContract DESC")
+    List<Box> getTop8BoxByCategoryOrderByTotalFinalContract(BoxServiceStatus status, UUID categoryId, PageRequest pageRequest);
 }

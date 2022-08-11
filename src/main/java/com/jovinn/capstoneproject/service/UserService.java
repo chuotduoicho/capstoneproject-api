@@ -5,6 +5,7 @@ import com.jovinn.capstoneproject.dto.UserSummary;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountUserResponse;
 import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
+import com.jovinn.capstoneproject.dto.client.request.ResetPasswordRequest;
 import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
 import com.jovinn.capstoneproject.dto.client.request.UserChangeProfileRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
@@ -20,7 +21,7 @@ public interface UserService {
     List<User> getUsers();
     UserProfile getUserProfile(String username);
     User getUserByEmail(String email);
-    User getUserByResetPasswordToken(String token);
+    ApiResponse resetPassword(ResetPasswordRequest request);
     void updatePassword(User user, String newPassword);
     void updateResetPasswordToken(String token, String email);
     ApiResponse update(UUID id, UserChangeProfileRequest request, UserPrincipal currentUser);
