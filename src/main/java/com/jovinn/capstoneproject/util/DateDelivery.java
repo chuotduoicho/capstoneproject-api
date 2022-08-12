@@ -12,10 +12,4 @@ public class DateDelivery {
         cal.add(expectDeliveryDate, totalDeliveryTime);
         return cal.getTime();
     }
-
-    public Date validDateUpdateRank(Integer joinSellingAtMonth) {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MONTH, joinSellingAtMonth);
-        return cal.getTime();
-    }
 }
