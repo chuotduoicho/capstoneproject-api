@@ -26,7 +26,7 @@ public interface SellerRepository extends JpaRepository<Seller, UUID> {
 
     List<Seller> findAllByPostRequests_Id(UUID postRequestId);
     Page<Seller> findAllByPostRequests_Id(UUID postRequestId, Pageable pageable);
-    List<Seller> findSellerByRankSeller(RankSeller rankSeller);
+    List<Seller> findAllByRankSeller(RankSeller rankSeller);
     @Query("SELECT s.id from Seller s JOIN s.boxes b " +
             "INNER JOIN Skill sk on sk.seller.id = s.id " +
             "where b.subCategory.id = :subCategoryId " +

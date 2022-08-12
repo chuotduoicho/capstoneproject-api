@@ -23,6 +23,7 @@ import com.jovinn.capstoneproject.util.EmailSender;
 import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
