@@ -3,26 +3,23 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
 
+import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminLoginRequest;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
 
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountUserResponse;
-import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
-import com.jovinn.capstoneproject.dto.client.request.ResetPasswordRequest;
-import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
-import com.jovinn.capstoneproject.dto.client.request.UserChangeProfileRequest;
+import com.jovinn.capstoneproject.dto.client.request.*;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.JwtAuthenticationResponse;
 import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
-import com.jovinn.capstoneproject.model.Buyer;
-import com.jovinn.capstoneproject.model.Seller;
-import com.jovinn.capstoneproject.model.User;
-import com.jovinn.capstoneproject.model.Wallet;
+import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.repository.UserRepository;
 import com.jovinn.capstoneproject.repository.payment.WalletRepository;
+import com.jovinn.capstoneproject.security.JwtTokenProvider;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.SellerService;
@@ -34,6 +31,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,10 +46,7 @@ import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.jovinn.capstoneproject.util.GenerateRandom.getRandomNumberString;
 
@@ -60,6 +60,8 @@ public class UserServiceImpl implements UserService {
     private final ActivityTypeService activityTypeService;
     private final WalletRepository walletRepository;
     private final EmailSender emailSender;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
     @Autowired
     private SellerService sellerService;
     @Override
@@ -208,6 +210,49 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.save(user);
         return new ApiResponse(Boolean.TRUE, "Liên kết xác thực đã được gửi vào hòm thư của bạn, vui lòng xác nhận");
+    }
+
+    @Override
+    public JwtAuthenticationResponse loginUser(LoginRequest loginRequest) {
+        try {
+            User user = getUserByUserName(loginRequest.getUsernameOrEmail());
+            if(!Objects.equals(activityTypeService.getActivityTypeByUserId(user.getId()), UserActivityType.ADMIN)
+                    && activityTypeService.getActivityTypeByUserId(user.getId()) != null) {
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                String jwt = jwtTokenProvider.generateToken(authentication);
+                return new JwtAuthenticationResponse(jwt);
+            } else {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn không có quyền");
+            }
+        } catch (BadCredentialsException e) {
+            throw new JovinnException(HttpStatus.BAD_REQUEST, "Tài khoản/email hoặc password không đúng");
+        }
+    }
+
+    @Override
+    public JwtAuthenticationResponse loginAdmin(AdminLoginRequest adminLoginRequest) {
+        try {
+            User user = getUserByUserName(adminLoginRequest.getAdminAccount());
+            if (Objects.equals(activityTypeService.getActivityTypeByUserId(user.getId()), UserActivityType.ADMIN)
+                    && activityTypeService.getActivityTypeByUserId(user.getId()) != null){
+
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(adminLoginRequest.getAdminAccount(), adminLoginRequest.getPassword()));
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                String jwt = jwtTokenProvider.generateToken(authentication);
+                return new JwtAuthenticationResponse(jwt);
+            } else {
+                throw new BadCredentialsException("Bạn không có quyền");
+            }
+        } catch (BadCredentialsException e) {
+            throw new JovinnException(HttpStatus.BAD_REQUEST, "Tài khoản/email hoặc password không đúng");
+        }
     }
 
     @Override

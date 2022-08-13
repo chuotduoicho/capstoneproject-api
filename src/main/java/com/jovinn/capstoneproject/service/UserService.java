@@ -2,13 +2,12 @@ package com.jovinn.capstoneproject.service;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.dto.UserSummary;
+import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminLoginRequest;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountUserResponse;
-import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
-import com.jovinn.capstoneproject.dto.client.request.ResetPasswordRequest;
-import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
-import com.jovinn.capstoneproject.dto.client.request.UserChangeProfileRequest;
+import com.jovinn.capstoneproject.dto.client.request.*;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.JwtAuthenticationResponse;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 
@@ -27,6 +26,8 @@ public interface UserService {
     ApiResponse update(UUID id, UserChangeProfileRequest request, UserPrincipal currentUser);
     User getByUserId(UUID id);
     ApiResponse registerUser(SignUpRequest signUpRequest);
+    JwtAuthenticationResponse loginUser(LoginRequest loginRequest);
+    JwtAuthenticationResponse loginAdmin(AdminLoginRequest adminLoginRequest);
     User verifyRegistration(String verificationCode);
     ApiResponse changePassword(ChangePasswordRequest request, UserPrincipal currentUser);
     List<UserProfile> getListUserInvitedByPostRequestId(UUID postRequest);

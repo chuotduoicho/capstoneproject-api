@@ -4,10 +4,12 @@ import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.JwtAuthenticationResponse;
 import com.jovinn.capstoneproject.dto.client.request.LoginRequest;
 import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
+import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
 import com.jovinn.capstoneproject.util.EmailSender;
 import com.jovinn.capstoneproject.util.RequestUtility;
@@ -30,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,20 +47,12 @@ public class AuthController {
     private JwtTokenProvider jwtTokenProvider;
     @Autowired
     private EmailSender emailSender;
+    @Autowired
+    private ActivityTypeService activityTypeService;
 
     @PostMapping("/signin")
-    public ResponseEntity<JwtAuthenticationResponse> authenticateUser(@RequestBody LoginRequest loginRequest) throws Exception {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            String jwt = jwtTokenProvider.generateToken(authentication);
-            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
-        } catch (BadCredentialsException e) {
-            throw new JovinnException(HttpStatus.BAD_REQUEST, "Tài khoản/email hoặc password không đúng");
-        }
+    public ResponseEntity<JwtAuthenticationResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.ok(userService.loginUser(loginRequest));
     }
 
     @PostMapping("/signup")
