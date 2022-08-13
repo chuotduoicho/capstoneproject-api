@@ -54,7 +54,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponse update(UUID id, CommentRequest request, UserPrincipal currentUser) {
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy comment"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bình luận"));
         if (comment.getUserId().equals(currentUser.getId())) {
             comment.setText(request.getText());
             Comment update = commentRepository.save(comment);
@@ -68,10 +68,10 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public ApiResponse delete(UUID id, UserPrincipal currentUser) {
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy comment"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bình luận"));
         if (comment.getUserId().equals(currentUser.getId())) {
             commentRepository.deleteById(comment.getId());
-            return new ApiResponse(Boolean.TRUE, "Xoá thành công comment");
+            return new ApiResponse(Boolean.TRUE, "Xoá thành công bình luận");
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");

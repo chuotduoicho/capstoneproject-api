@@ -87,7 +87,7 @@ public class ContractController {
     }
 
     @PostMapping("/delivery-for-milestone/{id}")
-    public ResponseEntity<DeliveryHaveMilestoneResponse> deliveryBySeller(@PathVariable("id") UUID id,
+    public ResponseEntity<DeliveryHaveMilestoneResponse> deliveryBySellerForMilestone(@PathVariable("id") UUID id,
                                                                           @Valid @RequestBody DeliveryHaveMilestoneRequest request,
                                                                           @CurrentUser UserPrincipal currentUser) {
         DeliveryHaveMilestoneResponse response = deliveryService.createDeliveryMilestone(id, request, currentUser);

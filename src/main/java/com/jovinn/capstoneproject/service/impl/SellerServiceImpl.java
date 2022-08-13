@@ -49,7 +49,7 @@ public class SellerServiceImpl implements SellerService {
     @Override
     public Seller getSellerById(UUID id) {
         return sellerRepository.findById(id)
-                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Seller not found "));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm tháy người bán"));
     }
 
     @Override
@@ -110,7 +110,7 @@ public class SellerServiceImpl implements SellerService {
     @Override
     public Seller getSellerByUserId(UUID userId) {
         return sellerRepository.findSellerByUserId(userId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm tháy người bán"));
     }
 
     @Override

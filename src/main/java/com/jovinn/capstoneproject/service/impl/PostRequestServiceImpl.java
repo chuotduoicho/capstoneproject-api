@@ -102,9 +102,9 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public ApiResponse updatePostRequest(PostRequestRequest request, UUID id, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         PostRequest post = postRequestRepository.findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Post Request not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bài đăng"));
         if (post.getUser().getId().equals(buyer.getUser().getId()) && post.getUser().getId().equals(currentUser.getId())){
             PostRequest savedPostRequest;
             if (request != null && post.getSellersApplyRequest().isEmpty() ){
@@ -148,7 +148,7 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public List<PostRequestResponse> getPostRequestByBuyerCreated(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         List<PostRequest> postRequests;
        // PostRequestResponse postRequestResponse;
         List<PostRequestResponse> postRequestResponses = new ArrayList<>();
@@ -172,7 +172,7 @@ public class PostRequestServiceImpl implements PostRequestService {
         List<ListSellerTargetPostRequestResponse> responses = new ArrayList<>();
         for(String box : boxes) {
             Seller seller = sellerRepository.findById(UUID.fromString(box))
-                    .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy seller"));
+                    .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
             responses.add(new ListSellerTargetPostRequestResponse(seller.getUser().getId(), seller.getId(), seller.getUser().getAvatar(),
                     seller.getUser().getLastName() + " " + seller.getUser().getFirstName(), seller.getBrandName(),
                     seller.getTotalOrderFinish(), seller.getRatingPoint(), seller.getSkills().get(0).getName(),seller.getRankSeller()));

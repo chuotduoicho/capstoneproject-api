@@ -65,12 +65,15 @@ public class BoxServiceImpl implements BoxService {
         if (seller.getUser().getId().equals(currentUser.getId())) {
             List<Box> boxes = boxRepository.findAllBySellerId(seller.getId());
             if(boxes.size() >= 5 && seller.getRankSeller().equals(RankSeller.BEGINNER)) {
-                return new ApiResponse(Boolean.FALSE, "Bạn chỉ được tạo tối đa 5 hộp dịch vụ do chưa đạt cấp độ người bán cao hơn");
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chỉ được tạo tối đa 5 hộp dịch vụ do chưa đạt cấp độ người bán cao hơn");
+            } else if(boxes.size() >= 10 && seller.getRankSeller().equals(RankSeller.ADVANCED)) {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chỉ được tạo tối đa 10 hộp dịch vụ do chưa đạt cấp độ người bán cao hơn");
             } else {
                 box.setSeller(seller);
                 box.setImpression(0);
                 box.setTotalFinalContract(0);
                 box.setInteresting(0);
+                box.setSubCategory(subCategoryRepository.findSubCategoryById(box.getSubCategory().getId()));
                 BigDecimal fromPrice = box.getPackages().get(0).getPrice();
                 box.setFromPrice(fromPrice);
                 boxRepository.save(box);
@@ -103,7 +106,7 @@ public class BoxServiceImpl implements BoxService {
                 boxRepository.save(box);
                 return new ApiResponse(Boolean.TRUE, "Cập nhật hộp dịch vụ thành công");
             } catch (BadRequestException e) {
-                return new ApiResponse(Boolean.FALSE, "Cập nhật hộp dịch vụ thất bại");
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Cập nhật hộp dịch vụ thất bại");
             }
         }
 
@@ -121,7 +124,7 @@ public class BoxServiceImpl implements BoxService {
                 boxRepository.deleteById(id);
                 return new ApiResponse(Boolean.TRUE, "Xóa hộp dịch vụ thành công");
             } catch (Exception e){
-                return new ApiResponse(Boolean.FALSE, "Xóa hộp dịch vụ thất bại");
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Xóa hộp dịch vụ thất bại");
             }
         }
 
@@ -150,7 +153,7 @@ public class BoxServiceImpl implements BoxService {
     public PageResponse<BoxSearchResponse> getListServiceBySellerId(UUID sellerId, UserPrincipal currentUser,
                                                               BoxServiceStatus status, int page, int size) {
         Seller seller = sellerRepository.findById(sellerId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản user"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản người bán"));
 
         Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
         Page<Box> boxes;
@@ -160,9 +163,24 @@ public class BoxServiceImpl implements BoxService {
             boxes = boxRepository.findAllBySellerIdAndStatus(sellerId, BoxServiceStatus.ACTIVE, pageable);
         }
 
-        String message = boxes.getNumberOfElements() != 0 ?
-                "Bạn có " + boxes.getTotalElements() + "/5 dịch vụ"
-                : WebConstant.NOT_FOUND_BOX;
+        String message;
+        switch (seller.getRankSeller()) {
+            case BEGINNER:
+                message = boxes.getNumberOfElements() != 0 ?
+                        "Bạn có " + boxes.getTotalElements() + "/5 dịch vụ"
+                        : WebConstant.NOT_FOUND_BOX;
+                break;
+            case ADVANCED:
+                 message = boxes.getNumberOfElements() != 0 ?
+                        "Bạn có " + boxes.getTotalElements() + "/10 dịch vụ"
+                        : WebConstant.NOT_FOUND_BOX;
+                 break;
+            default:
+                message = boxes.getNumberOfElements() != 0 ?
+                        "Bạn có " + boxes.getTotalElements() + " dịch vụ"
+                        : WebConstant.NOT_FOUND_BOX;
+                break;
+        }
 
         List<BoxSearchResponse> content = boxes.getContent().stream().map(
                         box -> modelMapper.map(box, BoxSearchResponse.class))

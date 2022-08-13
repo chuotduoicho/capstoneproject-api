@@ -47,7 +47,6 @@ public class Box extends BaseEntity {
 
     @ManyToOne(fetch =  FetchType.LAZY)
     @JoinColumn(name = "sub_category_id", referencedColumnName = "id")
-    @JsonIgnore
     SubCategory subCategory;
 
     @OneToMany(mappedBy = "box", cascade = CascadeType.ALL, orphanRemoval = true)

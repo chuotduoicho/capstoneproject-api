@@ -32,7 +32,7 @@ public class ScheduleService {
     @Autowired
     private SellerRepository sellerRepository;
 
-    @Scheduled(cron = "39 18 * * * MON-SAT")
+    @Scheduled(cron = "0 0 * * * MON-SAT")
     void autoCompleteContract() throws InterruptedException {
         List<Contract> contracts = contractRepository.findAllByContractStatus(ContractStatus.PROCESSING);
         List<Contract> list = new ArrayList<>();
@@ -48,7 +48,7 @@ public class ScheduleService {
                 }
             }
         }
-        System.out.println("Đã thay đổi trạng thái của " + list.size() + " hợp đồng");
+        log.info("Đã thay đổi trạng thái của " + list.size() + " hợp đồng");
     }
 
     @Scheduled(cron = "0 0 15 * * *")

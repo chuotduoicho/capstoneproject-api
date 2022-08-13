@@ -37,7 +37,7 @@ public class PackageServiceImpl implements PackageService {
     @Override
     public Package add(UUID boxId, PackageRequest request, UserPrincipal currentUser) {
         Box box = boxRepository.findById(boxId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy box service"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy hộp dịch vụ"));
         if (box.getSeller().getUser().getId().equals(currentUser.getId())) {
             if (box.getPackages().size() < 3) {
                 Package pack = new Package();
@@ -53,7 +53,7 @@ public class PackageServiceImpl implements PackageService {
                 }
                 return packageRepository.save(pack);
             } else {
-                throw new JovinnException(HttpStatus.BAD_REQUEST, "Chỉ được phép tạo tối đa 3 packges");
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Chỉ được phép tạo tối đa 3 gói dịch vụ");
             }
         }
 
@@ -64,7 +64,7 @@ public class PackageServiceImpl implements PackageService {
     @Override
     public Package update(UUID id, PackageRequest request, UserPrincipal currentUser) {
         Package pack = packageRepository.findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy package"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy gói dịch vụ"));
         if (pack.getBox().getSeller().getUser().getId().equals(currentUser.getId())) {
             pack.setTitle(request.getTitle());
             pack.setShortDescription(request.getShortDescription());
@@ -85,10 +85,10 @@ public class PackageServiceImpl implements PackageService {
     @Override
     public ApiResponse delete(UUID id, UserPrincipal currentUser) {
         Package pack = packageRepository.findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy package"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy gói dịch vụ"));
         if (pack.getBox().getSeller().getUser().getId().equals(currentUser.getId())) {
             packageRepository.deleteById(id);
-            return new ApiResponse(Boolean.TRUE, "Xoá thành công package");
+            return new ApiResponse(Boolean.TRUE, "Xoá thành công dịch gói dịch vụ");
         }
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to delete this photo");
         throw new UnauthorizedException(apiResponse);

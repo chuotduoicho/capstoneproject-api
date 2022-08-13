@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.client.request.EducationRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.EducationResponse;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Education;
@@ -12,6 +13,7 @@ import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.EducationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -26,7 +28,7 @@ public class EducationServiceImpl implements EducationService {
     @Override
     public EducationResponse addEducation(EducationRequest request, UserPrincipal currentUser) {
         Seller seller = sellerRepository.findSellerByUserId(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Seller", "Seller not found", request.getUserId()));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
         if(seller.getUser().getId().equals(currentUser.getId())) {
             Education education = new Education(request.getCountry(),
                     request.getUniversityName(),
@@ -48,9 +50,9 @@ public class EducationServiceImpl implements EducationService {
     @Override
     public EducationResponse update(UUID id, EducationRequest request, UserPrincipal currentUser) {
         Seller seller = sellerRepository.findSellerByUserId(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Seller", "Seller not found", request.getUserId()));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
         Education education = educationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Seller", "Education not found", request.getUserId()));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy học vấn"));
         if (education.getSeller().getUser().getId().equals(currentUser.getId())) {
            education.setCountry(request.getCountry());
            education.setUniversityName(request.getUniversityName());
@@ -77,11 +79,12 @@ public class EducationServiceImpl implements EducationService {
     @Override
     public ApiResponse delete(UUID id, UserPrincipal currentUser) {
         Education education = educationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Education", "Education Not Found", id));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy học vấn"));
         if (education.getSeller().getUser().getId().equals(currentUser.getId())) {
             educationRepository.deleteById(id);
-            return new ApiResponse(Boolean.TRUE, "Education deleted successfully");
+            return new ApiResponse(Boolean.TRUE, "Xóa học vấn thành công");
         }
+
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to delete this photo");
         throw new UnauthorizedException(apiResponse);
     }
