@@ -216,7 +216,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     public List<Box> getAllServiceByCategoryID(UUID categoryId) {
-        return boxRepository.getAllServiceByCategoryId(categoryId) ;
+        return boxRepository.getAllServiceByCategoryId(categoryId);
     }
 
     @Override

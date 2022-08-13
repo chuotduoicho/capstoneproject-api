@@ -95,8 +95,10 @@ public class PostRequestServiceImpl implements PostRequestService {
                 milestoneContract.setPostRequest(savedPostRequest);
                 milestoneContractService.addMilestoneContract(milestoneContract);
             }
+            return new ApiResponse(Boolean.TRUE, "Khởi tạo yêu cầu thành công");
         }
-        return new ApiResponse(Boolean.TRUE, "Khởi tạo yêu cầu thành công");
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
     }
 
     @Override
@@ -161,8 +163,10 @@ public class PostRequestServiceImpl implements PostRequestService {
                         postRequest.getAttachFile(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee(), postRequest.getBudget(),
                         userService.getListUserInvitedByPostRequestId(postRequest.getId())));
             }
+            return postRequestResponses;
         }
-        return postRequestResponses;
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
     }
 
     @Override
