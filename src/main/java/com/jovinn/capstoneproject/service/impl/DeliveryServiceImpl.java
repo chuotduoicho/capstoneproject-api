@@ -34,7 +34,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public DeliveryNotMilestoneResponse createDelivery(UUID id, DeliveryNotMilestoneRequest request, UserPrincipal currentUser) {
         Contract contract = contractRepository.findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm tháy hợp đồng"));
         if (contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
             if (contract.getSeller().getUser().getId().equals(currentUser.getId())) {
                 Delivery delivery = new Delivery(request.getFile(), request.getDescription(), contract);
@@ -62,7 +62,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public DeliveryHaveMilestoneResponse createDeliveryMilestone(UUID contractId, DeliveryHaveMilestoneRequest request, UserPrincipal currentUser) {
         Contract contract = contractRepository.findById(contractId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm tháy hợp đồng"));
         if (contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
             if (contract.getSeller().getUser().getId().equals(currentUser.getId())) {
                 Delivery delivery = new Delivery(request.getFile(), request.getDescription(), contract);

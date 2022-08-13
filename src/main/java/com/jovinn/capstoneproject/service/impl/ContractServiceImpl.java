@@ -23,6 +23,7 @@ import com.jovinn.capstoneproject.util.EmailSender;
 import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
@@ -371,9 +372,9 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public ApiResponse acceptDeliveryForMilestone(UUID contractId, UUID milestoneId, UserPrincipal currentUser) {
         MilestoneContract milestoneContract = milestoneContractRepository.findById(milestoneId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Milestone not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy giai đoạn"));
         Contract contract = contractRepository.findById(contractId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
         BigDecimal incomeMilestone = calculateRefund90PercentDeposit(milestoneContract.getMilestoneFee(), 90);
         if(contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
@@ -567,7 +568,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public List<Contract> getContractByStatus(ContractStatus status, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
 
         if(buyer.getUser().getSeller() == null) {
@@ -578,7 +579,7 @@ public class ContractServiceImpl implements ContractService {
             return contractRepository.findAllByContractStatusAndBuyerId(status, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
 //            Page<Contract> contracts = contractRepository.findAllByContractStatusAndSellerIdOrBuyerId(status, seller.getId(), buyer.getId(), pageable);
 //            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
 //            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
@@ -593,7 +594,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public List<Contract> getOrders(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tỉm thấy người mua"));
         //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
 
         if(buyer.getUser().getSeller() == null) {
@@ -604,7 +605,7 @@ public class ContractServiceImpl implements ContractService {
             return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.PENDING, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm tháy người bán"));
 //            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.PENDING, buyer.getId(), seller.getId(), pageable);
 //            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
 //            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
@@ -618,7 +619,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public List<Contract> getContracts(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
         if(buyer.getUser().getSeller() == null) {
 //            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.TO_CONTRACT, buyer.getId(), pageable);
@@ -628,7 +629,7 @@ public class ContractServiceImpl implements ContractService {
             return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.TO_CONTRACT, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm tháy người bán"));
 //            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.TO_CONTRACT, buyer.getId(), seller.getId(), pageable);
 //            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
 //            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
