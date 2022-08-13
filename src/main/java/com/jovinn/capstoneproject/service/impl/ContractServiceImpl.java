@@ -378,12 +378,16 @@ public class ContractServiceImpl implements ContractService {
         Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
         BigDecimal incomeMilestone = calculateRefund90PercentDeposit(milestoneContract.getMilestoneFee(), 90);
         if(contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
-            milestoneContract.setStatus(MilestoneStatus.COMPLETE);
-            milestoneContractRepository.save(milestoneContract);
-            walletSeller.setWithdraw(walletSeller.getWithdraw().add(incomeMilestone));
-            walletSeller.setIncome(walletSeller.getIncome().add(incomeMilestone));
-            saveWallet(walletSeller);
-            return new ApiResponse(Boolean.TRUE, "Bạn đã nhận và thanh toán mã giai đoạn này thành công");
+            if(milestoneContract.getStatus().equals(MilestoneStatus.PROCESSING)) {
+                milestoneContract.setStatus(MilestoneStatus.COMPLETE);
+                milestoneContractRepository.save(milestoneContract);
+                walletSeller.setWithdraw(walletSeller.getWithdraw().add(incomeMilestone));
+                walletSeller.setIncome(walletSeller.getIncome().add(incomeMilestone));
+                saveWallet(walletSeller);
+                return new ApiResponse(Boolean.TRUE, "Bạn đã nhận và thanh toán mã giai đoạn này thành công");
+            } else {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn đã chấp nhận bàn giao này");
+            }
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -407,12 +411,12 @@ public class ContractServiceImpl implements ContractService {
         BigDecimal totalPrice = offerRequest.getOfferPrice();
         BigDecimal serviceDeposit = totalPrice.multiply(new BigDecimal(offerRequest.getCancelFee())).divide(ONE_HUNDRED, RoundingMode.FLOOR);
 
-        if (postRequest.getUser().getId().equals(currentUser.getId())) {
+        if (postRequest.getUser().getId().equals(currentUser.getId()) && postRequest.getStatus().equals(PostRequestStatus.OPEN)) {
             if (walletBuyer.getWithdraw().compareTo(totalPrice) >= 0 ) {
                 if(offerRequest.getOfferRequestStatus().equals(OfferRequestStatus.ACCEPTED)) {
                     throw new JovinnException(HttpStatus.BAD_REQUEST, "Offer đã được chấp nhận");
                 } else {
-                    Contract contract = new Contract(null, contractCode,
+                    Contract contract = new Contract(contractCode,
                             postRequest.getShortRequirement(), 1, offerRequest.getCancelFee(),
                             serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
                             DeliveryStatus.PENDING, OrderStatus.TO_CONTRACT, ContractStatus.PROCESSING,
@@ -421,6 +425,7 @@ public class ContractServiceImpl implements ContractService {
                         List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(postRequest.getId());
                         for(MilestoneContract milestoneContract : milestoneContracts) {
                             milestoneContract.setStatus(MilestoneStatus.PROCESSING);
+                            milestoneContractRepository.save(milestoneContract);
                         }
                     }
                     contract.setPostRequest(postRequest);
@@ -432,9 +437,9 @@ public class ContractServiceImpl implements ContractService {
                     walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                     saveWallet(walletBuyer);
 
-                    updateStatusAfterAcceptOffer(postRequest, offerRequest);
+                    updateStatusAfterAcceptOffer(postRequest, offerRequest, contract);
                     changeStatusAllOfferRejected(postRequest);
-                    return new ContractResponse(newContract.getId(), newContract.getPackageId(),
+                    return new ContractResponse(newContract.getId(),
                             newContract.getContractCode(), newContract.getRequirement(),
                             newContract.getQuantity(), newContract.getContractCancelFee(),
                             newContract.getServiceDeposit(), newContract.getTotalPrice(),
@@ -470,9 +475,9 @@ public class ContractServiceImpl implements ContractService {
                 .multiply(new BigDecimal(postRequest.getContractCancelFee()))
                 .divide(ONE_HUNDRED, RoundingMode.FLOOR);
 
-        if (postRequest.getUser().getId().equals(currentUser.getId())) {
+        if (postRequest.getUser().getId().equals(currentUser.getId()) && postRequest.getStatus().equals(PostRequestStatus.OPEN)) {
             if (walletBuyer.getWithdraw().compareTo(totalPrice) >= 0 ) {
-                Contract contract = new Contract(null, contractCode,
+                Contract contract = new Contract(contractCode,
                         postRequest.getShortRequirement(), 1, postRequest.getContractCancelFee(),
                         serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
                         DeliveryStatus.PENDING, OrderStatus.TO_CONTRACT, ContractStatus.PROCESSING,
@@ -481,6 +486,7 @@ public class ContractServiceImpl implements ContractService {
                     List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(postRequest.getId());
                     for(MilestoneContract milestoneContract : milestoneContracts) {
                         milestoneContract.setStatus(MilestoneStatus.PROCESSING);
+                        milestoneContractRepository.save(milestoneContract);
                     }
                 }
                 contract.setPostRequest(postRequest);
@@ -489,9 +495,9 @@ public class ContractServiceImpl implements ContractService {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                 saveWallet(walletBuyer);
 
-                updateStatusPostRequestAfterAccepted(postRequest);
+                updateStatusPostRequestAfterAccepted(postRequest, contract);
                 changeStatusAllOfferRejected(postRequest);
-                return new ContractResponse(newContract.getId(), newContract.getPackageId(),
+                return new ContractResponse(newContract.getId(),
                         newContract.getContractCode(), newContract.getRequirement(),
                         newContract.getQuantity(), newContract.getContractCancelFee(),
                         newContract.getServiceDeposit(), newContract.getTotalPrice(),
@@ -726,16 +732,17 @@ public class ContractServiceImpl implements ContractService {
         return value.setScale(2, RoundingMode.HALF_EVEN);
     }
 
-    private void updateStatusAfterAcceptOffer(PostRequest postRequest, OfferRequest offerRequest) {
+    private void updateStatusAfterAcceptOffer(PostRequest postRequest, OfferRequest offerRequest, Contract contract) {
         offerRequest.setOfferRequestStatus(OfferRequestStatus.ACCEPTED);
         offerRequest.setUpdatedAt(new Date());
         offerRequestRepository.save(offerRequest);
-        updateStatusPostRequestAfterAccepted(postRequest);
+        updateStatusPostRequestAfterAccepted(postRequest, contract);
     }
 
-    private void updateStatusPostRequestAfterAccepted(PostRequest postRequest) {
+    private void updateStatusPostRequestAfterAccepted(PostRequest postRequest, Contract contract) {
         postRequest.setStatus(PostRequestStatus.CLOSE);
         postRequest.setUpdatedAt(new Date());
+        postRequest.setContract(contract);
         postRequestRepository.save(postRequest);
     }
 

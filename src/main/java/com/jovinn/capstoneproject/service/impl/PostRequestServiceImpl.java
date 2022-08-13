@@ -71,10 +71,13 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequest.setContractCancelFee(request.getContractCancelFee());
             List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
             BigDecimal budget = new BigDecimal(0);
+            int totalDeliveryTime = 0;
             for (MilestoneContract milestoneContract : milestoneContractList){
                 budget = budget.add(milestoneContract.getMilestoneFee());
+                totalDeliveryTime = totalDeliveryTime + milestoneContract.getEndDate().getDate() - milestoneContract.getStartDate().getDate();
             }
             postRequest.setBudget(budget);
+            postRequest.setTotalDeliveryTime(totalDeliveryTime);
             postRequest.setUser(userRepository.findUserById(currentUser.getId()));
             Notification notification;
             List<User> usersGetInvite = request.getInvitedUsers();

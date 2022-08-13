@@ -63,8 +63,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     public DeliveryHaveMilestoneResponse createDeliveryMilestone(UUID contractId, DeliveryHaveMilestoneRequest request, UserPrincipal currentUser) {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm tháy hợp đồng"));
-        if (contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
-            if (contract.getSeller().getUser().getId().equals(currentUser.getId())) {
+        if (contract.getSeller().getUser().getId().equals(currentUser.getId())) {
+            if (contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
                 Delivery delivery = new Delivery(request.getFile(), request.getDescription(), contract);
                 delivery.setCreateAt(new Date());
                 delivery.setUpdatedAt(new Date());

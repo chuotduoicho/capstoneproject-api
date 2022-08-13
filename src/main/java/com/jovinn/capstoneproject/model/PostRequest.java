@@ -62,6 +62,7 @@ public class PostRequest extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contractId", referencedColumnName = "id")
+    @JsonIgnore
     Contract contract;
 
     @ManyToOne(fetch = FetchType.LAZY)
