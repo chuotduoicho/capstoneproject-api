@@ -52,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyAuthority("BUYER", "SELLER")
                 .antMatchers(HttpMethod.PUT, "/api/v1/seller/**").permitAll()
-                .antMatchers("/api/v1/**").hasAnyAuthority("BUYER", "SELLER")
+                .antMatchers("/api/v1/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/payment/**").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/v1/contract/**").permitAll()
                 .antMatchers("/api/v1/comment/**").permitAll()
