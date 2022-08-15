@@ -43,6 +43,7 @@ class CategoryServiceImplTest {
         given(categoryRepository.save(newCategory)).willReturn(newCategory);
         // when -  action or the behaviour that we are going test
         Category category = categoryService.saveCategory(newCategory);
+        System.out.println(category);
         // then - verify the output
         Assertions.assertThat(category).isEqualTo(newCategory);
         Assertions.assertThat(category).isNotNull();
@@ -59,6 +60,7 @@ class CategoryServiceImplTest {
         given(categoryRepository.saveAll(categories)).willReturn(List.of(newCategory,newCategory1));
         // when -  action or the behaviour that we are going test
         List<Category> savedCategories = categoryService.saveCategories(categories);
+        System.out.println(savedCategories);
         // then - verify the output
         Assertions.assertThat(savedCategories).isNotNull();
         Assertions.assertThat(savedCategories.size()).isEqualTo(2);
@@ -85,6 +87,7 @@ class CategoryServiceImplTest {
         given(categoryRepository.findById(newCategory.getId())).willReturn(Optional.of(newCategory));
         // when -  action or the behaviour that we are going test
         Category category = categoryService.getCategoryById(newCategory.getId());
+        System.out.println(category);
         // then - verify the output
         Assertions.assertThat(category).isNotNull();
     }

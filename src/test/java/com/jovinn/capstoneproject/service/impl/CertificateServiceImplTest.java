@@ -33,6 +33,7 @@ import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+
 @ExtendWith(MockitoExtension.class)
 class CertificateServiceImplTest {
     @Mock
@@ -46,6 +47,7 @@ class CertificateServiceImplTest {
     private Certificate newCertificate;
     private User newUser;
     private Seller newSeller;
+
     @BeforeEach
     void setUp() {
         newUser = User.builder()
@@ -70,11 +72,19 @@ class CertificateServiceImplTest {
                 .seller(newSeller)
                 .build();
     }
+
     @DisplayName("JUnit test for addCertificate method")
     @Test
     void givenSellerObjectAndCertificateObject_whenAddCertificate_thenReturnCertificateResponse() {
         // given - precondition or setup
-         Certificate newCertificate1 = Certificate.builder()
+        Certificate newCertificate1 = Certificate.builder()
+                .title("Math Certificate1")
+                .name("Cousera of Math1")
+                .linkCer("www.certificate1.com")
+                .seller(newSeller)
+                .build();
+        Certificate newCertificate2 = Certificate.builder()
+                .id(UUID.fromString("06cacefc-d64a-44b9-ab4f-37053c69f0cb"))
                 .title("Math Certificate1")
                 .name("Cousera of Math1")
                 .linkCer("www.certificate1.com")
@@ -86,14 +96,16 @@ class CertificateServiceImplTest {
         certificateRequest.setName(newCertificate1.getName());
         certificateRequest.setLinkCer(newCertificate1.getLinkCer());
         given(sellerRepository.findSellerByUserId(newUser.getId())).willReturn(Optional.of(newSeller));
-        given(certificateRepository.save(newCertificate1)).willReturn(newCertificate1);
+        given(certificateRepository.save(newCertificate1)).willReturn(newCertificate2);
 
         // when -  action or the behaviour that we are going test
         CertificateResponse certificateResponse = certificateService.addCertificate(certificateRequest, UserPrincipal.create(newUser));
+        System.out.println(certificateResponse);
         // then - verify the output
         assertThat(certificateResponse).isNotNull();
         assertThat(certificateResponse.getTitle()).isEqualTo(newCertificate1.getTitle());
     }
+
     @DisplayName("JUnit test for addCertificate method which throw ResourceNotFoundException")
     @Test
     void givenSellerObjectAndCertificateObject_whenAddCertificate_thenThrowException() {
@@ -111,15 +123,16 @@ class CertificateServiceImplTest {
         certificateRequest.setLinkCer(newCertificate1.getLinkCer());
         given(sellerRepository.findSellerByUserId(newUser.getId())).willReturn(Optional.empty());
         // when -  action or the behaviour that we are going test
-        Assertions.assertThrows(ResourceNotFoundException.class,()->{
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             certificateService.addCertificate(certificateRequest, UserPrincipal.create(newUser));
         });
         // then - verify the output
-        verify(certificateRepository,never()).save(any(Certificate.class));
+        verify(certificateRepository, never()).save(any(Certificate.class));
     }
+
     @DisplayName("JUnit test for addCertificate method which throw unauthorized exception")
     @Test
-    void givenSellerObject_whenSaveBox_thenThrowUnauthorizedException(){
+    void givenSellerObject_whenSaveBox_thenThrowUnauthorizedException() {
         // given - precondition or setup
         User newUser1 = User.builder()
                 .id(UUID.fromString("5b4ee4c9-9eaa-493f-952b-2bea9e2635cd"))
@@ -133,20 +146,22 @@ class CertificateServiceImplTest {
                 .linkCer("www.certificate1.com")
                 .seller(newSeller)
                 .build();
-        given(sellerRepository.findSellerByUserId(newUser1.getId()))
-                .willReturn(Optional.of(newSeller));
+
         CertificateRequest certificateRequest = new CertificateRequest();
-        certificateRequest.setUserId(newUser1.getId());
+        certificateRequest.setUserId(newUser.getId());
         certificateRequest.setTitle(newCertificate1.getTitle());
         certificateRequest.setName(newCertificate1.getName());
         certificateRequest.setLinkCer(newCertificate1.getLinkCer());
+        given(sellerRepository.findSellerByUserId(newUser.getId()))
+                .willReturn(Optional.of(newSeller));
         // when -  action or the behaviour that we are going test
-        Assertions.assertThrows(UnauthorizedException.class,()->{
-            certificateService.addCertificate(certificateRequest,UserPrincipal.create(newUser1));
+        Assertions.assertThrows(UnauthorizedException.class, () -> {
+            certificateService.addCertificate(certificateRequest, UserPrincipal.create(newUser1));
         });
         // then - verify the output
-        verify(certificateRepository,never()).save(any(Certificate.class));
+        verify(certificateRepository, never()).save(any(Certificate.class));
     }
+
     @DisplayName("JUnit test for updateCertificate method")
     @Test
     void givenSellerObjectAndCertificateObject_whenUpdateCertificate_returnCertificateObject() {
@@ -162,11 +177,12 @@ class CertificateServiceImplTest {
         newCertificate.setName(certificateRequest.getName());
         newCertificate.setTitle(certificateRequest.getTitle());
         // when -  action or the behaviour that we are going test
-        CertificateResponse certificateResponse = certificateService.update(newCertificate.getId(),certificateRequest,UserPrincipal.create(newUser));
+        CertificateResponse certificateResponse = certificateService.update(newCertificate.getId(), certificateRequest, UserPrincipal.create(newUser));
         // then - verify the output
         assertThat(certificateResponse.getTitle()).isEqualTo("Cousera of Math1");
         assertThat(certificateResponse.getName()).isEqualTo("Math Certificate1");
     }
+
     @DisplayName("JUnit test for updateCertificate method which throw ResourceNotFoundException exception 1")
     @Test
     void givenSellerEmpty_whenUpdateCertificate_returnThrowException1() {
@@ -182,12 +198,13 @@ class CertificateServiceImplTest {
 //        newCertificate.setName(certificateRequest.getName());
 //        newCertificate.setTitle(certificateRequest.getTitle());
         // when -  action or the behaviour that we are going test
-        Assertions.assertThrows(ResourceNotFoundException.class,()->{
-            certificateService.update(newCertificate.getId(),certificateRequest,UserPrincipal.create(newUser));
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            certificateService.update(newCertificate.getId(), certificateRequest, UserPrincipal.create(newUser));
         });
         // then - verify the output
-        verify(certificateRepository,never()).save(any(Certificate.class));
+        verify(certificateRepository, never()).save(any(Certificate.class));
     }
+
     @DisplayName("JUnit test for updateCertificate method which throw ResourceNotFoundException exception 2")
     @Test
     void givenCertificateEmpty_whenUpdateCertificate_returnThrowException2() {
@@ -203,12 +220,13 @@ class CertificateServiceImplTest {
 //        newCertificate.setName(certificateRequest.getName());
 //        newCertificate.setTitle(certificateRequest.getTitle());
         // when -  action or the behaviour that we are going test
-        Assertions.assertThrows(ResourceNotFoundException.class,()->{
-            certificateService.update(newCertificate.getId(),certificateRequest,UserPrincipal.create(newUser));
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            certificateService.update(newCertificate.getId(), certificateRequest, UserPrincipal.create(newUser));
         });
         // then - verify the output
-        verify(certificateRepository,never()).save(any(Certificate.class));
+        verify(certificateRepository, never()).save(any(Certificate.class));
     }
+
     @DisplayName("JUnit test for updateCertificate method which throw UnauthorizedException exception")
     @Test
     void givenSellerObjectAndCertificateObject_whenUpdateCertificate_returnThrowException3() {
@@ -230,12 +248,13 @@ class CertificateServiceImplTest {
 //        newCertificate.setName(certificateRequest.getName());
 //        newCertificate.setTitle(certificateRequest.getTitle());
         // when -  action or the behaviour that we are going test
-        Assertions.assertThrows(UnauthorizedException.class,()->{
-            certificateService.update(newCertificate.getId(),certificateRequest,UserPrincipal.create(newUser1));
+        Assertions.assertThrows(UnauthorizedException.class, () -> {
+            certificateService.update(newCertificate.getId(), certificateRequest, UserPrincipal.create(newUser1));
         });
         // then - verify the output
-        verify(certificateRepository,never()).save(any(Certificate.class));
+        verify(certificateRepository, never()).save(any(Certificate.class));
     }
+
     @DisplayName("JUnit test for deleteCertificate method")
     @Test
     void givenCertificateObject_whenDeleteCertificate_thenReturnApiResponse() {
@@ -243,11 +262,12 @@ class CertificateServiceImplTest {
         given(certificateRepository.findById(newCertificate.getId())).willReturn(Optional.of(newCertificate));
         willDoNothing().given(certificateRepository).deleteById(newCertificate.getId());
         // when -  action or the behaviour that we are going test
-        ApiResponse apiResponse = certificateService.delete(newCertificate.getId(),UserPrincipal.create(newUser));
+        ApiResponse apiResponse = certificateService.delete(newCertificate.getId(), UserPrincipal.create(newUser));
         // then - verify the output
         verify(certificateRepository, times(1)).deleteById(newCertificate.getId());
         assertThat(apiResponse).isEqualTo(new ApiResponse(Boolean.TRUE, "Certificate deleted successfully"));
     }
+
     @DisplayName("JUnit test for deleteCertificate method which throw ResourceNotFoundException exception")
     @Test
     void givenCertificateEmpty_whenDeleteCertificate_thenThrowException() {
@@ -255,12 +275,13 @@ class CertificateServiceImplTest {
         given(certificateRepository.findById(newCertificate.getId())).willReturn(Optional.empty());
 //        willDoNothing().given(certificateRepository).deleteById(newCertificate.getId());
         // when -  action or the behaviour that we are going test
-        Assertions.assertThrows(ResourceNotFoundException.class,()->{
-            certificateService.delete(newCertificate.getId(),UserPrincipal.create(newUser));
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            certificateService.delete(newCertificate.getId(), UserPrincipal.create(newUser));
         });
         // then - verify the output
         verify(certificateRepository, times(0)).deleteById(newCertificate.getId());
     }
+
     @DisplayName("JUnit test for deleteCertificate method which throw UnauthorizedException exception")
     @Test
     void givenCertificateObject_whenDeleteCertificate_thenThrowException() {
@@ -274,8 +295,8 @@ class CertificateServiceImplTest {
         given(certificateRepository.findById(newCertificate.getId())).willReturn(Optional.of(newCertificate));
 //        willDoNothing().given(certificateRepository).deleteById(newCertificate.getId());
         // when -  action or the behaviour that we are going test
-        Assertions.assertThrows(UnauthorizedException.class,()->{
-            certificateService.delete(newCertificate.getId(),UserPrincipal.create(newUser1));
+        Assertions.assertThrows(UnauthorizedException.class, () -> {
+            certificateService.delete(newCertificate.getId(), UserPrincipal.create(newUser1));
         });
         // then - verify the output
         verify(certificateRepository, times(0)).deleteById(newCertificate.getId());

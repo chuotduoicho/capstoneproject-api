@@ -49,13 +49,14 @@ class ActivityTypeServiceImplTest {
         Assertions.assertThat(activityTypes).isNotNull();
         Assertions.assertThat(activityTypes.size()).isEqualTo(2);
     }
-    @DisplayName("JUnit test for saveActivity method")
+    @DisplayName("JUnit test for saveActivityType method")
     @Test
     void givenActivityTypeObject_whenSaveActivityType_thenReturnActivityTypeObject() {
         // given - precondition or setup
         given(activityTypeRepository.save(newActivityType)).willReturn(newActivityType);
         // when -  action or the behaviour that we are going test
         ActivityType activityType = activityTypeService.saveType(newActivityType);
+        System.out.println(activityType);
         // then - verify the output
         Assertions.assertThat(activityType).isEqualTo(newActivityType);
         Assertions.assertThat(activityType).isNotNull();

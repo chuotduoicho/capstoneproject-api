@@ -1,9 +1,11 @@
 package com.jovinn.capstoneproject.service.impl;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountPostRequestResponse;
 import com.jovinn.capstoneproject.dto.client.request.PostRequestRequest;
 import com.jovinn.capstoneproject.dto.client.request.TargetSellerRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.dto.client.response.ListSellerApplyPostRequestResponse;
 import com.jovinn.capstoneproject.dto.client.response.ListSellerTargetPostRequestResponse;
 import com.jovinn.capstoneproject.dto.client.response.PostRequestResponse;
 import com.jovinn.capstoneproject.enumerable.*;
@@ -81,6 +83,8 @@ class PostRequestServiceImplTest {
                 .lastName("Son")
                 .activityType(activityTypeRepository.findByActivityType(UserActivityType.BUYER))
                 .isEnabled(true)
+                .city("Thai Nguyen")
+                .buyer(mock(Buyer.class,RETURNS_DEEP_STUBS))
                 .build();
         newBuyer = Buyer.builder()
                 .id(UUID.fromString("c454700b-17f4-4249-8d97-3706cc694897"))
@@ -291,6 +295,7 @@ class PostRequestServiceImplTest {
         // when -  action or the behaviour that we are going test
         Boolean aBoolean = postRequestService.deletePostRequest(newPostRequest.getId());
         // then - verify the output
+        assertThat(aBoolean).isEqualTo(true);
         verify(postRequestRepository,times(1)).deleteById(newPostRequest.getId());
     }
     @DisplayName("Junit test for getPostRequestByBuyerCreated method")
@@ -438,7 +443,7 @@ class PostRequestServiceImplTest {
         targetSellerRequest.setSubCategoryId(newSubCategory.getId());
         targetSellerRequest.setRankSeller(newSeller.getRankSeller());
         targetSellerRequest.setSkillName(Set.of(newSkill.getName()));
-        given(boxRepository.getTenSellerBySubCategoryId(targetSellerRequest.getSubCategoryId(),
+        given(sellerRepository.getTenSellerBySubCategoryId(targetSellerRequest.getSubCategoryId(),
                 targetSellerRequest.getRankSeller(),targetSellerRequest.getSkillName(),
                 PageRequest.of(0,10))).willReturn(List.of(newSeller.getId().toString()));
         given(sellerRepository.findById(UUID.fromString(newSeller.getId().toString()))).
@@ -482,7 +487,7 @@ class PostRequestServiceImplTest {
         targetSellerRequest.setSubCategoryId(newSubCategory.getId());
         targetSellerRequest.setRankSeller(newSeller.getRankSeller());
         targetSellerRequest.setSkillName(Set.of(newSkill.getName()));
-        given(boxRepository.getTenSellerBySubCategoryId(targetSellerRequest.getSubCategoryId(),
+        given(sellerRepository.getTenSellerBySubCategoryId(targetSellerRequest.getSubCategoryId(),
                 targetSellerRequest.getRankSeller(),targetSellerRequest.getSkillName(),
                 PageRequest.of(0,10))).willReturn(List.of(newSeller.getId().toString()));
         given(sellerRepository.findById(UUID.fromString(newSeller.getId().toString()))).
@@ -492,47 +497,365 @@ class PostRequestServiceImplTest {
             postRequestService.getTargetSeller(targetSellerRequest);
         });
         // then - verify the output
-        verify(sellerRepository).findById(any(UUID.class));
+        verify(sellerRepository,times(1)).findById(any(UUID.class));
     }
+    @DisplayName("Junit test for getPostRequestByCategoryId method")
     @Test
-    void getPostRequestByCategoryId() {
+    void givenCategoryId_whenGetPostRequestByCategoryId_thenReturnPostRequestResponse() {
         // given - precondition or setup
+        given(postRequestRepository.findAllByCategory_Id(newCategory.getId())).willReturn(List.of(newPostRequest));
         // when -  action or the behaviour that we are going test
+        List<PostRequestResponse> postRequestResponses = postRequestService.getPostRequestByCategoryId(newCategory.getId());
         // then - verify the output
+        assertThat(postRequestResponses).isNotNull();
+        assertThat(postRequestResponses.size()).isEqualTo(1);
+    }
+    @DisplayName("Junit test for getPostRequestDetails method")
+    @Test
+    void givenPostRequestId_whenGetPostRequestDetails_thenReturnPostRequestResponse() {
+        // given - precondition or setup
+        given(postRequestRepository.findPostRequestById(newPostRequest.getId())).willReturn(newPostRequest);
+        // when -  action or the behaviour that we are going test
+        PostRequestResponse postRequestResponse = postRequestService.getPostRequestDetails(newPostRequest.getId());
+        // then - verify the output
+        assertThat(postRequestResponse).isNotNull();
+    }
+    @DisplayName("Junit test for getPostRequestDetails method (negative scenario)")
+    @Test
+    void givenPostRequestId_whenGetPostRequestDetails_thenReturnEmptyPostRequestResponse() {
+        // given - precondition or setup
+        given(postRequestRepository.findPostRequestById(newPostRequest.getId())).willReturn(null);
+        // when -  action or the behaviour that we are going test
+        Assertions.assertThrows(NullPointerException.class,()->{
+            postRequestService.getPostRequestDetails(newPostRequest.getId());
+        });
+        // then - verify the output
+        verify(postRequestRepository,times(1)).findPostRequestById(any(UUID.class));
+    }
+//    @DisplayName("Junit test for sellerApplyRequest method")
+//    @Test
+//    void givenData_whenSellerApplyRequest_thenReturnApiResponseTrue() {
+//        // given - precondition or setup
+//        User newUserSeller = User.builder()
+//                .id(UUID.fromString("b9a1a7fe-204f-4acc-8412-0f71990d77e8"))
+//                .firstName("Minh")
+//                .lastName("Duc")
+//                .username("Minhduc123")
+//                .email("Ducminh@gmail.com")
+//                .phoneNumber("0945333444")
+//                .gender(Gender.MALE)
+//                .birthDate(new Date(2000-11-11))
+//                .city("Quang Ninh")
+//                .country("Viet Nam")
+//                .avatar("avatarStar")
+//                .activityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER))
+//                .isEnabled(true)
+//                .build();
+//        Seller newSeller = Seller.builder()
+//                .id(UUID.fromString("9cf5d172-1a2c-4302-8689-90893f19561c"))
+//                .brandName("Coder Brand")
+//                .descriptionBio("Java backend coder")
+//                .sellerNumber("124524")
+//                .rankSeller(RankSeller.BEGINNER)
+//                .user(newUserSeller)
+//                .skills(List.of(newSkill))
+//                .totalOrderFinish(1)
+//                .ratingPoint(1)
+//                .verifySeller(true)
+//                .build();
+//        Seller newSeller1 = Seller.builder()
+//                .id(UUID.fromString("3f2b9a60-6d72-4851-a4f3-66e364945cec"))
+//                .brandName("Coder Brand 1")
+//                .descriptionBio("Java backend coder 1")
+//                .sellerNumber("124525")
+//                .rankSeller(RankSeller.BEGINNER)
+//                .user(mock(User.class,RETURNS_DEEP_STUBS))
+//                .skills(List.of(newSkill))
+//                .build();
+//        given(sellerRepository.findSellerByUserId(newUserSeller.getId())).willReturn(Optional.of(newSeller));
+//        given(postRequestRepository.findById(newPostRequest.getId())).willReturn(Optional.of(newPostRequest));
+//        given(sellerRepository.findAllByPostRequests_Id(newPostRequest.getId())).willReturn(List.of(newSeller1));
+//        // when -  action or the behaviour that we are going test
+//        ApiResponse apiResponse = postRequestService.sellerApplyRequest(newPostRequest.getId(),UserPrincipal.create(newUserSeller));
+//        // then - verify the output
+//        assertThat(apiResponse).isNotNull();
+//        assertThat(apiResponse).isEqualTo(new ApiResponse(Boolean.TRUE,"Apply Post Request thành công"));
+//    }
+
+    @DisplayName("Junit test for sellerApplyRequest method return ApiResponse False")
+    @Test
+    void givenData_whenSellerApplyRequest_thenReturnApiResponseFalse() {
+        // given - precondition or setup
+        User newUserSeller = User.builder()
+                .id(UUID.fromString("b9a1a7fe-204f-4acc-8412-0f71990d77e8"))
+                .firstName("Minh")
+                .lastName("Duc")
+                .username("Minhduc123")
+                .email("Ducminh@gmail.com")
+                .phoneNumber("0945333444")
+                .gender(Gender.MALE)
+                .birthDate(new Date(2000-11-11))
+                .city("Quang Ninh")
+                .country("Viet Nam")
+                .avatar("avatarStar")
+                .activityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER))
+                .isEnabled(true)
+                .build();
+        Seller newSeller = Seller.builder()
+                .id(UUID.fromString("9cf5d172-1a2c-4302-8689-90893f19561c"))
+                .brandName("Coder Brand")
+                .descriptionBio("Java backend coder")
+                .sellerNumber("124524")
+                .rankSeller(RankSeller.BEGINNER)
+                .user(newUserSeller)
+                .skills(List.of(newSkill))
+                .totalOrderFinish(1)
+                .ratingPoint(1)
+                .verifySeller(true)
+                .build();
+        given(sellerRepository.findSellerByUserId(newUserSeller.getId())).willReturn(Optional.of(newSeller));
+        given(postRequestRepository.findById(newPostRequest.getId())).willReturn(Optional.of(newPostRequest));
+        given(sellerRepository.findAllByPostRequests_Id(newPostRequest.getId())).willReturn(List.of(newSeller));
+        // when -  action or the behaviour that we are going test
+        ApiResponse apiResponse = postRequestService.sellerApplyRequest(newPostRequest.getId(),UserPrincipal.create(newUserSeller));
+        // then - verify the output
+        assertThat(apiResponse).isNotNull();
+        assertThat(apiResponse).isEqualTo(new ApiResponse(Boolean.FALSE, "Bạn đã apply bài Post Request này"));
     }
 
+    @DisplayName("Junit test for sellerApplyRequest method which throw ApiException 1")
     @Test
-    void getPostRequestDetails() {
+    void givenEmptySeller_whenSellerApplyRequest_thenThrowApiException1() {
         // given - precondition or setup
+        given(sellerRepository.findSellerByUserId(newUser.getId())).willReturn(Optional.empty());
         // when -  action or the behaviour that we are going test
+        Assertions.assertThrows(ApiException.class,()->{
+            postRequestService.sellerApplyRequest(newPostRequest.getId(),UserPrincipal.create(newUser));
+        });
         // then - verify the output
+        verify(sellerRepository,times(1)).findSellerByUserId(any(UUID.class));
     }
 
+    @DisplayName("Junit test for sellerApplyRequest method which throw ApiException 2")
     @Test
-    void sellerApplyRequest() {
+    void givenEmptyPostRequest_whenSellerApplyRequest_thenThrowApiException2() {
         // given - precondition or setup
+        User newUserSeller = User.builder()
+                .id(UUID.fromString("b9a1a7fe-204f-4acc-8412-0f71990d77e8"))
+                .firstName("Minh")
+                .lastName("Duc")
+                .username("Minhduc123")
+                .email("Ducminh@gmail.com")
+                .phoneNumber("0945333444")
+                .gender(Gender.MALE)
+                .birthDate(new Date(2000-11-11))
+                .city("Quang Ninh")
+                .country("Viet Nam")
+                .avatar("avatarStar")
+                .activityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER))
+                .isEnabled(true)
+                .build();
+        Seller newSeller = Seller.builder()
+                .id(UUID.fromString("9cf5d172-1a2c-4302-8689-90893f19561c"))
+                .brandName("Coder Brand")
+                .descriptionBio("Java backend coder")
+                .sellerNumber("124524")
+                .rankSeller(RankSeller.BEGINNER)
+                .user(newUserSeller)
+                .skills(List.of(newSkill))
+                .totalOrderFinish(1)
+                .ratingPoint(1)
+                .verifySeller(true)
+                .build();
+        given(sellerRepository.findSellerByUserId(newUserSeller.getId())).willReturn(Optional.of(newSeller));
+        given(postRequestRepository.findById(newPostRequest.getId())).willReturn(Optional.empty());
         // when -  action or the behaviour that we are going test
+        Assertions.assertThrows(ApiException.class,()->{
+            postRequestService.sellerApplyRequest(newPostRequest.getId(),UserPrincipal.create(newUserSeller));
+        });
         // then - verify the output
+        verify(postRequestRepository,times(1)).findById(any(UUID.class));
     }
 
+    @DisplayName("Junit test for sellerApplyRequest method which throw UnauthorizedException")
     @Test
-    void getListSellerApply() {
+    void givenEmptySeller_whenSellerApplyRequest_thenThrowUnauthorizedException() {
         // given - precondition or setup
+        User newUserSeller = User.builder()
+                .id(UUID.fromString("b9a1a7fe-204f-4acc-8412-0f71990d77e8"))
+                .firstName("Minh")
+                .lastName("Duc")
+                .username("Minhduc123")
+                .email("Ducminh@gmail.com")
+                .phoneNumber("0945333444")
+                .gender(Gender.MALE)
+                .birthDate(new Date(2000-11-11))
+                .city("Quang Ninh")
+                .country("Viet Nam")
+                .avatar("avatarStar")
+                .activityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER))
+                .isEnabled(false)
+                .build();
+        Seller newSeller = Seller.builder()
+                .id(UUID.fromString("9cf5d172-1a2c-4302-8689-90893f19561c"))
+                .brandName("Coder Brand")
+                .descriptionBio("Java backend coder")
+                .sellerNumber("124524")
+                .rankSeller(RankSeller.BEGINNER)
+                .user(newUserSeller)
+                .skills(List.of(newSkill))
+                .totalOrderFinish(1)
+                .ratingPoint(1)
+                .verifySeller(true)
+                .build();
+        given(sellerRepository.findSellerByUserId(newUserSeller.getId())).willReturn(Optional.of(newSeller));
+        given(postRequestRepository.findById(newPostRequest.getId())).willReturn(Optional.of(newPostRequest));
         // when -  action or the behaviour that we are going test
+        Assertions.assertThrows(UnauthorizedException.class,()->{
+            ApiResponse apiResponse = postRequestService.sellerApplyRequest(newPostRequest.getId(),UserPrincipal.create(newUserSeller));
+            // then - verify the output
+            assertThat(apiResponse).isEqualTo(new ApiResponse(Boolean.FALSE, "You don't have permission"));
+        });
+
+    }
+    @DisplayName("Junit test for getListSellerApply method")
+    @Test
+    void givenPostRequestId_whenGetListSellerApply_thenReturnListSellerApplyPostRequestResponse() {
+        // given - precondition or setup
+        User newUserSeller = User.builder()
+                .id(UUID.fromString("b9a1a7fe-204f-4acc-8412-0f71990d77e8"))
+                .firstName("Minh")
+                .lastName("Duc")
+                .username("Minhduc123")
+                .email("Ducminh@gmail.com")
+                .phoneNumber("0945333444")
+                .gender(Gender.MALE)
+                .birthDate(new Date(2000-11-11))
+                .city("Quang Ninh")
+                .country("Viet Nam")
+                .avatar("avatarStar")
+                .activityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER))
+                .isEnabled(false)
+                .build();
+        Seller newSeller = Seller.builder()
+                .id(UUID.fromString("9cf5d172-1a2c-4302-8689-90893f19561c"))
+                .brandName("Coder Brand")
+                .descriptionBio("Java backend coder")
+                .sellerNumber("124524")
+                .rankSeller(RankSeller.BEGINNER)
+                .user(newUserSeller)
+                .skills(List.of(newSkill))
+                .totalOrderFinish(1)
+                .ratingPoint(1)
+                .verifySeller(true)
+                .build();
+        PostRequest newPostRequest1 = PostRequest.builder()
+                .id(UUID.fromString("1a7e5e61-7613-4039-bf99-d50ef64ac930"))
+                .status(PostRequestStatus.OPEN)
+                .recruitLevel("recruitLevel2")
+                .jobTitle("jobTitle2")
+                .shortRequirement("shortRequirement2")
+                .attachFile("attachFile2")
+                .contractCancelFee(1)
+                .totalDeliveryTime(1)
+                .budget(new BigDecimal(1))
+                .category(newCategory)
+                .subCategory(newSubCategory)
+                .skills(List.of(newSkill))
+                .user(newUser)
+                .sellersApplyRequest(List.of(newSeller))
+                .milestoneContracts(List.of(newMilestoneContract))
+                .build();
+
+        given(postRequestRepository.findById(newPostRequest1.getId())).willReturn(Optional.of(newPostRequest1));
+        // when -  action or the behaviour that we are going test
+        ListSellerApplyPostRequestResponse response = postRequestService.getListSellerApply(newPostRequest1.getId(),UserPrincipal.create(newUser));
         // then - verify the output
+        assertThat(response).isNotNull();
+        assertThat(response.getPostRequestId()).isEqualTo(newPostRequest1.getId());
+    }
+    @DisplayName("Junit test for getListSellerApply method which throw ApiException")
+    @Test
+    void givenEmptyPostRequestId_whenGetListSellerApply_thenThrowApiException() {
+        // given - precondition or setup
+        given(postRequestRepository.findById(newPostRequest.getId())).willReturn(Optional.empty());
+        // when -  action or the behaviour that we are going test
+        Assertions.assertThrows(ApiException.class,()->{
+            postRequestService.getListSellerApply(newPostRequest.getId(),UserPrincipal.create(newUser));
+        });
+        // then - verify the output
+        verify(postRequestRepository,times(1)).findById(any(UUID.class));
+    }
+    @DisplayName("Junit test for getListSellerApply method which throw UnauthorizedException")
+    @Test
+    void givenPostRequest_whenGetListSellerApply_thenThrowUnauthorizedException() {
+        // given - precondition or setup
+        User newUserSeller = User.builder()
+                .id(UUID.fromString("b9a1a7fe-204f-4acc-8412-0f71990d77e8"))
+                .firstName("Minh")
+                .lastName("Duc")
+                .username("Minhduc123")
+                .email("Ducminh@gmail.com")
+                .phoneNumber("0945333444")
+                .gender(Gender.MALE)
+                .birthDate(new Date(2000-11-11))
+                .city("Quang Ninh")
+                .country("Viet Nam")
+                .avatar("avatarStar")
+                .activityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER))
+                .isEnabled(false)
+                .build();
+        Seller newSeller = Seller.builder()
+                .id(UUID.fromString("9cf5d172-1a2c-4302-8689-90893f19561c"))
+                .brandName("Coder Brand")
+                .descriptionBio("Java backend coder")
+                .sellerNumber("124524")
+                .rankSeller(RankSeller.BEGINNER)
+                .user(newUserSeller)
+                .skills(List.of(newSkill))
+                .totalOrderFinish(1)
+                .ratingPoint(1)
+                .verifySeller(true)
+                .build();
+        given(postRequestRepository.findById(newPostRequest.getId())).willReturn(Optional.of(newPostRequest));
+        // when -  action or the behaviour that we are going test
+        Assertions.assertThrows(UnauthorizedException.class,()->{
+            postRequestService.getListSellerApply(newPostRequest.getId(),UserPrincipal.create(newUserSeller));
+        });
+        // then - verify the output
+        verify(postRequestRepository,times(1)).findById(any(UUID.class));
+    }
+    @DisplayName("Junit test for getAllPostRequest method")
+    @Test
+    void givenListPostRequest_whenGetAllPostRequest_thenReturnListPostRequest() {
+        // given - precondition or setup
+        given(postRequestRepository.findAll()).willReturn(List.of(newPostRequest));
+        // when -  action or the behaviour that we are going test
+        List<PostRequestResponse> postRequestResponses = postRequestService.getAllPostRequest();
+        // then - verify the output
+        assertThat(postRequestResponses).isNotNull();
+        assertThat(postRequestResponses.size()).isEqualTo(1);
     }
 
+    @DisplayName("Junit test for getAllPostRequest method (negative scenario)")
     @Test
-    void getAllPostRequest() {
+    void givenEmptyListPostRequest_whenGetAllPostRequest_thenReturnEmptyList() {
         // given - precondition or setup
+        given(postRequestRepository.findAll()).willReturn(List.of());
         // when -  action or the behaviour that we are going test
+        List<PostRequestResponse> postRequestResponses = postRequestService.getAllPostRequest();
         // then - verify the output
+        assertThat(postRequestResponses).isEmpty();
+        assertThat(postRequestResponses.size()).isEqualTo(0);
     }
-
+    @DisplayName("Junit test for countTotalPostRequestByCatId method")
     @Test
     void countTotalPostRequestByCatId() {
         // given - precondition or setup
+        given(postRequestRepository.countPostRequestByCategory_Id(newCategory.getId())).willReturn(1l);
         // when -  action or the behaviour that we are going test
+        CountPostRequestResponse countPostRequestResponse = postRequestService.countTotalPostRequestByCatId(newCategory.getId());
         // then - verify the output
+        assertThat(countPostRequestResponse.getTotalPostRequest()).isEqualTo(1);
     }
 }
