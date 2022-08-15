@@ -51,9 +51,9 @@ public class PostRequestController {
         //return postRequestService.getPostRequestByCategoryId(id);
     }
 
-    @GetMapping("/getPostRequestDetails/{postRequestId}")
-    public PostRequestResponse getPostRequestDetails(@PathVariable UUID postRequestId){
-        return postRequestService.getPostRequestDetails(postRequestId);
+    @GetMapping("/details/{postRequestId}")
+    public ResponseEntity<PostRequestResponse> getPostRequestDetails(@PathVariable UUID postRequestId){
+        return new ResponseEntity<>(postRequestService.getPostRequestDetails(postRequestId), HttpStatus.OK);
     }
 
     @PutMapping("/updatePostRequest/{postRequestId}")
