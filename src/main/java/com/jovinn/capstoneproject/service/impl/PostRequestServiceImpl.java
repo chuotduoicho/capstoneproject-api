@@ -69,6 +69,7 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequest.setAttachFile(request.getAttachFile());
             postRequest.setStatus(request.getStatus());
             postRequest.setContractCancelFee(request.getContractCancelFee());
+            postRequestRepository.save(postRequest);
 
             List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
             BigDecimal budget = new BigDecimal(0);
@@ -83,6 +84,7 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequest.setBudget(budget);
             postRequest.setTotalDeliveryTime(totalDeliveryTime);
             postRequest.setUser(userRepository.findUserById(currentUser.getId()));
+            postRequestRepository.save(postRequest);
 
             Notification notification;
             List<User> usersGetInvite = request.getInvitedUsers();
@@ -97,7 +99,6 @@ public class PostRequestServiceImpl implements PostRequestService {
                 notificationRepository.save(notification);
             }
 
-            PostRequest savedPostRequest = postRequestRepository.save(postRequest);
             return new ApiResponse(Boolean.TRUE, "Khởi tạo yêu cầu thành công");
         }
 
