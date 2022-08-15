@@ -83,6 +83,7 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequest.setBudget(budget);
             postRequest.setTotalDeliveryTime(totalDeliveryTime);
             postRequest.setUser(userRepository.findUserById(currentUser.getId()));
+            postRequestRepository.save(postRequest);
 
             Notification notification;
             List<User> usersGetInvite = request.getInvitedUsers();
@@ -97,7 +98,6 @@ public class PostRequestServiceImpl implements PostRequestService {
                 notificationRepository.save(notification);
             }
 
-            PostRequest savedPostRequest = postRequestRepository.save(postRequest);
             return new ApiResponse(Boolean.TRUE, "Khởi tạo yêu cầu thành công");
         }
 
