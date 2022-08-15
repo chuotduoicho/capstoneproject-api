@@ -69,6 +69,7 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequest.setAttachFile(request.getAttachFile());
             postRequest.setStatus(request.getStatus());
             postRequest.setContractCancelFee(request.getContractCancelFee());
+            postRequestRepository.save(postRequest);
 
             List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
             BigDecimal budget = new BigDecimal(0);
