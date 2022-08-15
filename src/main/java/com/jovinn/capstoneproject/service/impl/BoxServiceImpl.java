@@ -14,14 +14,8 @@ import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.BadRequestException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
-import com.jovinn.capstoneproject.model.Box;
-import com.jovinn.capstoneproject.model.Gallery;
-import com.jovinn.capstoneproject.model.HistoryBox;
-import com.jovinn.capstoneproject.model.Seller;
-import com.jovinn.capstoneproject.repository.BoxRepository;
-import com.jovinn.capstoneproject.repository.GalleryRepository;
-import com.jovinn.capstoneproject.repository.HistoryBoxRepository;
-import com.jovinn.capstoneproject.repository.SellerRepository;
+import com.jovinn.capstoneproject.model.*;
+import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
 import com.jovinn.capstoneproject.thirdapi.GoogleDriveManagerService;
@@ -59,6 +53,8 @@ public class BoxServiceImpl implements BoxService {
     @Autowired
     private GoogleDriveManagerService googleDriveManagerService;
     @Autowired
+    private SubCategoryRepository subCategoryRepository;
+    @Autowired
     private ModelMapper modelMapper;
 
     @Override
@@ -69,11 +65,15 @@ public class BoxServiceImpl implements BoxService {
         if (seller.getUser().getId().equals(currentUser.getId())) {
             List<Box> boxes = boxRepository.findAllBySellerId(seller.getId());
             if(boxes.size() >= 5 && seller.getRankSeller().equals(RankSeller.BEGINNER)) {
-                return new ApiResponse(Boolean.FALSE, "Bạn chỉ được tạo tối đa 5 hộp dịch vụ do chưa đạt cấp độ người bán cao hơn");
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chỉ được tạo tối đa 5 hộp dịch vụ do chưa đạt cấp độ người bán cao hơn");
+            } else if(boxes.size() >= 10 && seller.getRankSeller().equals(RankSeller.ADVANCED)) {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chỉ được tạo tối đa 10 hộp dịch vụ do chưa đạt cấp độ người bán cao hơn");
             } else {
                 box.setSeller(seller);
                 box.setImpression(0);
+                box.setTotalFinalContract(0);
                 box.setInteresting(0);
+                box.setSubCategory(subCategoryRepository.findSubCategoryById(box.getSubCategory().getId()));
                 BigDecimal fromPrice = box.getPackages().get(0).getPrice();
                 box.setFromPrice(fromPrice);
                 boxRepository.save(box);
@@ -88,17 +88,25 @@ public class BoxServiceImpl implements BoxService {
     @Override
     public ApiResponse updateBox(UUID id, BoxRequest request, UserPrincipal currentUser) {
         Box box = checkExistBox(id);
+        SubCategory subCategory = subCategoryRepository.findSubCategoryById(request.getSubCategoryId());
         if (box.getSeller().getUser().getId().equals(currentUser.getId())) {
             try {
                 box.setDescription(request.getDescription());
                 box.setTitle(request.getTitle());
-                Gallery gallery = box.getGallery();
-                updateGallery(gallery, request);
+                box.setSubCategory(subCategory);
+                if(request.getImageGallery1() != null ||
+                        request.getImageGallery2() != null ||
+                        request.getImageGallery3() != null ||
+                        request.getVideoGallery() != null ||
+                        request.getDocumentGallery() != null) {
+                    Gallery gallery = box.getGallery();
+                    updateGallery(gallery, request);
+                    removeOldFile(gallery);
+                }
                 boxRepository.save(box);
-                removeOldFile(gallery);
                 return new ApiResponse(Boolean.TRUE, "Cập nhật hộp dịch vụ thành công");
             } catch (BadRequestException e) {
-                return new ApiResponse(Boolean.FALSE, "Cập nhật hộp dịch vụ thất bại");
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Cập nhật hộp dịch vụ thất bại");
             }
         }
 
@@ -116,7 +124,7 @@ public class BoxServiceImpl implements BoxService {
                 boxRepository.deleteById(id);
                 return new ApiResponse(Boolean.TRUE, "Xóa hộp dịch vụ thành công");
             } catch (Exception e){
-                return new ApiResponse(Boolean.FALSE, "Xóa hộp dịch vụ thất bại");
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Xóa hộp dịch vụ thất bại");
             }
         }
 
@@ -145,7 +153,7 @@ public class BoxServiceImpl implements BoxService {
     public PageResponse<BoxSearchResponse> getListServiceBySellerId(UUID sellerId, UserPrincipal currentUser,
                                                               BoxServiceStatus status, int page, int size) {
         Seller seller = sellerRepository.findById(sellerId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản user"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy tài khoản người bán"));
 
         Pageable pageable = Pagination.paginationCommon(page, size, "createAt", "desc");
         Page<Box> boxes;
@@ -155,9 +163,24 @@ public class BoxServiceImpl implements BoxService {
             boxes = boxRepository.findAllBySellerIdAndStatus(sellerId, BoxServiceStatus.ACTIVE, pageable);
         }
 
-        String message = boxes.getNumberOfElements() != 0 ?
-                "Bạn có " + boxes.getTotalElements() + "/5 dịch vụ"
-                : WebConstant.NOT_FOUND_BOX;
+        String message;
+        switch (seller.getRankSeller()) {
+            case BEGINNER:
+                message = boxes.getNumberOfElements() != 0 ?
+                        "Bạn có " + boxes.getTotalElements() + "/5 dịch vụ"
+                        : WebConstant.NOT_FOUND_BOX;
+                break;
+            case ADVANCED:
+                 message = boxes.getNumberOfElements() != 0 ?
+                        "Bạn có " + boxes.getTotalElements() + "/10 dịch vụ"
+                        : WebConstant.NOT_FOUND_BOX;
+                 break;
+            default:
+                message = boxes.getNumberOfElements() != 0 ?
+                        "Bạn có " + boxes.getTotalElements() + " dịch vụ"
+                        : WebConstant.NOT_FOUND_BOX;
+                break;
+        }
 
         List<BoxSearchResponse> content = boxes.getContent().stream().map(
                         box -> modelMapper.map(box, BoxSearchResponse.class))
@@ -175,13 +198,14 @@ public class BoxServiceImpl implements BoxService {
     @Override
     public BoxResponse getServiceByID(UUID id, UserPrincipal currentUser) {
         Box box = checkExistBox(id);
-        createHistoryBox(id, currentUser.getId());
         if(!box.getSeller().getUser().getId().equals(currentUser.getId())) {
             box.setImpression(box.getImpression() + 1);
             Box save = boxRepository.save(box);
+            createHistoryBox(id, currentUser.getId());
             return boxResponseConfig(save);
+        } else {
+            return boxResponseConfig(box);
         }
-        return boxResponseConfig(box);
     }
 
     @Override
@@ -260,16 +284,16 @@ public class BoxServiceImpl implements BoxService {
     }
 
     @Override
-    public List<BoxSearchResponse> getTop8BoxByImpression() {
-        List<Box> boxes = boxRepository.getTop8ByImpression(BoxServiceStatus.ACTIVE, PageRequest.of(0, 8));
+    public List<BoxSearchResponse> getTop8BoxByTotalContract() {
+        List<Box> boxes = boxRepository.getTop8ByTotalFinalContract(BoxServiceStatus.ACTIVE, PageRequest.of(0, 8));
         return boxes.stream().map(
                     box -> modelMapper.map(box, BoxSearchResponse.class))
                     .collect(Collectors.toList());
     }
 
     @Override
-    public List<BoxSearchResponse> getTop8BoxByCategoryOrderByImpression(UUID categoryId) {
-        List<Box> boxes = boxRepository.getTop8BoxByCategoryOrderByImpression(BoxServiceStatus.ACTIVE, categoryId, PageRequest.of(0, 8));
+    public List<BoxSearchResponse> getTop8BoxByCategoryOrderByTotalContract(UUID categoryId) {
+        List<Box> boxes = boxRepository.getTop8BoxByCategoryOrderByTotalFinalContract(BoxServiceStatus.ACTIVE, categoryId, PageRequest.of(0, 8));
         return boxes.stream().map(
                     box -> modelMapper.map(box, BoxSearchResponse.class))
                     .collect(Collectors.toList());
@@ -334,7 +358,7 @@ public class BoxServiceImpl implements BoxService {
 
 
     private PageRequest getPageRequest(BoxSearchRequest request) {
-        return PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.getSortDirection(), "impression"));
+        return PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.getSortDir(), request.getSortBy()));
     }
 
     private ListBoxSearchResponse responseList(Page<Box> request) {
@@ -358,7 +382,7 @@ public class BoxServiceImpl implements BoxService {
     private BoxResponse boxResponseConfig(Box box) {
         return new BoxResponse(box.getId(), box.getCreateAt(), box.getUpdatedAt(), box.getSeller(),
                 box.getSeller().getId(), box.getTitle(), box.getDescription(), box.getImpression(),
-                box.getInteresting(), box.getStatus(), box.getSubCategory(), box.getPackages(), box.getGallery());
+                box.getInteresting(), box.getTotalFinalContract(), box.getStatus(), box.getSubCategory(), box.getPackages(), box.getGallery());
     }
 
     private void updateGallery(Gallery gallery, BoxRequest request) {

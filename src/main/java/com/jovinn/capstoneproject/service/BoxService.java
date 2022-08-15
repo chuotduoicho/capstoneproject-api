@@ -62,7 +62,7 @@ public interface BoxService {
                                                  int page, int size, String sortBy, String sortDir);
     List<BoxSearchResponse> getListHistoryBox(UserPrincipal currentUser);
 
-    List<BoxSearchResponse> getTop8BoxByImpression();
-    List<BoxSearchResponse> getTop8BoxByCategoryOrderByImpression(UUID categoryId);
+    List<BoxSearchResponse> getTop8BoxByTotalContract();
+    List<BoxSearchResponse> getTop8BoxByCategoryOrderByTotalContract(UUID categoryId);
 
 }

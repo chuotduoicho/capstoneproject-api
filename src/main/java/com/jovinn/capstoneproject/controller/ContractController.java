@@ -4,13 +4,9 @@ import com.jovinn.capstoneproject.dto.client.request.*;
 import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.model.Contract;
-import com.jovinn.capstoneproject.model.Rating;
 import com.jovinn.capstoneproject.security.CurrentUser;
 import com.jovinn.capstoneproject.security.UserPrincipal;
-import com.jovinn.capstoneproject.service.ContractService;
-import com.jovinn.capstoneproject.service.DeliveryService;
-import com.jovinn.capstoneproject.service.ExtraOfferService;
-import com.jovinn.capstoneproject.service.RatingService;
+import com.jovinn.capstoneproject.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +26,8 @@ public class ContractController {
     private DeliveryService deliveryService;
     @Autowired
     private RatingService ratingService;
+    @Autowired
+    private CommentService commentService;
     @Autowired
     private ExtraOfferService extraOfferService;
     @GetMapping("/details/{id}")
@@ -89,7 +87,7 @@ public class ContractController {
     }
 
     @PostMapping("/delivery-for-milestone/{id}")
-    public ResponseEntity<DeliveryHaveMilestoneResponse> deliveryBySeller(@PathVariable("id") UUID id,
+    public ResponseEntity<DeliveryHaveMilestoneResponse> deliveryBySellerForMilestone(@PathVariable("id") UUID id,
                                                                           @Valid @RequestBody DeliveryHaveMilestoneRequest request,
                                                                           @CurrentUser UserPrincipal currentUser) {
         DeliveryHaveMilestoneResponse response = deliveryService.createDeliveryMilestone(id, request, currentUser);
@@ -175,6 +173,11 @@ public class ContractController {
                                                              @CurrentUser UserPrincipal currentUser) {
         ApiResponse response = contractService.flagNotAcceptDelivery(contractId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/comments/{contractId}")
+    public ResponseEntity<List<CommentResponse>> getComments(@PathVariable("contractId") UUID contractId) {
+        return new ResponseEntity<>(commentService.getCommentsByContract(contractId), HttpStatus.OK);
     }
 
     @GetMapping("/avatar/{contractId}")

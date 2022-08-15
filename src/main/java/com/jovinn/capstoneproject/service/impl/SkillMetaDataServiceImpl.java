@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -51,9 +52,11 @@ public class SkillMetaDataServiceImpl implements SkillMetaDataService {
     public List<SkillMetaDataResponse> getSkillMetaDataList() {
         try {
             List<SkillMetaData> skillMetaDataList = skillMetaDataRepository.findAll();
-            return skillMetaDataList.stream()
-                    .map(skillMetaData -> modelMapper.map(skillMetaData, SkillMetaDataResponse.class))
-                    .collect(Collectors.toList());
+            List<SkillMetaDataResponse> list = new ArrayList<>();
+            for(SkillMetaData skillMetaData : skillMetaDataList) {
+                list.add(new SkillMetaDataResponse(skillMetaData.getId(), skillMetaData.getSubCategory().getId(), skillMetaData.getName()));
+            }
+            return list;
         } catch(BadRequestException e) {
             throw new JovinnException(HttpStatus.BAD_REQUEST, "Đã xảy ra lỗi");
         }

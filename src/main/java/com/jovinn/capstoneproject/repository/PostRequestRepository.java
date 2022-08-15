@@ -14,10 +14,7 @@ import java.util.UUID;
 public interface PostRequestRepository extends JpaRepository<PostRequest, UUID> {
     List<PostRequest> findAllByUser_Id(UUID userId);
     List<PostRequest> findAllByCategory_Id(UUID categoryId);
-    @Override
-    Optional<PostRequest> findById(UUID uuid);
     PostRequest findPostRequestById(UUID postRequestId);
     Integer countPostRequestByUser_Id(UUID UserId);
-
     Long countPostRequestByCategory_Id(UUID catId);
 }

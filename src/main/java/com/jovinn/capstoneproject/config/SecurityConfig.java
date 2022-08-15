@@ -50,7 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyAuthority("BUYER", "SELLER")
                 .antMatchers(HttpMethod.PUT, "/api/v1/seller/**").permitAll()
                 .antMatchers("/api/v1/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/payment/**").permitAll()

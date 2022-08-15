@@ -40,12 +40,12 @@ public class PostRequest extends BaseEntity {
 
     @ManyToOne(fetch =  FetchType.LAZY)
     @JsonIgnore
-    @JoinColumn(name = "cat_service_id", referencedColumnName = "id")
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
     Category category;
 
     @ManyToOne(fetch =  FetchType.LAZY)
     @JsonIgnore
-    @JoinColumn(name = "sub_cat_service_id", referencedColumnName = "id")
+    @JoinColumn(name = "sub_catgory_id", referencedColumnName = "id")
     SubCategory subCategory;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
@@ -62,6 +62,7 @@ public class PostRequest extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contractId", referencedColumnName = "id")
+    @JsonIgnore
     Contract contract;
 
     @ManyToOne(fetch = FetchType.LAZY)

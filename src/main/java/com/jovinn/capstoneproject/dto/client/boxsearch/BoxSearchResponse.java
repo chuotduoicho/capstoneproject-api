@@ -27,6 +27,7 @@ public class BoxSearchResponse {
     Integer totalOrderFinish;
     Integer ratingPoint;
     Integer impression;
+    Integer totalFinalContract;
     String title;
     BigDecimal fromPrice;
     List<Package> packages;
@@ -106,7 +107,9 @@ public class BoxSearchResponse {
     public BigDecimal getFromPrice() {
         return fromPrice == null ? (packages.get(0) == null ? null : packages.get(0).getPrice()) : fromPrice;
     }
-
+    public Integer getTotalFinalContract() {
+        return totalFinalContract;
+    }
     public Date getCreateAt() {
         return createAt;
     }

@@ -25,6 +25,7 @@ public class BoxResponse {
     String title;
     String description;
     Integer impression;
+    Integer totalFinalContract;
     Integer interesting;
     BoxServiceStatus status;
     SubCategory subCategory;
@@ -33,7 +34,7 @@ public class BoxResponse {
 
     public BoxResponse(UUID id, Date createAt, Date updatedAt,
                        Seller seller, UUID sellerId, String title,
-                       String description, Integer impression, Integer interesting,
+                       String description, Integer impression, Integer interesting, Integer totalFinalContract,
                        BoxServiceStatus status, SubCategory subCategory, List<Package> packages, Gallery gallery) {
         this.id = id;
         this.createAt = createAt;
@@ -48,6 +49,11 @@ public class BoxResponse {
         this.subCategory = subCategory;
         this.packages = packages;
         this.gallery = gallery;
+        this.totalFinalContract = totalFinalContract;
+    }
+
+    public Integer getTotalFinalContract() {
+        return totalFinalContract;
     }
 
     public UUID getId() {
@@ -70,6 +76,9 @@ public class BoxResponse {
 
     public String getCategoryName() {
         return subCategory.getCategory().getName();
+    }
+    public Integer getRatingPoint() {
+        return seller.getRatingPoint();
     }
 
     public String getLastName() {

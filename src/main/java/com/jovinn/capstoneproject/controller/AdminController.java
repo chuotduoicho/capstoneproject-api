@@ -185,26 +185,7 @@ public class AdminController {
 
     @PostMapping("/admin-sign-in")
     public ResponseEntity<JwtAuthenticationResponse> authenticationAdmin(@RequestBody AdminLoginRequest adminLoginRequest){
-        try {
-            User user = userService.getUserByUserName(adminLoginRequest.getAdminAccount());
-            ActivityType activityType = new ActivityType(UserActivityType.ADMIN);
-            if (Objects.equals(activityTypeService.getActivityTypeByUserId(user.getId()), UserActivityType.ADMIN)
-                    && activityTypeService.getActivityTypeByUserId(user.getId()) != null){
-
-                Authentication authentication = authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(adminLoginRequest.getAdminAccount(), adminLoginRequest.getPassword()));
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                String jwt = jwtTokenProvider.generateToken(authentication);
-                return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
-            }else {
-                throw new BadCredentialsException("");
-            }
-
-        } catch (BadCredentialsException e) {
-            throw new JovinnException(HttpStatus.BAD_REQUEST, "Tài khoản/email hoặc password không đúng");
-        }
+        return ResponseEntity.ok(userService.loginAdmin(adminLoginRequest));
     }
 
     @PutMapping("/auto-complete-contract")

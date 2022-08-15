@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.client.request.LanguageRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.LanguageResponse;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Language;
@@ -12,6 +13,7 @@ import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.LanguageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -28,7 +30,7 @@ public class LanguageServiceImpl implements LanguageService {
     public LanguageResponse addLanguage(LanguageRequest languageRequest, UserPrincipal currentUser) {
         Seller seller = sellerRepository.findSellerByUserId(languageRequest.getUserId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Seller", "Seller not found", languageRequest.getUserId()));
+                        new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy "));
         if(seller.getUser().getId().equals(currentUser.getId())) {
             Language language = new Language(languageRequest.getLanguage(), seller);
             Language newLang = languageRepository.save(language);

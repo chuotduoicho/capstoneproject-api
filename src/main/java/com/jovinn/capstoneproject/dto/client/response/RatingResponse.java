@@ -1,6 +1,5 @@
 package com.jovinn.capstoneproject.dto.client.response;
 
-import com.jovinn.capstoneproject.model.Box;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;

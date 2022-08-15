@@ -53,7 +53,10 @@ public class PostRequestResponse {
         this.invitedUser = invitedUser;
     }
 
-    public PostRequestResponse(UUID postRequestId, UUID categoryId, UUID subcategoryId, String jobTitle, BigDecimal budget, UUID buyerId, String buyerFirstName,String buyerLastname, String city, Date createdAt, String recruitLevel, List<Skill> skillsName, String shortRequirement, List<MilestoneContract> milestoneContracts, Integer contractCancelFee) {
+    public PostRequestResponse(UUID postRequestId, UUID categoryId, UUID subcategoryId, String jobTitle,
+                               BigDecimal budget, UUID buyerId, String buyerFirstName,String buyerLastname,
+                               String city, Date createdAt, String recruitLevel, List<Skill> skillsName,
+                               String shortRequirement, List<MilestoneContract> milestoneContracts, Integer contractCancelFee) {
         this.postRequestId = postRequestId;
         this.categoryId = categoryId;
         this.subcategoryId = subcategoryId;

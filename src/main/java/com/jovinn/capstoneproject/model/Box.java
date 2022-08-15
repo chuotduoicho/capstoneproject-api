@@ -35,6 +35,7 @@ public class Box extends BaseEntity {
     String description;
     Integer impression;
     Integer interesting;
+    Integer totalFinalContract;
 
     BigDecimal fromPrice;
     @Enumerated(EnumType.STRING)
@@ -58,6 +59,7 @@ public class Box extends BaseEntity {
     Gallery gallery;
 
     @OneToMany(mappedBy = "box", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
     List<Rating> ratings;
     public Box(String title, String description, Integer impression, Integer interesting, BoxServiceStatus status, Seller seller, SubCategory subCategory) {
         this.title = title;

@@ -55,4 +55,27 @@ public class ContractResponse {
         this.buyerId = buyerId;
         this.sellerId = sellerId;
     }
+
+    public ContractResponse(UUID id, String contractCode,
+                            String requirement, Integer quantity, Integer contractCancelFee,
+                            BigDecimal serviceDeposit, BigDecimal totalPrice,
+                            Integer totalDeliveryTime, Date expectCompleteDate,
+                            DeliveryStatus deliveryStatus, OrderStatus orderStatus, ContractStatus contractStatus,
+                            PostRequest postRequest, UUID buyerId, UUID sellerId) {
+        this.id = id;
+        this.contractCode = contractCode;
+        this.requirement = requirement;
+        this.quantity = quantity;
+        this.contractCancelFee = contractCancelFee;
+        this.serviceDeposit = serviceDeposit;
+        this.totalPrice = totalPrice;
+        this.totalDeliveryTime = totalDeliveryTime;
+        this.expectCompleteDate = expectCompleteDate;
+        this.deliveryStatus = deliveryStatus;
+        this.orderStatus = orderStatus;
+        this.contractStatus = contractStatus;
+        this.postRequest = postRequest;
+        this.buyerId = buyerId;
+        this.sellerId = sellerId;
+    }
 }

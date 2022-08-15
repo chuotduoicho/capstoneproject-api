@@ -71,10 +71,13 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequest.setContractCancelFee(request.getContractCancelFee());
             List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
             BigDecimal budget = new BigDecimal(0);
+            int totalDeliveryTime = 0;
             for (MilestoneContract milestoneContract : milestoneContractList){
                 budget = budget.add(milestoneContract.getMilestoneFee());
+                totalDeliveryTime = totalDeliveryTime + milestoneContract.getEndDate().getDate() - milestoneContract.getStartDate().getDate();
             }
             postRequest.setBudget(budget);
+            postRequest.setTotalDeliveryTime(totalDeliveryTime);
             postRequest.setUser(userRepository.findUserById(currentUser.getId()));
             Notification notification;
             List<User> usersGetInvite = request.getInvitedUsers();
@@ -104,9 +107,9 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public ApiResponse updatePostRequest(PostRequestRequest request, UUID id, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         PostRequest post = postRequestRepository.findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Post Request not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bài đăng"));
         if (post.getUser().getId().equals(buyer.getUser().getId()) && post.getUser().getId().equals(currentUser.getId())){
             PostRequest savedPostRequest;
             if (request != null && post.getSellersApplyRequest().isEmpty() ){
@@ -150,7 +153,7 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public List<PostRequestResponse> getPostRequestByBuyerCreated(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         List<PostRequest> postRequests;
        // PostRequestResponse postRequestResponse;
         List<PostRequestResponse> postRequestResponses = new ArrayList<>();
@@ -176,7 +179,7 @@ public class PostRequestServiceImpl implements PostRequestService {
         List<ListSellerTargetPostRequestResponse> responses = new ArrayList<>();
         for(String box : boxes) {
             Seller seller = sellerRepository.findById(UUID.fromString(box))
-                    .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy seller"));
+                    .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
             responses.add(new ListSellerTargetPostRequestResponse(seller.getUser().getId(), seller.getId(), seller.getUser().getAvatar(),
                     seller.getUser().getLastName() + " " + seller.getUser().getFirstName(), seller.getBrandName(),
                     seller.getTotalOrderFinish(), seller.getRatingPoint(), seller.getSkills().get(0).getName(),seller.getRankSeller()));
@@ -211,19 +214,24 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public PostRequestResponse getPostRequestDetails(UUID postRequestId) {
         PostRequest postRequest = postRequestRepository.findPostRequestById(postRequestId);
-        return new PostRequestResponse(postRequest.getCategory().getName(),postRequest.getSubCategory().getName(),postRequest.getRecruitLevel(),
-                postRequest.getSkills(), postRequest.getJobTitle(), postRequest.getShortRequirement(), postRequest.getMilestoneContracts(),
-                postRequest.getContractCancelFee(), postRequest.getBudget(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
-                postRequest.getUser().getCity(),postRequest.getUser().getCreateAt(),postRequestRepository.countPostRequestByUser_Id(postRequest.getUser().getId()));
+        return new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
+                postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
+                postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
+                postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkills(),
+                postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee());
+//        return new PostRequestResponse(postRequest.getCategory().getName(),postRequest.getSubCategory().getName(),postRequest.getRecruitLevel(),
+//                postRequest.getSkills(), postRequest.getJobTitle(), postRequest.getShortRequirement(), postRequest.getMilestoneContracts(),
+//                postRequest.getContractCancelFee(), postRequest.getBudget(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
+//                postRequest.getUser().getCity(),postRequest.getUser().getCreateAt(),postRequestRepository.countPostRequestByUser_Id(postRequest.getUser().getId()));
 //        return postRequestRepository.findPostRequestById(postRequestId);
     }
 
     @Override
     public ApiResponse sellerApplyRequest(UUID postRequestId, UserPrincipal currentUser) {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
         PostRequest post = postRequestRepository.findById(postRequestId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Post Request not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bài đăng"));
         List<Seller> sellersApply;
         if (seller.getUser().getId().equals(currentUser.getId()) &&
                 seller.getUser().getIsEnabled().equals(Boolean.TRUE)){
@@ -231,14 +239,14 @@ public class PostRequestServiceImpl implements PostRequestService {
                 sellersApply = sellerRepository.findAllByPostRequests_Id(postRequestId);
                 for (Seller sellerApply: sellersApply){
                     if (sellerApply.getId().equals(seller.getId())){
-                        return new ApiResponse(Boolean.FALSE, "Bạn đã apply bài Post Request này");
+                        return new ApiResponse(Boolean.FALSE, "Bạn đã ứng cử vào bài đăng này");
                     }
                 }
                 sellersApply.add(seller);
                 post.setSellersApplyRequest(sellersApply);
                 postRequestRepository.save(post);
 
-            return new ApiResponse(Boolean.TRUE,"Apply Post Request thành công");
+            return new ApiResponse(Boolean.TRUE,"Ứng cử thành công");
 
         }
 

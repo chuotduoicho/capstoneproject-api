@@ -66,11 +66,12 @@ public class Contract extends BaseEntity {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "contract")
     List<Delivery> delivery;
 
-    @OneToOne(mappedBy = "contract", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "contract", fetch = FetchType.LAZY)
     PostRequest postRequest;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "contract")
     @JsonManagedReference
+    @JsonIgnore
     List<Comment> comments;
 //
 //    @OneToMany(mappedBy = "contract", fetch = FetchType.EAGER)
@@ -83,6 +84,29 @@ public class Contract extends BaseEntity {
                     OrderStatus orderStatus, ContractStatus contractStatus,
                     ContractType type, Buyer buyer, Seller seller, Boolean flag) {
         this.packageId = packageId;
+        this.contractCode = contractCode;
+        this.requirement = requirement;
+        this.quantity = quantity;
+        this.contractCancelFee = contractCancelFee;
+        this.serviceDeposit = serviceDeposit;
+        this.totalPrice = totalPrice;
+        this.totalDeliveryTime = totalDeliveryTime;
+        this.expectCompleteDate = expectCompleteDate;
+        this.deliveryStatus = deliveryStatus;
+        this.orderStatus = orderStatus;
+        this.contractStatus = contractStatus;
+        this.type = type;
+        this.buyer = buyer;
+        this.seller = seller;
+        this.flag = flag;
+    }
+
+    public Contract(String contractCode, String requirement,
+                    Integer quantity, Integer contractCancelFee, BigDecimal serviceDeposit,
+                    BigDecimal totalPrice, Integer totalDeliveryTime,
+                    Date expectCompleteDate, DeliveryStatus deliveryStatus,
+                    OrderStatus orderStatus, ContractStatus contractStatus,
+                    ContractType type, Buyer buyer, Seller seller, Boolean flag) {
         this.contractCode = contractCode;
         this.requirement = requirement;
         this.quantity = quantity;

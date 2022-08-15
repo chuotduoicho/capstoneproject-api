@@ -2,7 +2,6 @@ package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.Gender;
@@ -13,7 +12,6 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.util.*;
 
 @Entity
@@ -36,9 +34,9 @@ public class User extends BaseEntity {
     String firstName;
     String lastName;
     String username;
-    @Column(unique = true, length = 55, nullable = false)
+    @Column(unique = true, length = 100, nullable = false)
     String email;
-    @Column(unique = true, length = 15)
+    @Column(unique = true, length = 11)
     String phoneNumber;
 
     @JsonIgnore
@@ -57,7 +55,6 @@ public class User extends BaseEntity {
     String avatar;
 
     @JsonIgnore
-    @Size(min = 6, max = 50)
     String password;
 
     @Temporal(TemporalType.DATE)

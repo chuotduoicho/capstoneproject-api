@@ -23,6 +23,7 @@ import com.jovinn.capstoneproject.util.EmailSender;
 import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
@@ -44,6 +45,8 @@ public class ContractServiceImpl implements ContractService {
     private BuyerRepository buyerRepository;
     @Autowired
     private SellerRepository sellerRepository;
+    @Autowired
+    private BoxRepository boxRepository;
     @Autowired
     private PackageRepository packageRepository;
     @Autowired
@@ -328,7 +331,7 @@ public class ContractServiceImpl implements ContractService {
                         sellerRepository.save(seller);
                         return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
                     } else {
-                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chưa đánh dấu hoàn thành tất cả các milestone");
+                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chưa đánh dấu hoàn thành tất cả các giai đoạn");
                     }
                 } else {
                     walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
@@ -341,9 +344,9 @@ public class ContractServiceImpl implements ContractService {
                     Seller seller = contract.getSeller();
                     seller.setTotalOrderFinish(seller.getTotalOrderFinish() + 1);
                     sellerRepository.save(seller);
+                    updateTotalFinalContract(contract.getPackageId());
                     return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
                 }
-
 //                String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
 //                try {
 //                    emailSender.sendEmailNotiRejectContractToSeller(contract.getSeller().getUser().getEmail(),
@@ -369,18 +372,22 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public ApiResponse acceptDeliveryForMilestone(UUID contractId, UUID milestoneId, UserPrincipal currentUser) {
         MilestoneContract milestoneContract = milestoneContractRepository.findById(milestoneId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Milestone not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy giai đoạn"));
         Contract contract = contractRepository.findById(contractId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
         BigDecimal incomeMilestone = calculateRefund90PercentDeposit(milestoneContract.getMilestoneFee(), 90);
         if(contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
-            milestoneContract.setStatus(MilestoneStatus.COMPLETE);
-            milestoneContractRepository.save(milestoneContract);
-            walletSeller.setWithdraw(walletSeller.getWithdraw().add(incomeMilestone));
-            walletSeller.setIncome(walletSeller.getIncome().add(incomeMilestone));
-            saveWallet(walletSeller);
-            return new ApiResponse(Boolean.TRUE, "Bạn đã nhận và thanh toán mã giai đoạn này thành công");
+            if(milestoneContract.getStatus().equals(MilestoneStatus.PROCESSING)) {
+                milestoneContract.setStatus(MilestoneStatus.COMPLETE);
+                milestoneContractRepository.save(milestoneContract);
+                walletSeller.setWithdraw(walletSeller.getWithdraw().add(incomeMilestone));
+                walletSeller.setIncome(walletSeller.getIncome().add(incomeMilestone));
+                saveWallet(walletSeller);
+                return new ApiResponse(Boolean.TRUE, "Bạn đã nhận và thanh toán mã giai đoạn này thành công");
+            } else {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn đã chấp nhận bàn giao này");
+            }
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -404,12 +411,12 @@ public class ContractServiceImpl implements ContractService {
         BigDecimal totalPrice = offerRequest.getOfferPrice();
         BigDecimal serviceDeposit = totalPrice.multiply(new BigDecimal(offerRequest.getCancelFee())).divide(ONE_HUNDRED, RoundingMode.FLOOR);
 
-        if (postRequest.getUser().getId().equals(currentUser.getId())) {
+        if (postRequest.getUser().getId().equals(currentUser.getId()) && postRequest.getStatus().equals(PostRequestStatus.OPEN)) {
             if (walletBuyer.getWithdraw().compareTo(totalPrice) >= 0 ) {
                 if(offerRequest.getOfferRequestStatus().equals(OfferRequestStatus.ACCEPTED)) {
                     throw new JovinnException(HttpStatus.BAD_REQUEST, "Offer đã được chấp nhận");
                 } else {
-                    Contract contract = new Contract(null, contractCode,
+                    Contract contract = new Contract(contractCode,
                             postRequest.getShortRequirement(), 1, offerRequest.getCancelFee(),
                             serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
                             DeliveryStatus.PENDING, OrderStatus.TO_CONTRACT, ContractStatus.PROCESSING,
@@ -418,6 +425,7 @@ public class ContractServiceImpl implements ContractService {
                         List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(postRequest.getId());
                         for(MilestoneContract milestoneContract : milestoneContracts) {
                             milestoneContract.setStatus(MilestoneStatus.PROCESSING);
+                            milestoneContractRepository.save(milestoneContract);
                         }
                     }
                     contract.setPostRequest(postRequest);
@@ -429,9 +437,9 @@ public class ContractServiceImpl implements ContractService {
                     walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                     saveWallet(walletBuyer);
 
-                    updateStatusAfterAcceptOffer(postRequest, offerRequest);
+                    updateStatusAfterAcceptOffer(postRequest, offerRequest, contract);
                     changeStatusAllOfferRejected(postRequest);
-                    return new ContractResponse(newContract.getId(), newContract.getPackageId(),
+                    return new ContractResponse(newContract.getId(),
                             newContract.getContractCode(), newContract.getRequirement(),
                             newContract.getQuantity(), newContract.getContractCancelFee(),
                             newContract.getServiceDeposit(), newContract.getTotalPrice(),
@@ -467,9 +475,9 @@ public class ContractServiceImpl implements ContractService {
                 .multiply(new BigDecimal(postRequest.getContractCancelFee()))
                 .divide(ONE_HUNDRED, RoundingMode.FLOOR);
 
-        if (postRequest.getUser().getId().equals(currentUser.getId())) {
+        if (postRequest.getUser().getId().equals(currentUser.getId()) && postRequest.getStatus().equals(PostRequestStatus.OPEN)) {
             if (walletBuyer.getWithdraw().compareTo(totalPrice) >= 0 ) {
-                Contract contract = new Contract(null, contractCode,
+                Contract contract = new Contract(contractCode,
                         postRequest.getShortRequirement(), 1, postRequest.getContractCancelFee(),
                         serviceDeposit, totalPrice, countTotalDeliveryTime, expectCompleteDate,
                         DeliveryStatus.PENDING, OrderStatus.TO_CONTRACT, ContractStatus.PROCESSING,
@@ -478,6 +486,7 @@ public class ContractServiceImpl implements ContractService {
                     List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(postRequest.getId());
                     for(MilestoneContract milestoneContract : milestoneContracts) {
                         milestoneContract.setStatus(MilestoneStatus.PROCESSING);
+                        milestoneContractRepository.save(milestoneContract);
                     }
                 }
                 contract.setPostRequest(postRequest);
@@ -486,9 +495,9 @@ public class ContractServiceImpl implements ContractService {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                 saveWallet(walletBuyer);
 
-                updateStatusPostRequestAfterAccepted(postRequest);
+                updateStatusPostRequestAfterAccepted(postRequest, contract);
                 changeStatusAllOfferRejected(postRequest);
-                return new ContractResponse(newContract.getId(), newContract.getPackageId(),
+                return new ContractResponse(newContract.getId(),
                         newContract.getContractCode(), newContract.getRequirement(),
                         newContract.getQuantity(), newContract.getContractCancelFee(),
                         newContract.getServiceDeposit(), newContract.getTotalPrice(),
@@ -565,7 +574,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public List<Contract> getContractByStatus(ContractStatus status, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
 
         if(buyer.getUser().getSeller() == null) {
@@ -576,7 +585,7 @@ public class ContractServiceImpl implements ContractService {
             return contractRepository.findAllByContractStatusAndBuyerId(status, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
 //            Page<Contract> contracts = contractRepository.findAllByContractStatusAndSellerIdOrBuyerId(status, seller.getId(), buyer.getId(), pageable);
 //            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
 //            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
@@ -591,7 +600,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public List<Contract> getOrders(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tỉm thấy người mua"));
         //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
 
         if(buyer.getUser().getSeller() == null) {
@@ -602,7 +611,7 @@ public class ContractServiceImpl implements ContractService {
             return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.PENDING, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm tháy người bán"));
 //            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.PENDING, buyer.getId(), seller.getId(), pageable);
 //            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
 //            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
@@ -616,7 +625,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public List<Contract> getContracts(UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
         if(buyer.getUser().getSeller() == null) {
 //            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.TO_CONTRACT, buyer.getId(), pageable);
@@ -626,7 +635,7 @@ public class ContractServiceImpl implements ContractService {
             return contractRepository.findAllByOrderStatusAndBuyerId(OrderStatus.TO_CONTRACT, buyer.getId());
         } else if(buyer.getUser().getSeller() != null) {
             Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm tháy người bán"));
 //            Page<Contract> contracts = contractRepository.findAllByOrderStatusAndBuyerIdOrSellerId(OrderStatus.TO_CONTRACT, buyer.getId(), seller.getId(), pageable);
 //            List<Contract> content = contracts.getNumberOfElements() == 0 ? Collections.emptyList() : contracts.getContent();
 //            return new PageResponse<>(content, contracts.getNumber(), contracts.getSize(), contracts.getTotalElements(),
@@ -723,17 +732,27 @@ public class ContractServiceImpl implements ContractService {
         return value.setScale(2, RoundingMode.HALF_EVEN);
     }
 
-    private void updateStatusAfterAcceptOffer(PostRequest postRequest, OfferRequest offerRequest) {
+    private void updateStatusAfterAcceptOffer(PostRequest postRequest, OfferRequest offerRequest, Contract contract) {
         offerRequest.setOfferRequestStatus(OfferRequestStatus.ACCEPTED);
         offerRequest.setUpdatedAt(new Date());
         offerRequestRepository.save(offerRequest);
-        updateStatusPostRequestAfterAccepted(postRequest);
+        updateStatusPostRequestAfterAccepted(postRequest, contract);
     }
 
-    private void updateStatusPostRequestAfterAccepted(PostRequest postRequest) {
+    private void updateStatusPostRequestAfterAccepted(PostRequest postRequest, Contract contract) {
         postRequest.setStatus(PostRequestStatus.CLOSE);
         postRequest.setUpdatedAt(new Date());
+        postRequest.setContract(contract);
         postRequestRepository.save(postRequest);
+    }
+
+    private void updateTotalFinalContract(UUID packageId) {
+        Package pack = packageRepository.findById(packageId)
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy gói dịch vụ"));
+        Box box = boxRepository.findById(pack.getBox().getId())
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hộp dịch vụ"));
+        box.setTotalFinalContract(box.getTotalFinalContract() + 1);
+        boxRepository.save(box);
     }
 
     private void changeStatusAllOfferRejected(PostRequest postRequest) {

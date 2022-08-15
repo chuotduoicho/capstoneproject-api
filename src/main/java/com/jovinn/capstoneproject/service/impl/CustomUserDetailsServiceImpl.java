@@ -18,7 +18,7 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService, CustomU
     private UserRepository userRepository;
     @Override
     public UserDetails loadUserById(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException(String.format("User not found with id: %s", id)));
+        User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException(String.format("Không tìm thấy người dùng: %s", id)));
 
         return UserPrincipal.create(user);
     }
@@ -26,7 +26,7 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService, CustomU
     @Override
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("User not found with this username or email: %s", usernameOrEmail)));
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("Tài khoản/Email không tồn tại: %s", usernameOrEmail)));
         return UserPrincipal.create(user);
     }
 }
