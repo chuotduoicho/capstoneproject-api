@@ -39,9 +39,9 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     @Override
     public OfferRequestResponse sendOfferToBuyer(UUID postRequestId, OfferRequestRequest request, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy post cần gửi offer"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy post cần gửi đề nghị"));
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy seller"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy người bán"));
         Wallet walletSeller = walletRepository.findWalletByUserId(currentUser.getId());
 
         if(seller.getUser().getId().equals(currentUser.getId())) {
@@ -56,7 +56,7 @@ public class OfferRequestServiceImpl implements OfferRequestService {
                 offerRequest.setOfferType(OfferType.OFFER);
                 offerRequest.setOfferRequestStatus(OfferRequestStatus.PENDING);
                 OfferRequest save = offerRequestRepository.save(offerRequest);
-                String message = "Gửi đi offer thành công qua " + postRequest.getId();
+                String message = "Gửi đi dề nghị thành công qua " + postRequest.getId();
                 return new OfferRequestResponse(save.getId(), save.getPostRequest().getId(), save.getDescriptionBio(),
                         save.getTotalDeliveryTime(), save.getOfferPrice(), save.getCancelFee(), message);
             } else {

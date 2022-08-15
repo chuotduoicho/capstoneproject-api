@@ -37,14 +37,14 @@ public class Skill extends BaseEntity {
     @JsonBackReference
     Seller seller;
 
-    @ManyToMany
-    @JsonIgnore
-    @JoinTable(
-            name = "post_request_skill",
-            joinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id")
-    )
-    List<PostRequest> postRequests;
+//    @ManyToMany
+//    @JsonIgnore
+//    @JoinTable(
+//            name = "post_request_skill",
+//            joinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "id"),
+//            inverseJoinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id")
+//    )
+//    List<PostRequest> postRequests;
 
     public Skill(String name, SkillLevel level, String shortDescribe, Seller seller) {
         this.name = name;

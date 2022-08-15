@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface MilestoneContractRepository extends JpaRepository<MilestoneContract, UUID> {
     List<MilestoneContract> findAllByPostRequestId(UUID postRequestId);
+    MilestoneContract deleteAllByPostRequestId(UUID postRequestId);
 }

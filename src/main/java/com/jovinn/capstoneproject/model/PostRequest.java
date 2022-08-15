@@ -53,9 +53,9 @@ public class PostRequest extends BaseEntity {
     @JoinTable(
             name = "post_request_skill",
             joinColumns = @JoinColumn(name = "post_request_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "id")
+            inverseJoinColumns = @JoinColumn(name = "skill_meta_id", referencedColumnName = "id")
     )
-    List<Skill> skills;
+    List<SkillMetaData> skillMetaData;
 
     @OneToMany(mappedBy = "postRequest",cascade = CascadeType.ALL, orphanRemoval = true)
     List<MilestoneContract> milestoneContracts;

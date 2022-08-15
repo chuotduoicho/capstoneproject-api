@@ -39,13 +39,13 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Autowired
     private SubCategoryRepository subCategoryRepository;
     @Autowired
-    private SkillRepository skillRepository;
+    private SkillMetaDataRepository skillMetaDataRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private  SellerRepository sellerRepository;
     @Autowired
-    private BoxRepository boxRepository;
+    private MilestoneContractRepository milestoneContractRepository;
     @Autowired
     private MilestoneContractService milestoneContractService;
     @Autowired
@@ -56,29 +56,34 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public ApiResponse addPostRequest(PostRequestRequest request, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
                 buyer.getUser().getIsEnabled().equals(Boolean.TRUE)){
             PostRequest postRequest = new PostRequest();
             postRequest.setCategory(categoryRepository.findCategoryById(request.getCategoryId()));
             postRequest.setSubCategory(subCategoryRepository.findSubCategoryById(request.getSubCategoryId()));
             postRequest.setRecruitLevel(request.getRecruitLevel());
-            postRequest.setSkills(skillRepository.findAllByNameIn(request.getSkillsName()));
+            postRequest.setSkillMetaData(skillMetaDataRepository.findAllByNameIn(request.getSkillsName()));
             postRequest.setJobTitle(request.getJobTitle());
             postRequest.setShortRequirement(request.getShortRequirement());
             postRequest.setAttachFile(request.getAttachFile());
-            postRequest.setStatus(PostRequestStatus.OPEN);
+            postRequest.setStatus(request.getStatus());
             postRequest.setContractCancelFee(request.getContractCancelFee());
+
             List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
             BigDecimal budget = new BigDecimal(0);
             int totalDeliveryTime = 0;
             for (MilestoneContract milestoneContract : milestoneContractList){
                 budget = budget.add(milestoneContract.getMilestoneFee());
                 totalDeliveryTime = totalDeliveryTime + milestoneContract.getEndDate().getDate() - milestoneContract.getStartDate().getDate();
+                milestoneContract.setPostRequest(postRequest);
+                milestoneContractService.addMilestoneContract(milestoneContract);
             }
+
             postRequest.setBudget(budget);
             postRequest.setTotalDeliveryTime(totalDeliveryTime);
             postRequest.setUser(userRepository.findUserById(currentUser.getId()));
+
             Notification notification;
             List<User> usersGetInvite = request.getInvitedUsers();
             for (User userInvite: usersGetInvite){
@@ -91,15 +96,13 @@ public class PostRequestServiceImpl implements PostRequestService {
                         " Kiểm tra ngay");
                 notificationRepository.save(notification);
             }
+
             PostRequest savedPostRequest = postRequestRepository.save(postRequest);
-
-
-            for (MilestoneContract milestoneContract : milestoneContractList){
-                milestoneContract.setPostRequest(savedPostRequest);
-                milestoneContractService.addMilestoneContract(milestoneContract);
-            }
+            return new ApiResponse(Boolean.TRUE, "Khởi tạo yêu cầu thành công");
         }
-        return new ApiResponse(Boolean.TRUE, "Khởi tạo yêu cầu thành công");
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+        throw new UnauthorizedException(apiResponse);
     }
 
     @Override
@@ -108,33 +111,28 @@ public class PostRequestServiceImpl implements PostRequestService {
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         PostRequest post = postRequestRepository.findById(id)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bài đăng"));
-        if (post.getUser().getId().equals(buyer.getUser().getId()) && post.getUser().getId().equals(currentUser.getId())){
-            PostRequest savedPostRequest;
+        if (post.getUser().getId().equals(buyer.getUser().getId()) && post.getUser().getId().equals(currentUser.getId())) {
             if (request != null && post.getSellersApplyRequest().isEmpty() ){
                 post.setCategory(categoryRepository.findCategoryById(request.getCategoryId()));
                 post.setSubCategory(subCategoryRepository.findSubCategoryById(request.getSubCategoryId()));
                 post.setRecruitLevel(request.getRecruitLevel());
-                post.setSkills(skillRepository.findAllByNameIn(request.getSkillsName()));
+                post.setSkillMetaData(skillMetaDataRepository.findAllByNameIn(request.getSkillsName()));
                 post.setJobTitle(request.getJobTitle());
                 post.setShortRequirement(request.getShortRequirement());
                 post.setAttachFile(request.getAttachFile());
-                post.setStatus(PostRequestStatus.OPEN);
+                post.setStatus(request.getStatus());
                 post.setContractCancelFee(request.getContractCancelFee());
-                List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
-                BigDecimal budget = new BigDecimal(0) ;
-                for (MilestoneContract milestoneContract : milestoneContractList){
-                    budget = budget.add(milestoneContract.getMilestoneFee());
-                }
-                post.setBudget(budget);
-                post.setUser(userRepository.findUserById(currentUser.getId()));
-                savedPostRequest =  postRequestRepository.save(post);
 
-                if (!milestoneContractList.isEmpty()){
-                    for (MilestoneContract milestoneContract : milestoneContractList){
-                        milestoneContract.setPostRequest(savedPostRequest);
-                        milestoneContractService.addMilestoneContract(milestoneContract);
-                    }
+                BigDecimal budget = new BigDecimal(0);
+                int totalDeliveryTime = 0;
+                if(request.getMilestoneContracts() != null) {
+                    deleteMilestoneExisted(post, request, budget, totalDeliveryTime);
                 }
+
+                post.setBudget(budget);
+                post.setTotalDeliveryTime(totalDeliveryTime);
+                postRequestRepository.save(post);
+
                 return new ApiResponse(Boolean.TRUE, "Cập nhật yêu cầu thành công");
             }
         }
@@ -160,7 +158,7 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequests = postRequestRepository.findAllByUser_Id(currentUser.getId());
             for (PostRequest postRequest : postRequests) {
                 postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(), postRequest.getSubCategory().getId(),
-                        postRequest.getRecruitLevel(), postRequest.getSkills(), postRequest.getJobTitle(), postRequest.getShortRequirement(),
+                        postRequest.getRecruitLevel(), postRequest.getSkillMetaData(), postRequest.getJobTitle(), postRequest.getShortRequirement(),
                         postRequest.getAttachFile(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee(), postRequest.getBudget(),
                         userService.getListUserInvitedByPostRequestId(postRequest.getId())));
             }
@@ -184,7 +182,7 @@ public class PostRequestServiceImpl implements PostRequestService {
     }
 
     @Override
-    public List<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId) {
+    public List<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId, UserPrincipal currentUser) {
         List<PostRequestResponse> postRequestResponses = new ArrayList<>();
         List<PostRequest> postRequests = postRequestRepository.findAllByCategory_Id(categoryId);
         //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
@@ -192,11 +190,13 @@ public class PostRequestServiceImpl implements PostRequestService {
         //List<PostRequest> list = postRequests.getContent();
 
         for (PostRequest postRequest : postRequests){
-            postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
-                    postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
-                    postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
-                    postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkills(),
-                    postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
+            if(!postRequest.getUser().getId().equals(currentUser.getId())) {
+                postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
+                        postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
+                        postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
+                        postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkillMetaData(),
+                        postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
+            }
         }
 
 //        List<PostRequestResponse> content = list.stream().map(
@@ -213,7 +213,7 @@ public class PostRequestServiceImpl implements PostRequestService {
         return new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
                 postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
                 postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
-                postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkills(),
+                postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkillMetaData(),
                 postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee());
 //        return new PostRequestResponse(postRequest.getCategory().getName(),postRequest.getSubCategory().getName(),postRequest.getRecruitLevel(),
 //                postRequest.getSkills(), postRequest.getJobTitle(), postRequest.getShortRequirement(), postRequest.getMilestoneContracts(),
@@ -235,7 +235,7 @@ public class PostRequestServiceImpl implements PostRequestService {
                 sellersApply = sellerRepository.findAllByPostRequests_Id(postRequestId);
                 for (Seller sellerApply: sellersApply){
                     if (sellerApply.getId().equals(seller.getId())){
-                        return new ApiResponse(Boolean.FALSE, "Bạn đã ứng cử vào bài đăng này");
+                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn đã ứng cử vào bài đăng này");
                     }
                 }
                 sellersApply.add(seller);
@@ -280,7 +280,7 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
                     postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
                     postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
-                    postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkills(),
+                    postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkillMetaData(),
                     postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
         }
         return postRequestResponses;
@@ -289,5 +289,20 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public CountPostRequestResponse countTotalPostRequestByCatId(UUID catId) {
         return new CountPostRequestResponse(postRequestRepository.countPostRequestByCategory_Id(catId));
+    }
+
+    private void deleteMilestoneExisted(PostRequest post, PostRequestRequest request, BigDecimal budget, int totalDeliveryTime) {
+        List<MilestoneContract> listExistMilestone = milestoneContractRepository.findAllByPostRequestId(post.getId());
+        for(MilestoneContract oldMile : listExistMilestone) {
+            milestoneContractRepository.deleteById(oldMile.getId());
+        }
+
+        List<MilestoneContract> newMilestones = request.getMilestoneContracts();
+        for(MilestoneContract newMilestone : newMilestones) {
+            budget = budget.add(newMilestone.getMilestoneFee());
+            totalDeliveryTime = totalDeliveryTime + newMilestone.getEndDate().getDate() - newMilestone.getStartDate().getDate();
+            newMilestone.setPostRequest(post);
+            milestoneContractService.addMilestoneContract(newMilestone);
+        }
     }
 }

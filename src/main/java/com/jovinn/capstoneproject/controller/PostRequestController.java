@@ -45,10 +45,9 @@ public class PostRequestController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/getPostRequestByCategoryId/{catId}")
-    public ResponseEntity<List<PostRequestResponse>> getPostRequestByCategoryId(@PathVariable("catId") UUID catId) {
-        List<PostRequestResponse> response = postRequestService.getPostRequestByCategoryId(catId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-        //return postRequestService.getPostRequestByCategoryId(id);
+    public ResponseEntity<List<PostRequestResponse>> getPostRequestByCategoryId(@PathVariable("catId") UUID catId,
+                                                                                @CurrentUser UserPrincipal currentUser) {
+        return new ResponseEntity<>(postRequestService.getPostRequestByCategoryId(catId, currentUser), HttpStatus.OK);
     }
 
     @GetMapping("/details/{postRequestId}")
@@ -56,11 +55,11 @@ public class PostRequestController {
         return new ResponseEntity<>(postRequestService.getPostRequestDetails(postRequestId), HttpStatus.OK);
     }
 
-    @PutMapping("/updatePostRequest/{postRequestId}")
+    @PutMapping("/update/{postRequestId}")
     public ResponseEntity<ApiResponse> updatePostRequest(@PathVariable UUID postRequestId,@CurrentUser UserPrincipal currentUser,
                                            @RequestBody PostRequestRequest request){
         ApiResponse apiResponse = postRequestService.updatePostRequest(request,postRequestId,currentUser);
-       return new ResponseEntity< >(apiResponse, HttpStatus.CREATED);
+       return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @PutMapping("/sellerApplyRequest/{postRequestId}")

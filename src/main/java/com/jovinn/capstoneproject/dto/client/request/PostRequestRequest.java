@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.dto.client.request;
 
+import com.jovinn.capstoneproject.enumerable.PostRequestStatus;
 import com.jovinn.capstoneproject.model.MilestoneContract;
 import com.jovinn.capstoneproject.model.User;
 import lombok.AccessLevel;
@@ -29,6 +30,7 @@ public class PostRequestRequest {
     @NotBlank(message = "Không được để trống")
     String shortRequirement;
     String attachFile;
+    PostRequestStatus status;
     List<MilestoneContract> milestoneContracts;
     @NotNull(message = "Không được để trống, tối thiểu là 0% và tối đa là 100%")
     @Min(value = 0, message = "Không được nhỏ hơn 0")

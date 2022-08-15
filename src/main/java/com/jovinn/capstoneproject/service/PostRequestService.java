@@ -29,7 +29,7 @@ public interface PostRequestService {
     List<ListSellerTargetPostRequestResponse> getTargetSeller(TargetSellerRequest request);
 
     //View list post request by category id
-    List<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId);
+    List<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId, UserPrincipal currentUser);
 
     //View Post Request Detail
     PostRequestResponse getPostRequestDetails(UUID postRequestId);
