@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,7 +46,10 @@ public class OfferRequestServiceImpl implements OfferRequestService {
         Wallet walletSeller = walletRepository.findWalletByUserId(currentUser.getId());
 
         if(seller.getUser().getId().equals(currentUser.getId())) {
-            if(walletSeller.getWithdraw().compareTo(request.getOfferPrice().multiply(new BigDecimal(request.getCancelFee()/100))) >= 0) {
+            BigDecimal serviceDeposit = request.getOfferPrice()
+                    .multiply(new BigDecimal(request.getCancelFee())
+                            .divide(new BigDecimal(100), RoundingMode.FLOOR));
+            if(walletSeller.getWithdraw().compareTo(serviceDeposit) >= 0) {
                 OfferRequest offerRequest = new OfferRequest();
                 offerRequest.setPostRequest(postRequest);
                 offerRequest.setDescriptionBio(request.getDescriptionBio());
