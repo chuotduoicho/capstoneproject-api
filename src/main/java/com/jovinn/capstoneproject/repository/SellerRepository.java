@@ -27,11 +27,12 @@ public interface SellerRepository extends JpaRepository<Seller, UUID> {
     List<Seller> findAllByPostRequests_Id(UUID postRequestId);
     Page<Seller> findAllByPostRequests_Id(UUID postRequestId, Pageable pageable);
     List<Seller> findAllByRankSeller(RankSeller rankSeller);
-    @Query("SELECT s.id from Seller s JOIN s.boxes b " +
+    @Query("SELECT s.id from Seller s " +
+            "INNER JOIN Box b on b.seller.id = s.id " +
             "INNER JOIN Skill sk on sk.seller.id = s.id " +
             "where b.subCategory.id = :subCategoryId " +
-            "and s.rankSeller = :rankSeller " +
-            "and sk.name IN :idsSkillName " +
+            "AND s.rankSeller = :rankSeller " +
+            "OR sk.name IN :idsSkillName " +
             "GROUP BY s.id " +
             "ORDER BY RAND()")
     List<String> getTenSellerBySubCategoryId(@Param("subCategoryId") UUID subCategoryId,
