@@ -177,7 +177,7 @@ public class PostRequestServiceImpl implements PostRequestService {
                     .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
             responses.add(new ListSellerTargetPostRequestResponse(seller.getUser().getId(), seller.getId(), seller.getUser().getAvatar(),
                     seller.getUser().getLastName() + " " + seller.getUser().getFirstName(), seller.getBrandName(),
-                    seller.getTotalOrderFinish(), seller.getRatingPoint(), seller.getSkills().get(0).getName(),seller.getRankSeller()));
+                    seller.getTotalOrderFinish(), seller.getRatingPoint(), seller.getSkills().get(0).getName(), seller.getRankSeller()));
         }
         return responses;
     }
@@ -185,7 +185,7 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public List<PostRequestResponse> getPostRequestByCategoryId(UUID categoryId, UserPrincipal currentUser) {
         List<PostRequestResponse> postRequestResponses = new ArrayList<>();
-        List<PostRequest> postRequests = postRequestRepository.findAllByCategory_Id(categoryId);
+        List<PostRequest> postRequests = postRequestRepository.findAllByCategoryIdAndStatus(categoryId, PostRequestStatus.OPEN);
         //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
         //Page<PostRequest> postRequests = postRequestRepository.findAllByCategory_Id(categoryId, pageable);
         //List<PostRequest> list = postRequests.getContent();
@@ -194,7 +194,7 @@ public class PostRequestServiceImpl implements PostRequestService {
             if(!postRequest.getUser().getId().equals(currentUser.getId())) {
                 postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
                         postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
-                        postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
+                        postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(), postRequest.getAttachFile(),
                         postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkillMetaData(),
                         postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
             }
@@ -213,7 +213,7 @@ public class PostRequestServiceImpl implements PostRequestService {
         PostRequest postRequest = postRequestRepository.findPostRequestById(postRequestId);
         return new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
                 postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
-                postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
+                postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(), postRequest.getAttachFile(),
                 postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkillMetaData(),
                 postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee());
 //        return new PostRequestResponse(postRequest.getCategory().getName(),postRequest.getSubCategory().getName(),postRequest.getRecruitLevel(),
@@ -280,7 +280,7 @@ public class PostRequestServiceImpl implements PostRequestService {
         for (PostRequest postRequest:postRequests){
             postRequestResponses.add(new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
                     postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
-                    postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
+                    postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(), postRequest.getAttachFile(),
                     postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkillMetaData(),
                     postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee()));
         }
