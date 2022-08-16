@@ -41,7 +41,7 @@ public class ScheduleService {
             if(delivery != null) {
                 Date autoCompleteExpectDate = dateDelivery.expectDate(delivery.getCreateAt().getDay(), 3);
                 if(contract.getDeliveryStatus().equals(DeliveryStatus.SENDING) &&
-                        autoCompleteExpectDate.compareTo(new Date()) > 0) {
+                        autoCompleteExpectDate.compareTo(new Date()) > 0 && contract.getFlag().equals(Boolean.FALSE)) {
                     contract.setContractStatus(ContractStatus.COMPLETE);
                     contractRepository.save(contract);
                     list.add(contract);

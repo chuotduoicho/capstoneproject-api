@@ -1,6 +1,5 @@
 package com.jovinn.capstoneproject.dto.client.response;
 
-import com.jovinn.capstoneproject.model.PostRequest;
 import com.jovinn.capstoneproject.model.Seller;
 import lombok.AccessLevel;
 import lombok.Data;
