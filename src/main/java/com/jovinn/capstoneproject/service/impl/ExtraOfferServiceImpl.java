@@ -47,8 +47,9 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
                 extraOffer.setExtraPrice(request.getExtraPrice());
                 extraOffer.setAdditionTime(request.getAdditionTime());
                 extraOffer.setOpened(Boolean.TRUE);
+                extraOffer.setContract(contract);
                 ExtraOffer save = extraOfferRepository.save(extraOffer);
-                sendNotification(WebConstant.DOMAIN + "/contract/" + contractId,
+                sendNotification(WebConstant.DOMAIN + "/sellerHome/manageContract/" + contractId,
                         "Bạn nhận được lời đề nghị mới cho hợp đồng với giá " + extraOffer.getExtraPrice(), contract.getSeller().getUser());
                 return new ApiResponse(Boolean.TRUE, "Bạn đã gửi lời đề nghị cho hợp đồng thành công với mức giá là " + save.getExtraPrice());
             } else {

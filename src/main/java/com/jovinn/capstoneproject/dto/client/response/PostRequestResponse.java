@@ -58,7 +58,7 @@ public class PostRequestResponse {
     }
 
     public PostRequestResponse(UUID postRequestId, UUID categoryId, UUID subcategoryId, String jobTitle,
-                               BigDecimal budget, UUID buyerId, String buyerFirstName,String buyerLastname,
+                               BigDecimal budget, UUID buyerId, String buyerFirstName, String buyerLastname, String attachFile,
                                String city, Date createdAt, String recruitLevel, List<SkillMetaData> skillsName,
                                String shortRequirement, List<MilestoneContract> milestoneContracts, Integer contractCancelFee) {
         this.postRequestId = postRequestId;
@@ -69,6 +69,7 @@ public class PostRequestResponse {
         this.buyerId = buyerId;
         this.buyerFirstName = buyerFirstName;
         this.buyerLastname = buyerLastname;
+        this.attachFile = attachFile;
         this.city = city;
         this.createdAt = createdAt;
         this.recruitLevel = recruitLevel;
