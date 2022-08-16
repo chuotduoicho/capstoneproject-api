@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.UUID;
 
@@ -68,11 +69,13 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         if(contract.getSeller().getUser().getId().equals(currentUser.getId())) {
-            if(contract.getContractStatus().equals(ContractStatus.COMPLETE) && extraOffer.getOpened().equals(Boolean.TRUE)) {
+            if(!contract.getContractStatus().equals(ContractStatus.COMPLETE) && extraOffer.getOpened().equals(Boolean.TRUE)) {
                 Date completeExpectDateWithExtra = dateDelivery.expectDate(contract.getExpectCompleteDate().getDay(), extraOffer.getAdditionTime());
                 contract.setTotalPrice(contract.getTotalPrice().add(extraOffer.getExtraPrice()));
                 contract.setExpectCompleteDate(completeExpectDateWithExtra);
-                contract.setServiceDeposit(contract.getServiceDeposit().add(extraOffer.getExtraPrice().multiply(new BigDecimal(10/100))));
+                contract.setServiceDeposit(contract.getServiceDeposit().add(
+                        extraOffer.getExtraPrice().multiply(
+                                new BigDecimal(10).divide(new BigDecimal(100), RoundingMode.FLOOR))));
                 contractRepository.save(contract);
                 return new ApiResponse(Boolean.TRUE, "Bạn đã tiếp nhận lời đề nghị thành công");
             } else {

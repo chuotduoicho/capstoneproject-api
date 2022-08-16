@@ -519,7 +519,7 @@ public class ContractServiceImpl implements ContractService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         boolean checkAllFinish = Boolean.FALSE;
-        if(contract.getBuyer().getId().equals(currentUser.getId())) {
+        if(contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
             if(contract.getPostRequest().getMilestoneContracts() != null) {
                 List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(contract.getPostRequest().getId());
                 for(MilestoneContract milestoneContract : milestoneContracts) {
