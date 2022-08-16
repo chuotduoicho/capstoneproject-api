@@ -712,6 +712,7 @@ class PostRequestServiceImplTest {
         given(postRequestRepository.findById(newPostRequest.getId())).willReturn(Optional.of(newPostRequest));
         // when -  action or the behaviour that we are going test
         Assertions.assertThrows(UnauthorizedException.class,()->{
+            //Seller isEnable False Then throw exception
             ApiResponse apiResponse = postRequestService.sellerApplyRequest(newPostRequest.getId(),UserPrincipal.create(newUserSeller));
             // then - verify the output
             assertThat(apiResponse).isEqualTo(new ApiResponse(Boolean.FALSE, "You don't have permission"));
@@ -844,6 +845,7 @@ class PostRequestServiceImplTest {
         given(postRequestRepository.findAll()).willReturn(List.of());
         // when -  action or the behaviour that we are going test
         List<PostRequestResponse> postRequestResponses = postRequestService.getAllPostRequest();
+        System.out.println(postRequestResponses);
         // then - verify the output
         assertThat(postRequestResponses).isEmpty();
         assertThat(postRequestResponses.size()).isEqualTo(0);
@@ -855,6 +857,7 @@ class PostRequestServiceImplTest {
         given(postRequestRepository.countPostRequestByCategory_Id(newCategory.getId())).willReturn(1l);
         // when -  action or the behaviour that we are going test
         CountPostRequestResponse countPostRequestResponse = postRequestService.countTotalPostRequestByCatId(newCategory.getId());
+        System.out.println(countPostRequestResponse);
         // then - verify the output
         assertThat(countPostRequestResponse.getTotalPostRequest()).isEqualTo(1);
     }

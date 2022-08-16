@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,9 +44,16 @@ public class OfferRequestServiceImpl implements OfferRequestService {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy seller"));
         Wallet walletSeller = walletRepository.findWalletByUserId(currentUser.getId());
-
+        double n =  Math.round(request.getCancelFee()/100);
+        BigDecimal bigDecimal = request.getOfferPrice().multiply(new BigDecimal(request.getCancelFee()))
+                .divide(new BigDecimal(100), RoundingMode.FLOOR);
+        System.out.println(bigDecimal);
+        System.out.println(request.getOfferPrice());
+        System.out.println(new BigDecimal(request.getCancelFee()/100));
+        BigDecimal bigDecimal1 = walletSeller.getWithdraw();
+        System.out.println(bigDecimal1);
         if(seller.getUser().getId().equals(currentUser.getId())) {
-            if(walletSeller.getWithdraw().compareTo(request.getOfferPrice().multiply(new BigDecimal(request.getCancelFee()/100))) >= 0) {
+            if(walletSeller.getWithdraw().compareTo(bigDecimal) >= 0) {
                 OfferRequest offerRequest = new OfferRequest();
                 offerRequest.setPostRequest(postRequest);
                 offerRequest.setDescriptionBio(request.getDescriptionBio());
@@ -60,7 +68,7 @@ public class OfferRequestServiceImpl implements OfferRequestService {
                 return new OfferRequestResponse(save.getId(), save.getPostRequest().getId(), save.getDescriptionBio(),
                         save.getTotalDeliveryTime(), save.getOfferPrice(), save.getCancelFee(), message);
             } else {
-                throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn cần có một lượng cọc nhất định trong tài khoản, vui lòng nạp thêm");
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn cần có một lượng cọc nhất định trong tài khoản, vui lòng nạp thêm");
             }
         }
 
