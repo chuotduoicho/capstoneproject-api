@@ -77,6 +77,11 @@ public class GoogleDriveManagerService implements FileManagerService {
         }
     }
 
+    @Override
+    public String downloadFile(String fileName) {
+        return fileName + "&export=download";
+    }
+
     private void validateUploadFile(MultipartFile file){
         if (null == file) {
             throw new JovinnException(HttpStatus.BAD_REQUEST, "Error");

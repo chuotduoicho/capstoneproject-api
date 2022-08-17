@@ -11,4 +11,5 @@ public interface FileManagerService {
     UploadFileResponse uploadNewFile(MultipartFile file, ImageType imageType, UUID id);
     About getInfo();
     void deleteFile(String fileId);
+    String downloadFile(String fileId);
 }

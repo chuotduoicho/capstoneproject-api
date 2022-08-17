@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -80,10 +81,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentResponse> getCommentsByContract(UUID contractId) {
-        List<Comment> comments = commentRepository.findAllByContractIdOrderByCreateAtAsc(contractId);
-        return comments.stream().map(
-                        comment -> modelMapper.map(comment, CommentResponse.class))
-                        .collect(Collectors.toList());
+        List<Comment> comments = commentRepository.findAllByContractIdOrderByCreateAtDesc(contractId);
+        List<CommentResponse> responses = new ArrayList<>();
+        for(Comment comment : comments) {
+            responses.add(new CommentResponse(comment.getId(), comment.getUserId(), comment.getContract().getId(),
+                    comment.getType(), comment.getName(), comment.getText()));
+        }
+        return responses;
     }
 
     private CommentResponse getResponse(Comment update) {
