@@ -38,4 +38,9 @@ public class FileController {
         fileManagerService.deleteFile(fileId);
         return ResponseEntity.ok(Boolean.TRUE);
     }
+
+    @GetMapping("/download/{fileName}")
+    public ResponseEntity<String> downloadFile(@PathVariable("fileName") String fileName) {
+        return ResponseEntity.ok(fileManagerService.downloadFile(fileName));
+    }
 }
