@@ -24,7 +24,7 @@ import com.jovinn.capstoneproject.repository.HistoryBoxRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
-import com.jovinn.capstoneproject.thirdapi.GoogleDriveManagerService;
+//import com.jovinn.capstoneproject.thirdapi.GoogleDriveManagerService;
 import com.jovinn.capstoneproject.util.Pagination;
 import com.jovinn.capstoneproject.util.SpecificationSearchBox;
 import com.jovinn.capstoneproject.util.WebConstant;
@@ -56,8 +56,8 @@ public class BoxServiceImpl implements BoxService {
     private SellerRepository sellerRepository;
     @Autowired
     private HistoryBoxRepository historyBoxRepository;
-    @Autowired
-    private GoogleDriveManagerService googleDriveManagerService;
+//    @Autowired
+//    private GoogleDriveManagerService googleDriveManagerService;
     @Autowired
     private ModelMapper modelMapper;
 
@@ -95,7 +95,7 @@ public class BoxServiceImpl implements BoxService {
                 Gallery gallery = box.getGallery();
                 updateGallery(gallery, request);
                 boxRepository.save(box);
-                removeOldFile(gallery);
+                //removeOldFile(gallery);
                 return new ApiResponse(Boolean.TRUE, "Cập nhật hộp dịch vụ thành công");
             } catch (BadRequestException e) {
                 return new ApiResponse(Boolean.FALSE, "Cập nhật hộp dịch vụ thất bại");
@@ -112,7 +112,7 @@ public class BoxServiceImpl implements BoxService {
         if(box.getSeller().getUser().getId().equals(currentUser.getId())) {
             try {
                 Gallery gallery = box.getGallery();
-                removeOldFile(gallery);
+                //removeOldFile(gallery);
                 boxRepository.deleteById(id);
                 return new ApiResponse(Boolean.TRUE, "Xóa hộp dịch vụ thành công");
             } catch (Exception e){
@@ -374,17 +374,17 @@ public class BoxServiceImpl implements BoxService {
         galleryRepository.save(gallery);
     }
 
-    private void removeOldFile(Gallery gallery) {
-        deleteOldFileUploadOnDrive(gallery.getImageGallery1());
-        deleteOldFileUploadOnDrive(gallery.getImageGallery2());
-        deleteOldFileUploadOnDrive(gallery.getImageGallery3());
-        deleteOldFileUploadOnDrive(gallery.getVideoGallery());
-        deleteOldFileUploadOnDrive(gallery.getDocumentGallery());
-    }
+//    private void removeOldFile(Gallery gallery) {
+//        deleteOldFileUploadOnDrive(gallery.getImageGallery1());
+//        deleteOldFileUploadOnDrive(gallery.getImageGallery2());
+//        deleteOldFileUploadOnDrive(gallery.getImageGallery3());
+//        deleteOldFileUploadOnDrive(gallery.getVideoGallery());
+//        deleteOldFileUploadOnDrive(gallery.getDocumentGallery());
+//    }
 
-    private void deleteOldFileUploadOnDrive(String fileUrl) {
-        googleDriveManagerService.deleteFile(fileUrl.substring(31));
-    }
+//    private void deleteOldFileUploadOnDrive(String fileUrl) {
+//        googleDriveManagerService.deleteFile(fileUrl.substring(31));
+//    }
 
     private void createHistoryBox(UUID boxId, UUID userId) {
         HistoryBox historyBox = new HistoryBox();

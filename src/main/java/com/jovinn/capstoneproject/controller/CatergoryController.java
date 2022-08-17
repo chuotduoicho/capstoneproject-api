@@ -41,12 +41,12 @@ public class CatergoryController {
         return categoryService.getCategoryByName(name);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/category/update")
     public Category updateCategory(@RequestBody Category category) {
         return categoryService.updateCategory(category);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/category/delete/{id}")
     public String deleteCategory(@PathVariable UUID id) {
         return categoryService.deleteCategoryById(id);
     }

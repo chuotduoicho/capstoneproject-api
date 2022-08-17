@@ -36,21 +36,27 @@ public class NotificationServiceImpl implements NotificationService {
     public ApiResponse readNotification(UUID notificationId, UserPrincipal currentUser) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy thông báo"));
-        if(notification.getUser().getId().equals(currentUser.getId())) {
+        //if(notification.getUser().getId().equals(currentUser.getId())) {
             notification.setUnread(Boolean.FALSE);
             notificationRepository.save(notification);
             return new ApiResponse(Boolean.TRUE, "" + notification.getLink());
-        }
+        //}
 
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
-        throw new UnauthorizedException(apiResponse);
+//        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
+//        throw new UnauthorizedException(apiResponse);
     }
 
     @Override
     public NotificationResponse getNotifications(UserPrincipal currentUser) {
-        List<Notification> notifications = notificationRepository.findAllByUserId(currentUser.getId());
-        List<Notification> readList = notificationRepository.findAllByUnread(Boolean.FALSE);
-        Integer countUnread = notifications.size() - readList.size();
+        List<Notification> notifications = notificationRepository.findAllByUserIdOrderByCreateAtDesc(currentUser.getId());
+        //List<Notification> readList = notificationRepository.findAllByUnread(Boolean.FALSE);
+        //Integer countUnread = notifications.size() - readList.size();
+        Integer countUnread = 0;
+        for(Notification notification : notifications){
+            if(notification.getUnread()){
+                countUnread++;
+            }
+        }
         return new NotificationResponse(notifications, countUnread);
     }
 
@@ -101,8 +107,18 @@ public class NotificationServiceImpl implements NotificationService {
         Notification invitation = new Notification();
         invitation.setUser(user);
         invitation.setLink("");
+        invitation.setUnread(true);
         invitation.setShortContent("Bạn nhận được lời mời từ "+ user.getUsername());
         sendEvent();
         return notificationRepository.save(invitation);
+    }
+
+    @Override
+    public ApiResponse deleteNotification(UUID notificationId, UserPrincipal currentUser) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy thông báo"));
+        //if(notification.getUser().getId().equals(currentUser.getId())) {
+        notificationRepository.delete(notification);
+        return new ApiResponse(Boolean.TRUE, "" + notification.getId());
     }
 }

@@ -51,7 +51,7 @@ public class AdminServiceImpl implements AdminService {
         List<AdminViewUserResponse> usersResponse = new ArrayList<>();
         for (User user : users) {
             usersResponse.add(new AdminViewUserResponse(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhoneNumber(),
-                    user.getUsername()));
+                    user.getUsername(), user.getIsEnabled()));
         }
         return usersResponse;
     }

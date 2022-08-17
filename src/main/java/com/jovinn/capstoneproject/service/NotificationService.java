@@ -17,5 +17,7 @@ public interface NotificationService {
 
     Notification inviteUser(ListSellerTargetPostRequestResponse targetSeller);
 
+    ApiResponse deleteNotification(UUID notificationId, UserPrincipal currentUser);
+
 
 }

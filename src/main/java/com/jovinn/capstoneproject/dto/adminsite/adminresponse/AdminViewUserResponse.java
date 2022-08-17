@@ -15,12 +15,15 @@ public class AdminViewUserResponse {
     String phoneNumber;
     String userName;
 
-    public AdminViewUserResponse(UUID id, String firstName, String lastName, String email, String phoneNumber, String userName) {
+    Boolean isEnabled;
+
+    public AdminViewUserResponse(UUID id, String firstName, String lastName, String email, String phoneNumber, String userName, Boolean isEnabled) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.userName = userName;
+        this.isEnabled = isEnabled;
     }
 }

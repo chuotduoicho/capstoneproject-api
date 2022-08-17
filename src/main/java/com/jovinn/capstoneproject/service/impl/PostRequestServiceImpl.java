@@ -16,20 +16,23 @@ import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.*;
-import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 public class PostRequestServiceImpl implements PostRequestService {
 
+    private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
     @Autowired
     private PostRequestRepository postRequestRepository;
     @Autowired
@@ -53,6 +56,16 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Autowired
     private UserService userService;
 
+    public void sendEvent(){
+        List<SseEmitter> deadEmitters = new ArrayList<>();
+        for(SseEmitter emitter : emitters){
+            try {
+                emitter.send("reload command");
+            } catch (IOException e) {
+                deadEmitters.add(emitter);
+            }
+        }
+    }
     @Override
     public ApiResponse addPostRequest(PostRequestRequest request, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
@@ -78,18 +91,19 @@ public class PostRequestServiceImpl implements PostRequestService {
             postRequest.setUser(userRepository.findUserById(currentUser.getId()));
             Notification notification;
             List<User> usersGetInvite = request.getInvitedUsers();
+
+            PostRequest savedPostRequest = postRequestRepository.save(postRequest);
             for (User userInvite: usersGetInvite){
                 notification = new Notification();
                 notification.setUser(userInvite);
                 notification.setUnread(Boolean.TRUE);
-                notification.setLink(WebConstant.DOMAIN + "/sellerhome/manageRequest/" + postRequest.getId());
+                notification.setLink("/sellerHome/manageRequest/" + savedPostRequest.getId());
                 notification.setShortContent("Bạn có lời mời làm việc mới từ " +
                         buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName() +
                         " Kiểm tra ngay");
+                sendEvent();
                 notificationRepository.save(notification);
             }
-            PostRequest savedPostRequest = postRequestRepository.save(postRequest);
-
 
             for (MilestoneContract milestoneContract : milestoneContractList){
                 milestoneContract.setPostRequest(savedPostRequest);
@@ -207,10 +221,11 @@ public class PostRequestServiceImpl implements PostRequestService {
     @Override
     public PostRequestResponse getPostRequestDetails(UUID postRequestId) {
         PostRequest postRequest = postRequestRepository.findPostRequestById(postRequestId);
-        return new PostRequestResponse(postRequest.getCategory().getName(),postRequest.getSubCategory().getName(),postRequest.getRecruitLevel(),
-                postRequest.getSkills(), postRequest.getJobTitle(), postRequest.getShortRequirement(), postRequest.getMilestoneContracts(),
-                postRequest.getContractCancelFee(), postRequest.getBudget(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
-                postRequest.getUser().getCity(),postRequest.getUser().getCreateAt(),postRequestRepository.countPostRequestByUser_Id(postRequest.getUser().getId()));
+        return new PostRequestResponse(postRequest.getId(), postRequest.getCategory().getId(),
+                postRequest.getSubCategory().getId(), postRequest.getJobTitle(),postRequest.getBudget(),
+                postRequest.getUser().getBuyer().getId(),postRequest.getUser().getFirstName(),postRequest.getUser().getLastName(),
+                postRequest.getUser().getCity(),postRequest.getCreateAt(), postRequest.getRecruitLevel(), postRequest.getSkills(),
+                postRequest.getShortRequirement(), postRequest.getMilestoneContracts(), postRequest.getContractCancelFee());
 //        return postRequestRepository.findPostRequestById(postRequestId);
     }
 
@@ -282,4 +297,5 @@ public class PostRequestServiceImpl implements PostRequestService {
     public CountPostRequestResponse countTotalPostRequestByCatId(UUID catId) {
         return new CountPostRequestResponse(postRequestRepository.countPostRequestByCategory_Id(catId));
     }
+
 }

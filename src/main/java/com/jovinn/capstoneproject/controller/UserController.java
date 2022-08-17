@@ -16,8 +16,10 @@ import com.jovinn.capstoneproject.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -33,8 +35,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private SellerService sellerService;
-    @Autowired
-    private WalletService walletService;
+//    @Autowired
+//    private WalletService walletService;
     @Autowired
     private OfferRequestService offerRequestService;
     @Autowired
@@ -81,11 +83,11 @@ public class UserController {
         return new ResponseEntity<>(sellerInfo, HttpStatus.CREATED);
     }
 
-    @GetMapping("/wallet")
-    public ResponseEntity<WalletResponse> getWallet(@CurrentUser UserPrincipal currentUser) {
-        WalletResponse response = walletService.getWallet(currentUser);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @GetMapping("/wallet")
+//    public ResponseEntity<WalletResponse> getWallet(@CurrentUser UserPrincipal currentUser) {
+//        WalletResponse response = walletService.getWallet(currentUser);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
     @GetMapping("/list-offer/{postRequestId}")
     public ResponseEntity<List<OfferRequest>> getOfferRequests(@PathVariable("postRequestId") UUID postRequestId,
@@ -128,7 +130,14 @@ public class UserController {
         return new ResponseEntity< >(response, HttpStatus.OK);
     }
     @GetMapping("/recieve-notify")
-    public void registerEmitter(){
-        notificationService.registerClient();
+    public SseEmitter registerEmitter(){
+        return notificationService.registerClient();
+    }
+
+    @DeleteMapping("/delete-noti/{notificationId}")
+    public ResponseEntity<ApiResponse> deleteNotification(@PathVariable("notificationId") UUID notificationId,
+                                          @CurrentUser UserPrincipal currentUser) {
+        ApiResponse response = notificationService.deleteNotification(notificationId, currentUser);
+        return new ResponseEntity< >(response, HttpStatus.OK);
     }
 }

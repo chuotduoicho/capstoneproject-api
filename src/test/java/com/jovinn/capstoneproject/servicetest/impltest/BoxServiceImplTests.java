@@ -12,24 +12,24 @@ import java.util.UUID;
 public class BoxServiceImplTests {
     @Autowired
     private BoxService boxService;
-    @Test
-    void deleteBoxByIdHaveInDatabase(){
-        UUID id = UUID.fromString("2cf50b52-695f-4b1a-b4bf-abbdcec4fbab");
-        boolean deleteBox = boxService.deleteBox(id);
-        assertThat(deleteBox).isEqualTo(true);
-    }
-    @Test
-    void deleteBoxByIdNotHaveInDatabase(){
-        UUID id = UUID.fromString("2cf50b52-695f-4b1a-b4bf-abbdcec4fba1");
-        boolean deleteBox = boxService.deleteBox(id);
-        assertThat(deleteBox).isEqualTo(false);
-    }
-    @Test
-    void deleteBoxByIdIsEmpty(){
-        UUID id = null;
-        boolean deleteBox = boxService.deleteBox(id);
-        assertThat(deleteBox).isEqualTo(false);
-    }
+//    @Test
+//    void deleteBoxByIdHaveInDatabase(){
+//        UUID id = UUID.fromString("2cf50b52-695f-4b1a-b4bf-abbdcec4fbab");
+//        boolean deleteBox = boxService.deleteBox(id);
+//        assertThat(deleteBox).isEqualTo(true);
+//    }
+//    @Test
+//    void deleteBoxByIdNotHaveInDatabase(){
+//        UUID id = UUID.fromString("2cf50b52-695f-4b1a-b4bf-abbdcec4fba1");
+//        boolean deleteBox = boxService.deleteBox(id);
+//        assertThat(deleteBox).isEqualTo(false);
+//    }
+//    @Test
+//    void deleteBoxByIdIsEmpty(){
+//        UUID id = null;
+//        boolean deleteBox = boxService.deleteBox(id);
+//        assertThat(deleteBox).isEqualTo(false);
+//    }
 
 //    @Test
 //    public void testAddAnMemberOrCollaboratorSuccess2() {
