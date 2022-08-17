@@ -69,14 +69,17 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         if(contract.getSeller().getUser().getId().equals(currentUser.getId())) {
-            if(!contract.getContractStatus().equals(ContractStatus.COMPLETE) && extraOffer.getOpened().equals(Boolean.TRUE)) {
-                Date completeExpectDateWithExtra = dateDelivery.expectDate(contract.getExpectCompleteDate().getDay(), extraOffer.getAdditionTime());
+            if(contract.getContractStatus().equals(ContractStatus.PROCESSING) && extraOffer.getOpened().equals(Boolean.TRUE)) {
+                Date completeExpectDateWithExtra = dateDelivery.expectDate(contract.getTotalDeliveryTime(), extraOffer.getAdditionTime());
                 contract.setTotalPrice(contract.getTotalPrice().add(extraOffer.getExtraPrice()));
                 contract.setExpectCompleteDate(completeExpectDateWithExtra);
+                contract.setTotalDeliveryTime(contract.getTotalDeliveryTime() + extraOffer.getAdditionTime());
                 contract.setServiceDeposit(contract.getServiceDeposit().add(
                         extraOffer.getExtraPrice().multiply(
-                                new BigDecimal(10).divide(new BigDecimal(100), RoundingMode.FLOOR))));
+                                new BigDecimal(10)).divide(new BigDecimal(100), RoundingMode.FLOOR)));
                 contractRepository.save(contract);
+                extraOffer.setOpened(Boolean.FALSE);
+                extraOfferRepository.save(extraOffer);
                 return new ApiResponse(Boolean.TRUE, "Bạn đã tiếp nhận lời đề nghị thành công");
             } else {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể nhận lời đề nghị mới do hợp đồng đã hoàn thành hoặc bị hủy");

@@ -47,8 +47,8 @@ public class OfferRequestServiceImpl implements OfferRequestService {
 
         if(seller.getUser().getId().equals(currentUser.getId())) {
             BigDecimal serviceDeposit = request.getOfferPrice()
-                    .multiply(new BigDecimal(request.getCancelFee())
-                            .divide(new BigDecimal(100), RoundingMode.FLOOR));
+                    .multiply(new BigDecimal(request.getCancelFee()))
+                            .divide(new BigDecimal(100), RoundingMode.FLOOR);
             if(walletSeller.getWithdraw().compareTo(serviceDeposit) >= 0) {
                 OfferRequest offerRequest = new OfferRequest();
                 offerRequest.setPostRequest(postRequest);
