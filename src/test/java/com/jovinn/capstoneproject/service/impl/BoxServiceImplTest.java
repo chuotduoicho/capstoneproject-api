@@ -14,10 +14,7 @@ import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.model.Package;
-import com.jovinn.capstoneproject.repository.BoxRepository;
-import com.jovinn.capstoneproject.repository.GalleryRepository;
-import com.jovinn.capstoneproject.repository.HistoryBoxRepository;
-import com.jovinn.capstoneproject.repository.SellerRepository;
+import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.repository.auth.ActivityTypeRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
@@ -51,6 +48,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class BoxServiceImplTest {
     @Mock
     private BoxRepository boxRepository;
+    @Mock
+    private SubCategoryRepository subCategoryRepository;
     @Mock
     private GalleryRepository galleryRepository;
     @Mock
@@ -163,6 +162,8 @@ class BoxServiceImplTest {
                 .status(BoxServiceStatus.ACTIVE)
                 .seller(newSeller)
                 .packages(List.of(newPackage))
+                .subCategory(newSubCategory)
+                .fromPrice(new BigDecimal(10))
                 .build();
         Package aPackage1 = Package.builder()
                 .id(UUID.fromString("4a9806d5-2b6f-436d-ac6a-241f0a850c05"))
@@ -171,7 +172,8 @@ class BoxServiceImplTest {
                 .build();
         given(sellerRepository.findSellerByUserId(UserPrincipal.create(newUser).getId()))
                 .willReturn(Optional.of(newSeller));
-//        given(boxRepository.save(box1)).willReturn(box1);
+        given(boxRepository.findAllBySellerId(newSeller.getId())).willReturn(List.of(box1));
+        given(subCategoryRepository.findSubCategoryById(newSubCategory.getId())).willReturn(newSubCategory);
 
         System.out.println(boxRepository);
         System.out.println(boxService);
@@ -217,6 +219,118 @@ class BoxServiceImplTest {
         });
         // then - verify the output
         verify(boxRepository,never()).save(any(Box.class));
+    }
+    @DisplayName("JUnit test for saveBox method which throw JovinnException Boundary Test with List Box Equal 5" +
+            "and RankSeller.BEGINNER ")
+    @Test
+    void givenListBoxEqualFiveAndRankSellerBeginner_whenSaveBox_thenThrowJovinnException(){
+        // given - precondition or setup
+        Box box1 = Box.builder()
+                .id(UUID.fromString("201ea886-b0dc-4b1c-ac66-7ac7e3c2051d"))
+                .title("Create Web Site 1")
+                .description("Create Web Site with java backend skill 1")
+                .status(BoxServiceStatus.ACTIVE)
+                .seller(newSeller)
+                .packages(List.of(newPackage))
+                .subCategory(newSubCategory)
+                .fromPrice(new BigDecimal(10))
+                .build();
+        List<Box> boxes = mock(List.class);
+        when(boxes.size()).thenReturn(5);
+        given(sellerRepository.findSellerByUserId(UserPrincipal.create(newUser).getId()))
+                .willReturn(Optional.of(newSeller));
+        given(boxRepository.findAllBySellerId(newSeller.getId())).willReturn(boxes);
+        // when -  action or the behaviour that we are going test
+        JovinnException assertThrows = Assertions.assertThrows(JovinnException.class,()->{
+            boxService.addBox(newBox,UserPrincipal.create(newUser));
+        });
+        // then - verify the output
+        assertThat(assertThrows.getMessage()).isEqualTo("Bạn chỉ được tạo tối đa 5 hộp dịch vụ do chưa đạt cấp độ người bán cao hơn");
+    }
+    @DisplayName("JUnit test for saveBox method which throw JovinnException Boundary Test with List Box Equal 10" +
+            "and RankSeller.BEGINNER ")
+    @Test
+    void givenListBoxEqualTenAndRankSellerBeginner_whenSaveBox_thenThrowJovinnException(){
+        // given - precondition or setup
+        Box box1 = Box.builder()
+                .id(UUID.fromString("201ea886-b0dc-4b1c-ac66-7ac7e3c2051d"))
+                .title("Create Web Site 1")
+                .description("Create Web Site with java backend skill 1")
+                .status(BoxServiceStatus.ACTIVE)
+                .seller(newSeller)
+                .packages(List.of(newPackage))
+                .subCategory(newSubCategory)
+                .fromPrice(new BigDecimal(10))
+                .build();
+        List<Box> boxes = mock(List.class);
+        when(boxes.size()).thenReturn(10);
+        given(sellerRepository.findSellerByUserId(UserPrincipal.create(newUser).getId()))
+                .willReturn(Optional.of(newSeller));
+        given(boxRepository.findAllBySellerId(newSeller.getId())).willReturn(boxes);
+        // when -  action or the behaviour that we are going test
+        JovinnException assertThrows = Assertions.assertThrows(JovinnException.class,()->{
+            boxService.addBox(newBox,UserPrincipal.create(newUser));
+        });
+        // then - verify the output
+        assertThat(assertThrows.getMessage()).isEqualTo("Bạn chỉ được tạo tối đa 5 hộp dịch vụ do chưa đạt cấp độ người bán cao hơn");
+    }
+    @DisplayName("JUnit test for saveBox method Boundary Test with List Box Equal 4" +
+            "and RankSeller.BEGINNER ")
+    @Test
+    void givenListBoxEqualFourAndRankSellerBeginner_whenSaveBox_thenReturnApiReponse(){
+        // given - precondition or setup
+        Box box1 = Box.builder()
+                .id(UUID.fromString("201ea886-b0dc-4b1c-ac66-7ac7e3c2051d"))
+                .title("Create Web Site 1")
+                .description("Create Web Site with java backend skill 1")
+                .status(BoxServiceStatus.ACTIVE)
+                .seller(newSeller)
+                .packages(List.of(newPackage))
+                .subCategory(newSubCategory)
+                .fromPrice(new BigDecimal(10))
+                .build();
+        List<Box> boxes = mock(List.class);
+        when(boxes.size()).thenReturn(4);
+        given(sellerRepository.findSellerByUserId(UserPrincipal.create(newUser).getId()))
+                .willReturn(Optional.of(newSeller));
+        given(boxRepository.findAllBySellerId(newSeller.getId())).willReturn(boxes);
+        given(subCategoryRepository.findSubCategoryById(newSubCategory.getId())).willReturn(newSubCategory);
+        // when -  action or the behaviour that we are going test
+        ApiResponse response = boxService.addBox(box1,UserPrincipal.create(newUser));
+        // then - verify the output
+        assertThat(response).isEqualTo(new ApiResponse(Boolean.TRUE, "" + box1.getId()));
+    }
+
+    @DisplayName("JUnit test for saveBox method Boundary Test with List Box Equal 10" +
+            "and RankSeller.ADVANCED ")
+    @Test
+    void givenListBoxEqualTenAndRankSellerAdvanced_whenSaveBox_thenThrowJovinnException(){
+        // given - precondition or setup
+        User newUser1 = User.builder()
+                .id(UUID.fromString("f3bc9ae7-65aa-4444-a529-45d156ce2f65"))
+                .firstName("Tran")
+                .lastName("Son")
+                .activityType(activityTypeRepository.findByActivityType(UserActivityType.SELLER))
+                .build();
+        Seller newSeller1 = Seller.builder()
+                .id(UUID.fromString("b5ede43d-68ea-416e-9d51-8a751fa8b204"))
+                .brandName("Coder Brand")
+                .descriptionBio("Java backend coder")
+                .sellerNumber("124524")
+                .rankSeller(RankSeller.ADVANCED)
+                .user(newUser1)
+                .build();
+        List<Box> boxes = mock(List.class);
+        when(boxes.size()).thenReturn(10);
+        given(sellerRepository.findSellerByUserId(UserPrincipal.create(newUser1).getId()))
+                .willReturn(Optional.of(newSeller1));
+        given(boxRepository.findAllBySellerId(newSeller1.getId())).willReturn(boxes);
+        // when -  action or the behaviour that we are going test
+        JovinnException assertThrows = Assertions.assertThrows(JovinnException.class,()->{
+            boxService.addBox(newBox,UserPrincipal.create(newUser1));
+        });
+        // then - verify the output
+        assertThat(assertThrows.getMessage()).isEqualTo("Bạn chỉ được tạo tối đa 10 hộp dịch vụ do chưa đạt cấp độ người bán cao hơn");
     }
     @DisplayName("JUnit test for updateBox method")
     @Test
@@ -273,9 +387,9 @@ class BoxServiceImplTest {
         // then - verify the output
         verify(boxRepository, times(1)).deleteById(newBox.getId());
     }
-    @DisplayName("JUnit test for deleteBox method Return Api Response False")
+    @DisplayName("JUnit test for deleteBox method throw Jovinn exception 1")
     @Test
-    void givenBoxId_whenDeleteBox_thenReturnApiResponseFalse() {
+    void givenBoxId_whenDeleteBox_thenThrowJovinnException1() {
         // given - precondition or setup
         Gallery newGallery1 = Gallery.builder()
                 .id(UUID.fromString("2458975a-b3f2-4b5d-88e3-cca73146d585"))
@@ -296,21 +410,24 @@ class BoxServiceImplTest {
         given(boxRepository.findById(box1.getId())).willReturn(Optional.of(box1));
 //        willDoNothing().given(boxRepository).deleteById(newBox.getId());
         // when -  action or the behaviour that we are going test
-        ApiResponse apiResponse = boxService.deleteBox(box1.getId(),UserPrincipal.create(newUser));
-        assertThat(apiResponse).isEqualTo(new ApiResponse(Boolean.FALSE, "Xóa hộp dịch vụ thất bại"));
+        JovinnException assertThrows = Assertions.assertThrows(JovinnException.class,()->{
+            boxService.deleteBox(box1.getId(),UserPrincipal.create(newUser));
+        });
         // then - verify the output
+        assertThat(assertThrows.getMessage()).isEqualTo("Xóa hộp dịch vụ thất bại");
         verify(boxRepository, times(0)).deleteById(box1.getId());
     }
-    @DisplayName("JUnit test for deleteBox method throw Jovinn exception")
+    @DisplayName("JUnit test for deleteBox method throw Jovinn exception 2")
     @Test
-    void givenBoxId_whenDeleteBox_thenThrowJovinnException() {
+    void givenBoxId_whenDeleteBox_thenThrowJovinnException2() {
         // given - precondition or setup
         given(boxRepository.findById(newBox.getId())).willReturn(Optional.empty());
         // when -  action or the behaviour that we are going test
-        Assertions.assertThrows(JovinnException.class,()->{
+        JovinnException assertThrows = Assertions.assertThrows(JovinnException.class,()->{
             boxService.deleteBox(newBox.getId(),UserPrincipal.create(newUser));
         });
         // then - verify the output
+        assertThat(assertThrows.getMessage()).isEqualTo("Không tìm thấy hộp dịch vụ");
         verify(boxRepository, times(0)).deleteById(newBox.getId());
     }
     @DisplayName("JUnit test for deleteBox method throw UnauthorizedException")
@@ -325,10 +442,11 @@ class BoxServiceImplTest {
                 .build();
         given(boxRepository.findById(newBox.getId())).willReturn(Optional.of(newBox));
         // when -  action or the behaviour that we are going test
-        Assertions.assertThrows(UnauthorizedException.class,()->{
+        UnauthorizedException assertThrows =  Assertions.assertThrows(UnauthorizedException.class,()->{
             boxService.deleteBox(newBox.getId(),UserPrincipal.create(newUser1));
         });
         // then - verify the output
+        assertThat(assertThrows.getApiResponse()).isEqualTo(new ApiResponse(Boolean.FALSE, "You don't have permission"));
         verify(boxRepository, times(0)).deleteById(newBox.getId());
     }
 
@@ -423,7 +541,6 @@ class BoxServiceImplTest {
                 .boxId(newBox.getId())
                 .build();
         given(boxRepository.findById(newBox.getId())).willReturn(Optional.of(newBox));
-        given(historyBoxRepository.findAllByUserIdOrderByCreateAtAsc(newUser.getId())).willReturn(List.of(newHistoryBox));
         // when -  action or the behaviour that we are going test
         BoxResponse box = boxService.getServiceByID(newBox.getId(),UserPrincipal.create(newUser));
         // then - verify the output

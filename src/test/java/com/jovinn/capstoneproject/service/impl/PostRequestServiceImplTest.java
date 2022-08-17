@@ -620,7 +620,7 @@ class PostRequestServiceImplTest {
         ApiResponse apiResponse = postRequestService.sellerApplyRequest(newPostRequest.getId(),UserPrincipal.create(newUserSeller));
         // then - verify the output
         assertThat(apiResponse).isNotNull();
-        assertThat(apiResponse).isEqualTo(new ApiResponse(Boolean.FALSE, "Bạn đã apply bài Post Request này"));
+        assertThat(apiResponse).isEqualTo(new ApiResponse(Boolean.FALSE, "Bạn đã ứng cử vào bài đăng này"));
     }
 
     @DisplayName("Junit test for sellerApplyRequest method which throw ApiException 1")
