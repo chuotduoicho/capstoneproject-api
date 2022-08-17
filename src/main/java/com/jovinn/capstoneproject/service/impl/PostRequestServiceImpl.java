@@ -92,7 +92,7 @@ public class PostRequestServiceImpl implements PostRequestService {
                 notification = new Notification();
                 notification.setUser(userInvite);
                 notification.setUnread(Boolean.TRUE);
-                notification.setLink(WebConstant.DOMAIN + "/sellerhome/manageRequest/" + postRequest.getId());
+                notification.setLink("manageRequest/" + postRequest.getId());
                 notification.setShortContent("Bạn có lời mời làm việc mới từ " +
                         buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName() +
                         " Kiểm tra ngay");

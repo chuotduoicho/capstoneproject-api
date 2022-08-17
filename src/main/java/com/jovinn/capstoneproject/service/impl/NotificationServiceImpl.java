@@ -8,7 +8,6 @@ import com.jovinn.capstoneproject.model.Notification;
 import com.jovinn.capstoneproject.repository.NotificationRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.NotificationService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -42,5 +41,13 @@ public class NotificationServiceImpl implements NotificationService {
         List<Notification> readList = notificationRepository.findAllByUnread(Boolean.FALSE);
         Integer countUnread = notifications.size() - readList.size();
         return new NotificationResponse(notifications, countUnread);
+    }
+
+    @Override
+    public ApiResponse deleteNitification(UUID notificationId, UserPrincipal currentUser) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy thông báo"));
+        notificationRepository.delete(notification);
+        return new ApiResponse(Boolean.TRUE, "" + notification.getId());
     }
 }
