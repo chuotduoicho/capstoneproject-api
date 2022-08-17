@@ -89,6 +89,10 @@ public class ContractServiceImpl implements ContractService {
         BigDecimal totalPrice = scale2(pack.getPrice().multiply(new BigDecimal(request.getQuantity())));
         BigDecimal serviceDeposit = totalPrice.multiply(new BigDecimal(contractCancelFee)).divide(ONE_HUNDRED, RoundingMode.FLOOR);
 
+        if(pack.getBox().getSeller().getUser().getId().equals(currentUser.getId())) {
+            throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn không thể thực hiện giao dịch với chính mình");
+        }
+
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
                 buyer.getUser().getIsEnabled().equals(Boolean.TRUE)) {
             if (walletBuyer.getWithdraw().compareTo(totalPrice.add(serviceDeposit)) >= 0) {
