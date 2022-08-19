@@ -1,9 +1,7 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
-import com.jovinn.capstoneproject.dto.client.request.ChangePasswordRequest;
-import com.jovinn.capstoneproject.dto.client.request.ResetPasswordRequest;
-import com.jovinn.capstoneproject.dto.client.request.UserChangeProfileRequest;
+import com.jovinn.capstoneproject.dto.client.request.*;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.NotificationResponse;
 import com.jovinn.capstoneproject.dto.client.response.WalletResponse;
@@ -85,6 +83,18 @@ public class UserController {
     public ResponseEntity<WalletResponse> getWallet(@CurrentUser UserPrincipal currentUser) {
         WalletResponse response = walletService.getWallet(currentUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/add-withdraw-address")
+    public ResponseEntity<ApiResponse> addUpdateWithdrawAddress(@Valid @RequestBody WithdrawAddressRequest request,
+                                                 @CurrentUser UserPrincipal currentUser) {
+        return new ResponseEntity<>(walletService.addWithdrawAddress(request, currentUser), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/withdrawal-money")
+    public ResponseEntity<ApiResponse> sendWithdrawRequest(@Valid @RequestBody WalletRequest request,
+                                                 @CurrentUser UserPrincipal currentUser) {
+        return new ResponseEntity<>(walletService.withdraw(request, currentUser), HttpStatus.CREATED);
     }
 
     @GetMapping("/list-offer/{postRequestId}")
