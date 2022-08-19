@@ -92,7 +92,6 @@ public class ScheduleService {
                     }
                     break;
             }
-
         }
     }
 }

@@ -4,15 +4,12 @@ import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.JwtAuthenticationResponse;
 import com.jovinn.capstoneproject.dto.client.request.LoginRequest;
 import com.jovinn.capstoneproject.dto.client.request.SignUpRequest;
-import com.jovinn.capstoneproject.enumerable.UserActivityType;
-import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
 import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.UserService;
 import com.jovinn.capstoneproject.util.EmailSender;
-import com.jovinn.capstoneproject.util.RequestUtility;
 import com.jovinn.capstoneproject.util.WebConstant;
 import lombok.RequiredArgsConstructor;
 import net.bytebuddy.utility.RandomString;
@@ -20,10 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -32,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,15 +32,9 @@ import java.util.Objects;
 @CrossOrigin(origins = "*")
 public class AuthController {
     @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
     private UserService userService;
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-    @Autowired
     private EmailSender emailSender;
-    @Autowired
-    private ActivityTypeService activityTypeService;
 
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {
