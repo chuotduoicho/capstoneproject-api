@@ -2,13 +2,16 @@ package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminLoginRequest;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
+import com.jovinn.capstoneproject.enumerable.TransactionType;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.model.ActivityType;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.model.Admin;
+import com.jovinn.capstoneproject.model.Transaction;
 import com.jovinn.capstoneproject.model.User;
+import com.jovinn.capstoneproject.repository.payment.TransactionRepository;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
 import com.jovinn.capstoneproject.service.*;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +25,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.supercsv.io.CsvBeanWriter;
+import org.supercsv.io.ICsvBeanWriter;
+import org.supercsv.prefs.CsvPreference;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -36,33 +47,28 @@ public class AdminController {
 
     @Autowired
     private BoxService boxService;
-
     @Autowired
     private ContractService contractService;
-
     @Autowired
     private AdminService adminService;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private TransactionService transactionService;
-
     @Autowired
     private PostRequestService postRequestService;
-
+    @Autowired
+    private WalletService walletService;
     @Autowired
     private ModelMapper modelMapper;
-
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
-
     @Autowired
     private ActivityTypeService activityTypeService;
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @GetMapping("/get-total-service")
     public CountServiceResponse countTotalService(){
@@ -192,5 +198,27 @@ public class AdminController {
     public ResponseEntity<ApiResponse> autoCompleteContract() {
         ApiResponse response = contractService.autoCheckCompleteContract();
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/export-withdraw-request")
+    public void exportWithdraw(HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        String currentDateTime = dateFormatter.format(new Date());
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=withdraw_request_" + currentDateTime + ".csv";
+        response.setHeader(headerKey, headerValue);
+        List<Transaction> payoutRequest = transactionRepository.findAllTransactionWithdrawRequest(TransactionType.WITHDRAW);
+        ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(), CsvPreference.STANDARD_PREFERENCE);
+        String[] csvHeader = {"Email/Phone", "Amount", "Currency code", "Reference ID (optional)",
+                "Note to recipient", "Recipient wallet", "Social Feed Privacy (optional)", "Holler URL (deprecated)", "Logo URL (optional)"};
+        String[] nameMapping = {"description", "amount", "currency", "userId", "message", "method",};
+        csvWriter.writeHeader(csvHeader);
+
+        for (Transaction transaction : payoutRequest) {
+            csvWriter.write(transaction, nameMapping);
+        }
+        csvWriter.close();
     }
 }

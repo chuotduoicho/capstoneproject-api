@@ -15,12 +15,15 @@ public class WalletResponse {
     UUID id;
     BigDecimal income;
     BigDecimal withdraw;
+    String withdrawAddress;
     List<Transaction> transactions;
 
-    public WalletResponse(UUID id, BigDecimal income, BigDecimal withdraw, List<Transaction> transactions) {
+    public WalletResponse(UUID id, BigDecimal income, BigDecimal withdraw, String withdrawAddress,
+                          List<Transaction> transactions) {
         this.id = id;
         this.income = income;
         this.withdraw = withdraw;
+        this.withdrawAddress = withdrawAddress;
         this.transactions = transactions;
     }
 }

@@ -3,12 +3,14 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.config.payment.PaypalPaymentIntent;
 import com.jovinn.capstoneproject.config.payment.PaypalPaymentMethod;
 import com.jovinn.capstoneproject.dto.client.request.WalletRequest;
+import com.jovinn.capstoneproject.dto.client.request.WithdrawAddressRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.TransactionResponse;
 import com.jovinn.capstoneproject.dto.client.response.WalletResponse;
 import com.jovinn.capstoneproject.enumerable.PaymentConfirmStatus;
 import com.jovinn.capstoneproject.enumerable.TransactionType;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.BadRequestException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Transaction;
@@ -24,12 +26,22 @@ import com.jovinn.capstoneproject.util.WebConstant;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.supercsv.io.CsvBeanWriter;
+import org.supercsv.io.ICsvBeanWriter;
+import org.supercsv.prefs.CsvPreference;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Writer;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class WalletServiceImpl implements WalletService {
@@ -44,7 +56,7 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public String buyJCoin(WalletRequest request, UserPrincipal currentUser) {
         User user = userRepository.findById(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "User not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người dùng"));
         Wallet wallet = walletRepository.findWalletByUserId(user.getId());
         if (user.getId().equals(currentUser.getId())) {
             if(user.getIsEnabled().equals(Boolean.TRUE)) {
@@ -74,9 +86,10 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public WalletResponse getWallet(UserPrincipal currentUser) {
-        Wallet wallet = walletRepository.findWalletByUserId(currentUser.getId());
+        Wallet wallet = findWallet(currentUser);
         if (wallet.getUser().getId().equals(currentUser.getId())) {
-            return new WalletResponse(wallet.getId(), wallet.getIncome(), wallet.getWithdraw(), wallet.getTransactions());
+            return new WalletResponse(wallet.getId(), wallet.getIncome(), wallet.getWithdraw(),
+                    wallet.getWithdrawAddress(), wallet.getTransactions());
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
@@ -154,5 +167,60 @@ public class WalletServiceImpl implements WalletService {
         }
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public ApiResponse addWithdrawAddress(WithdrawAddressRequest request, UserPrincipal currentUser) {
+        Wallet wallet = findWallet(currentUser);
+        if(wallet.getWithdrawAddress() != null) {
+            wallet.setWithdrawAddress(request.getWithdrawAddress());
+            walletRepository.save(wallet);
+            return new ApiResponse(Boolean.TRUE, "Bạn đã thay đổi địa chỉ rút tiền thành công");
+        } else {
+            wallet.setWithdrawAddress(request.getWithdrawAddress());
+            walletRepository.save(wallet);
+            return new ApiResponse(Boolean.TRUE, "Bạn đã thêm địa chỉ rút tiền thành công");
+        }
+    }
+
+    @Override
+    public ApiResponse withdraw(WalletRequest request, UserPrincipal currentUser) {
+        Wallet wallet = findWallet(currentUser);
+        try {
+            if(request.getCharge().compareTo(wallet.getWithdraw()) <= 0) {
+                if(wallet.getWithdrawAddress() != null) {
+                    String message =  "Đã thực hiện rút " + request.getCharge() + " bởi "
+                            + currentUser.getLastName() + " " + currentUser.getFirstName();
+
+                    wallet.setWithdraw(wallet.getWithdraw().subtract(request.getCharge()));
+                    walletRepository.save(wallet);
+
+                    Transaction transaction = new Transaction();
+                    transaction.setWallet(wallet);
+                    transaction.setAmount(request.getCharge());
+                    transaction.setUserId(wallet.getUser().getId());
+                    transaction.setDescription(wallet.getWithdrawAddress());
+                    transaction.setMethod("paypal");
+                    transaction.setIntent("sale");
+                    transaction.setPaymentCode("JOV-Withdraw-" + RandomString.make(8));
+                    transaction.setCurrency(request.getCurrency());
+                    transaction.setType(TransactionType.WITHDRAW);
+                    transaction.setMessage(message);
+                    transactionRepository.save(transaction);
+                } else {
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn cần tạo địa chỉ rút trước khi thực hiện (On Paypal Account)");
+                }
+            } else {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chỉ được rút tối đa $ " + wallet.getWithdraw());
+            }
+        } catch (BadRequestException e) {
+            throw new JovinnException(HttpStatus.BAD_REQUEST, "Đã xảy ra lỗi khi rút tiền");
+        }
+
+        return new ApiResponse(Boolean.TRUE, "Đã thực hiện rút tiền thành công, tiền sẽ chuyển về tài khoản trong ngày 30 hàng tháng");
+    }
+
+    private Wallet findWallet(UserPrincipal currentUser) {
+        return walletRepository.findWalletByUserId(currentUser.getId());
     }
 }

@@ -33,6 +33,7 @@ public class Wallet extends BaseEntity {
 
     BigDecimal income;
     BigDecimal withdraw;
+    String withdrawAddress;
 
     @JsonIgnore
     @Enumerated(EnumType.STRING)
