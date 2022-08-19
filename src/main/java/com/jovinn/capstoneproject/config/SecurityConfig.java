@@ -50,7 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyAuthority("BUYER", "SELLER")
                 .antMatchers(HttpMethod.PUT, "/api/v1/seller/**").permitAll()
                 .antMatchers("/api/v1/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/payment/**").permitAll()
@@ -60,7 +60,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/auth/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/admin/admin-sign-in").permitAll()
-                .antMatchers("/api/admin/**").permitAll()
+                .antMatchers("/api/admin/**").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated();
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

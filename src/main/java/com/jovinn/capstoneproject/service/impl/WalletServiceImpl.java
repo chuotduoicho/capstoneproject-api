@@ -189,7 +189,7 @@ public class WalletServiceImpl implements WalletService {
         try {
             if(request.getCharge().compareTo(wallet.getWithdraw()) <= 0) {
                 if(wallet.getWithdrawAddress() != null) {
-                    String message =  "Đã thực hiện rút " + request.getCharge() + " bởi "
+                    String message =  "Đã thực hiện rút $" + request.getCharge() + " bởi "
                             + currentUser.getLastName() + " " + currentUser.getFirstName();
 
                     wallet.setWithdraw(wallet.getWithdraw().subtract(request.getCharge()));
@@ -218,6 +218,28 @@ public class WalletServiceImpl implements WalletService {
         }
 
         return new ApiResponse(Boolean.TRUE, "Đã thực hiện rút tiền thành công, tiền sẽ chuyển về tài khoản trong ngày 30 hàng tháng");
+    }
+
+    @Override
+    public void exportCsvWithdraw(HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        String currentDateTime = dateFormatter.format(new Date());
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=withdraw_request_" + currentDateTime + ".csv";
+        response.setHeader(headerKey, headerValue);
+        List<Transaction> payoutRequest = transactionRepository.findAllTransactionWithdrawRequest(TransactionType.WITHDRAW);
+        ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(), CsvPreference.STANDARD_PREFERENCE);
+        String[] csvHeader = {"Email/Phone", "Amount", "Currency code", "Reference ID (optional)",
+                "Note to recipient", "Recipient wallet", "Social Feed Privacy (optional)", "Holler URL (deprecated)", "Logo URL (optional)"};
+        String[] nameMapping = {"description", "amount", "currency", "userId", "message", "method",};
+        csvWriter.writeHeader(csvHeader);
+
+        for (Transaction transaction : payoutRequest) {
+            csvWriter.write(transaction, nameMapping);
+        }
+        csvWriter.close();
     }
 
     private Wallet findWallet(UserPrincipal currentUser) {

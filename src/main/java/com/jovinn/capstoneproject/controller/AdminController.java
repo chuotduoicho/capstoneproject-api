@@ -202,23 +202,6 @@ public class AdminController {
 
     @GetMapping("/export-withdraw-request")
     public void exportWithdraw(HttpServletResponse response) throws IOException {
-        response.setContentType("text/csv");
-        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        String currentDateTime = dateFormatter.format(new Date());
-
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=withdraw_request_" + currentDateTime + ".csv";
-        response.setHeader(headerKey, headerValue);
-        List<Transaction> payoutRequest = transactionRepository.findAllTransactionWithdrawRequest(TransactionType.WITHDRAW);
-        ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(), CsvPreference.STANDARD_PREFERENCE);
-        String[] csvHeader = {"Email/Phone", "Amount", "Currency code", "Reference ID (optional)",
-                "Note to recipient", "Recipient wallet", "Social Feed Privacy (optional)", "Holler URL (deprecated)", "Logo URL (optional)"};
-        String[] nameMapping = {"description", "amount", "currency", "userId", "message", "method",};
-        csvWriter.writeHeader(csvHeader);
-
-        for (Transaction transaction : payoutRequest) {
-            csvWriter.write(transaction, nameMapping);
-        }
-        csvWriter.close();
+        walletService.exportCsvWithdraw(response);
     }
 }
