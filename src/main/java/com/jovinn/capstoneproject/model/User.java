@@ -41,7 +41,7 @@ public class User extends BaseEntity {
 
     @JsonIgnore
     String verificationCode;
-    @JsonIgnore
+    
     Boolean isEnabled;
 
     @Enumerated(EnumType.STRING)
