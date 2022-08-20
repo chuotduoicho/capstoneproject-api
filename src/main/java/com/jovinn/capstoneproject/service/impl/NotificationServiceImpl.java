@@ -38,7 +38,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationResponse getNotifications(UserPrincipal currentUser) {
         List<Notification> notifications = notificationRepository.findAllByUserId(currentUser.getId());
-        List<Notification> readList = notificationRepository.findAllByUnread(Boolean.FALSE);
+        List<Notification> readList = notificationRepository.findAllByUnreadAndUserId(Boolean.FALSE, currentUser.getId());
         Integer countUnread = notifications.size() - readList.size();
         return new NotificationResponse(notifications, countUnread);
     }
