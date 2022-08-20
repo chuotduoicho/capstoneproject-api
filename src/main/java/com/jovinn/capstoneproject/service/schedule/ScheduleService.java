@@ -35,11 +35,12 @@ public class ScheduleService {
     @Scheduled(cron = "0 0 * * * MON-SAT")
     void autoCompleteContract() throws InterruptedException {
         List<Contract> contracts = contractRepository.findAllByContractStatus(ContractStatus.PROCESSING);
+        System.out.println(contracts.size());
         List<Contract> list = new ArrayList<>();
         for(Contract contract : contracts) {
-            Delivery delivery = deliveryRepository.findByContractId(contract.getId());
-            if(delivery != null) {
-                Date autoCompleteExpectDate = dateDelivery.expectDate(delivery.getCreateAt().getDay(), 3);
+            List<Delivery> deliveries = deliveryRepository.findAllByContractIdOrderByCreateAtDesc(contract.getId());
+            if(deliveries.size() != 0) {
+                Date autoCompleteExpectDate = dateDelivery.expectDateCompleteAuto(deliveries.get(0).getCreateAt(), 3);
                 if(contract.getDeliveryStatus().equals(DeliveryStatus.SENDING) &&
                         autoCompleteExpectDate.compareTo(new Date()) > 0 && contract.getFlag().equals(Boolean.FALSE)) {
                     contract.setContractStatus(ContractStatus.COMPLETE);
@@ -58,6 +59,7 @@ public class ScheduleService {
             List<Seller> sellersByRank = sellerRepository.findAllByRankSeller(RankSeller.valueOf(rank));
             switch (rank) {
                 case "BEGINNER":
+                    List<Seller> countUpdateSuccessBeginner = new ArrayList<>();
                     for(Seller seller : sellersByRank) {
                         YearMonth validMonthUpdateFromBeginner
                                 = YearMonth.of(seller.getUser().getJoinSellingAt().getYear(), seller.getUser().getJoinSellingAt().getMonth());
@@ -68,14 +70,14 @@ public class ScheduleService {
                                 validMonthUpdateFromBeginner.compareTo(validMonthToUpdateForBeginner) >= 0) {
                             seller.setRankSeller(RankSeller.ADVANCED);
                             sellerRepository.save(seller);
-                            log.info("Đã có " + sellersByRank.size() +
-                                    " người bán được cập nhật cấp độ từ BEGINNER lên ADVANCE vào: " + new Date());
+                            countUpdateSuccessBeginner.add(seller);
                         }
-                        log.info("Không có" +
-                                 " người bán nào được cập nhật cấp độ từ BEGINNER lên ADVANCE vào: " + new Date());
                     }
+                    log.info("Đã có " + countUpdateSuccessBeginner.size() +
+                            " người bán được cập nhật cấp độ từ BEGINNER lên ADVANCE vào: " + new Date());
                     break;
                 case "ADVANCED":
+                    List<Seller> countUpdateSuccessAdvanced = new ArrayList<>();
                     for(Seller seller : sellersByRank) {
                         YearMonth validMonthUpdateFromAdvance
                                 = YearMonth.of(seller.getUser().getJoinSellingAt().getYear(), seller.getUser().getJoinSellingAt().getMonth());
@@ -86,10 +88,11 @@ public class ScheduleService {
                                 validMonthUpdateFromAdvance.compareTo(validMonthToUpdateForAdvance) >= 0) {
                             seller.setRankSeller(RankSeller.PROFESSIONAL);
                             sellerRepository.save(seller);
+                            countUpdateSuccessAdvanced.add(seller);
                         }
-                        log.info("Không có" +
-                                 " người bán nào được cập nhật cấp độ từ ADVANCE lên PROFESSIONAL vào: " + new Date());
                     }
+                    log.info("Đã có " + countUpdateSuccessAdvanced.size() +
+                            " người bán được cập nhật cấp độ từ ADVANCE lên PROFESSIONAL vào: " + new Date());
                     break;
             }
         }

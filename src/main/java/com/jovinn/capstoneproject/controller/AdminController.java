@@ -194,11 +194,11 @@ public class AdminController {
         return ResponseEntity.ok(userService.loginAdmin(adminLoginRequest));
     }
 
-    @PutMapping("/auto-complete-contract")
-    public ResponseEntity<ApiResponse> autoCompleteContract() {
-        ApiResponse response = contractService.autoCheckCompleteContract();
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @PutMapping("/auto-complete-contract")
+//    public ResponseEntity<ApiResponse> autoCompleteContract() {
+//        ApiResponse response = contractService.autoCheckCompleteContract();
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
     @GetMapping("/export-withdraw-request")
     public void exportWithdraw(HttpServletResponse response) throws IOException {

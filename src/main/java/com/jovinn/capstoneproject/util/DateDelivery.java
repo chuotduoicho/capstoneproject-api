@@ -7,9 +7,16 @@ import java.util.Date;
 
 @Component
 public class DateDelivery {
-    public Date expectDate(Integer expectDeliveryDate, Integer totalDeliveryTime) {
+    public Date expectDate(Integer expectTimeToDelivery, Integer totalDeliveryTime) {
         Calendar cal = Calendar.getInstance();
-        cal.add(expectDeliveryDate, totalDeliveryTime);
+        cal.add(expectTimeToDelivery, totalDeliveryTime);
+        return cal.getTime();
+    }
+
+    public Date expectDateCompleteAuto(Date date, Integer countDayAfterDelivery) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.DAY_OF_MONTH, countDayAfterDelivery);
         return cal.getTime();
     }
 }

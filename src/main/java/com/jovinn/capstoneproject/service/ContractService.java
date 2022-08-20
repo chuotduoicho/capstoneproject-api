@@ -31,6 +31,6 @@ public interface ContractService {
     List<Contract> getContractByStatus(ContractStatus status, UserPrincipal currentUser);
     List<Contract> getOrders(UserPrincipal currentUser);
     List<Contract> getContracts(UserPrincipal currentUser);
-    ApiResponse autoCheckCompleteContract();
+//    ApiResponse autoCheckCompleteContract();
     AvatarResponse getAvatarBoth(UUID contractId);
 }

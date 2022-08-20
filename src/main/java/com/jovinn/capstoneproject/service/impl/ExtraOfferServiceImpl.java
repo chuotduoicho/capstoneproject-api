@@ -65,12 +65,12 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
     @Override
     public ApiResponse sellerAcceptExtraOffer(UUID contractId, UUID extraOfferId, UserPrincipal currentUser) {
         ExtraOffer extraOffer = extraOfferRepository.findById(extraOfferId)
-                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy extra offer"));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy lời đề nghị mở rộng"));
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         if(contract.getSeller().getUser().getId().equals(currentUser.getId())) {
             if(contract.getContractStatus().equals(ContractStatus.PROCESSING) && extraOffer.getOpened().equals(Boolean.TRUE)) {
-                Date completeExpectDateWithExtra = dateDelivery.expectDate(contract.getTotalDeliveryTime(), extraOffer.getAdditionTime());
+                Date completeExpectDateWithExtra = dateDelivery.expectDateCompleteAuto(contract.getExpectCompleteDate(), extraOffer.getAdditionTime());
                 contract.setTotalPrice(contract.getTotalPrice().add(extraOffer.getExtraPrice()));
                 contract.setExpectCompleteDate(completeExpectDateWithExtra);
                 contract.setTotalDeliveryTime(contract.getTotalDeliveryTime() + extraOffer.getAdditionTime());

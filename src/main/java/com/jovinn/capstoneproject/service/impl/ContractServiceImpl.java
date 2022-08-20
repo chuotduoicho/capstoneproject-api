@@ -299,6 +299,7 @@ public class ContractServiceImpl implements ContractService {
         throw new UnauthorizedException(apiResponse);
     }
 
+    //Function for accept contract is complete from buyer -> can't using point flag to keep fixing problem in delivery
     @Override
     public ContractResponse updateStatusAcceptDeliveryFromBuyer(UUID id, UserPrincipal currentUser) {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
@@ -316,8 +317,10 @@ public class ContractServiceImpl implements ContractService {
                 if (contract.getPostRequest() != null && contract.getPostRequest().getMilestoneContracts() != null) {
                     boolean checkAllFinish = Boolean.FALSE;
                     List<MilestoneContract> milestoneContracts = contract.getPostRequest().getMilestoneContracts();
+                    //Finding existing delivery for each milestone or not
                     for(MilestoneContract milestoneContract : milestoneContracts) {
-                        if(Boolean.TRUE.equals(deliveryRepository.existsByMilestoneId(milestoneContract.getId()))) {
+                        if(Boolean.TRUE.equals(deliveryRepository.existsByMilestoneId(milestoneContract.getId()))
+                                && milestoneContract.getStatus().equals(MilestoneStatus.COMPLETE)) {
                             checkAllFinish = Boolean.TRUE;
                         } else {
                             checkAllFinish = Boolean.FALSE;
@@ -335,7 +338,7 @@ public class ContractServiceImpl implements ContractService {
                         sellerRepository.save(seller);
                         return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
                     } else {
-                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chưa đánh dấu hoàn thành tất cả các giai đoạn");
+                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chưa đánh dấu xác nhận tất cả các giai đoạn");
                     }
                 } else {
                     walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
@@ -383,12 +386,34 @@ public class ContractServiceImpl implements ContractService {
         BigDecimal incomeMilestone = calculateRefund90PercentDeposit(milestoneContract.getMilestoneFee(), 90);
         if(contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
             if(milestoneContract.getStatus().equals(MilestoneStatus.PROCESSING)) {
-                milestoneContract.setStatus(MilestoneStatus.COMPLETE);
-                milestoneContractRepository.save(milestoneContract);
-                walletSeller.setWithdraw(walletSeller.getWithdraw().add(incomeMilestone));
-                walletSeller.setIncome(walletSeller.getIncome().add(incomeMilestone));
-                saveWallet(walletSeller);
-                return new ApiResponse(Boolean.TRUE, "Bạn đã nhận và thanh toán mã giai đoạn này thành công");
+                if(Boolean.TRUE.equals(deliveryRepository.existsByMilestoneId(milestoneContract.getId()))) {
+                    milestoneContract.setStatus(MilestoneStatus.COMPLETE);
+                    milestoneContractRepository.save(milestoneContract);
+                    walletSeller.setWithdraw(walletSeller.getWithdraw().add(incomeMilestone));
+                    walletSeller.setIncome(walletSeller.getIncome().add(incomeMilestone));
+                    saveWallet(walletSeller);
+
+                    //Check if delivery for milestone is the last will update DeliveryStatus.SENDING for contract
+                    boolean checkAllComplete = Boolean.FALSE;
+                    List<MilestoneContract> milestoneContracts = contract.getPostRequest().getMilestoneContracts();
+                    for(MilestoneContract milestone : milestoneContracts) {
+                        if(milestone.getStatus().equals(MilestoneStatus.COMPLETE)) {
+                            checkAllComplete = Boolean.TRUE;
+                        } else {
+                            checkAllComplete = Boolean.FALSE;
+                            break;
+                        }
+                    }
+
+                    if(checkAllComplete) {
+                        contract.setDeliveryStatus(DeliveryStatus.SENDING);
+                        contractRepository.save(contract);
+                    }
+
+                    return new ApiResponse(Boolean.TRUE, "Bạn đã nhận và thanh toán mã giai đoạn này thành công");
+                } else {
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Chưa có bàn giao nào được gửi tới bạn trong giai đoạn này");
+                }
             } else {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn đã chấp nhận bàn giao này");
             }
@@ -401,12 +426,12 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public ContractResponse createContractFromSellerOffer(UUID offerRequestId, UserPrincipal currentUser) {
         OfferRequest offerRequest = offerRequestRepository.findById(offerRequestId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy offerRequest"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy lời đề nghị"));
         PostRequest postRequest = postRequestRepository.findPostRequestById(offerRequest.getPostRequest().getId());
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         Seller seller = sellerRepository.findById(offerRequest.getSeller().getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
         Wallet walletBuyer = walletRepository.findWalletByUserId(postRequest.getUser().getId());
 
         String contractCode = getRandomContractNumber();
@@ -418,7 +443,7 @@ public class ContractServiceImpl implements ContractService {
         if (postRequest.getUser().getId().equals(currentUser.getId()) && postRequest.getStatus().equals(PostRequestStatus.OPEN)) {
             if (walletBuyer.getWithdraw().compareTo(totalPrice) >= 0 ) {
                 if(offerRequest.getOfferRequestStatus().equals(OfferRequestStatus.ACCEPTED)) {
-                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Offer đã được chấp nhận");
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Lời đề nghị đã được chấp nhận");
                 } else {
                     Contract contract = new Contract(contractCode,
                             postRequest.getShortRequirement(), 1, offerRequest.getCancelFee(),
@@ -464,11 +489,11 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public ContractResponse createContractFromSellerApply(UUID postRequestId, UUID sellerId, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy postRequest"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bài đăng"));
         Seller seller = sellerRepository.findById(sellerId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         Wallet walletBuyer = walletRepository.findWalletByUserId(postRequest.getUser().getId());
 
         String contractCode = getRandomContractNumber();
@@ -518,6 +543,8 @@ public class ContractServiceImpl implements ContractService {
         throw new UnauthorizedException(apiResponse);
     }
 
+    //Flag using for cancel auto complete after 3 days delivery contract
+    //If all milestone have delivery but buyer want seller fix delivery, They can flag for keep auto complete
     @Override
     public ApiResponse flagNotAcceptDelivery(UUID contractId, UserPrincipal currentUser) {
         Contract contract = contractRepository.findById(contractId)
@@ -540,21 +567,22 @@ public class ContractServiceImpl implements ContractService {
                 }
             }
 
-            Delivery delivery = deliveryRepository.findByContractId(contractId);
-            if(delivery == null || !checkAllFinish) {
+            List<Delivery> deliveries = deliveryRepository.findAllByContractIdOrderByCreateAtDesc(contractId);
+            if(deliveries == null || !checkAllFinish) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể cắm cờ vì chưa có bàn giao tải lên từ phía người bán" +
                                                                 " hoặc các giai đoạn chưa được hoàn thành");
             } else {
-                Date autoCompleteExpectDate = dateDelivery.expectDate(delivery.getCreateAt().getDay(), 3);
+                Date autoCompleteExpectDate = dateDelivery.expectDateCompleteAuto(deliveries.get(0).getCreateAt(), 3);
                 if(contract.getDeliveryStatus().equals(DeliveryStatus.SENDING) &&
                         contract.getContractStatus().equals(ContractStatus.PROCESSING) &&
                         autoCompleteExpectDate.compareTo(new Date()) < 0) {
                     contract.setFlag(Boolean.TRUE);
                     contractRepository.save(contract);
+                    //Need sending mail for seller
                     return new ApiResponse(Boolean.TRUE, "Bạn đã đặt cờ từ chối bàn giao thành công");
                 } else {
                     throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn không thể đặt cờ từ chối bàn giao tự động " +
-                            "do đã hệ thống đã chấp nhận tự động hoặc đã hoàn thành hợp đồng này ");
+                            "do đã hệ thống đã chấp nhận tự động hoặc hợp đồng đã được hoàn thành");
                 }
             }
         }
@@ -651,24 +679,24 @@ public class ContractServiceImpl implements ContractService {
         throw new UnauthorizedException(apiResponse);
     }
 
-    @Override
-    public ApiResponse autoCheckCompleteContract() {
-        List<Contract>  contracts = contractRepository.findAllByContractStatus(ContractStatus.PROCESSING);
-        List<Contract> list = new ArrayList<>();
-        for(Contract contract : contracts) {
-            Delivery delivery = deliveryRepository.findByContractId(contract.getId());
-            if(delivery != null) {
-                Date autoCompleteExpectDate = dateDelivery.expectDate(delivery.getCreateAt().getDay(), 3);
-                if(contract.getDeliveryStatus().equals(DeliveryStatus.SENDING) &&
-                        autoCompleteExpectDate.compareTo(new Date()) > 0) {
-                    contract.setContractStatus(ContractStatus.COMPLETE);
-                    contractRepository.save(contract);
-                    list.add(contract);
-                }
-            }
-        }
-        return new ApiResponse(Boolean.TRUE, "Đã thay đổi trạng thái của " + list.size() + " hợp đồng");
-    }
+//    @Override
+//    public ApiResponse autoCheckCompleteContract() {
+//        List<Contract>  contracts = contractRepository.findAllByContractStatus(ContractStatus.PROCESSING);
+//        List<Contract> list = new ArrayList<>();
+//        for(Contract contract : contracts) {
+//            Delivery delivery = deliveryRepository.findByContractId(contract.getId());
+//            if(delivery != null) {
+//                Date autoCompleteExpectDate = dateDelivery.expectDate(delivery.getCreateAt().getDay(), 3);
+//                if(contract.getDeliveryStatus().equals(DeliveryStatus.SENDING) &&
+//                        autoCompleteExpectDate.compareTo(new Date()) > 0) {
+//                    contract.setContractStatus(ContractStatus.COMPLETE);
+//                    contractRepository.save(contract);
+//                    list.add(contract);
+//                }
+//            }
+//        }
+//        return new ApiResponse(Boolean.TRUE, "Đã thay đổi trạng thái của " + list.size() + " hợp đồng");
+//    }
 
     @Override
     public AvatarResponse getAvatarBoth(UUID contractId) {
