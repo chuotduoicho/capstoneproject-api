@@ -568,7 +568,7 @@ public class ContractServiceImpl implements ContractService {
             }
 
             List<Delivery> deliveries = deliveryRepository.findAllByContractIdOrderByCreateAtDesc(contractId);
-            if(deliveries == null || !checkAllFinish) {
+            if(deliveries.size() == 0 || !checkAllFinish) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể cắm cờ vì chưa có bàn giao tải lên từ phía người bán" +
                                                                 " hoặc các giai đoạn chưa được hoàn thành");
             } else {
