@@ -7,10 +7,12 @@ import com.jovinn.capstoneproject.dto.client.response.DeliveryHaveMilestoneRespo
 import com.jovinn.capstoneproject.dto.client.response.DeliveryNotMilestoneResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
+import com.jovinn.capstoneproject.enumerable.MilestoneStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Contract;
 import com.jovinn.capstoneproject.model.Delivery;
+import com.jovinn.capstoneproject.model.MilestoneContract;
 import com.jovinn.capstoneproject.repository.ContractRepository;
 import com.jovinn.capstoneproject.repository.DeliveryRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
@@ -21,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -38,10 +41,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
             if (contract.getSeller().getUser().getId().equals(currentUser.getId())) {
                 Delivery delivery = new Delivery(request.getFile(), request.getDescription(), contract);
-                delivery.setCreateAt(new Date());
-                delivery.setUpdatedAt(new Date());
                 contract.setDeliveryStatus(DeliveryStatus.SENDING);
-                contract.setUpdatedAt(new Date());
                 contractRepository.save(contract);
                 Delivery update = deliveryRepository.save(delivery);
 //                if (contract.getExpectCompleteDate().compareTo(delivery.getCreateAt()) < 0) {
@@ -66,12 +66,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (contract.getSeller().getUser().getId().equals(currentUser.getId())) {
             if (contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
                 Delivery delivery = new Delivery(request.getFile(), request.getDescription(), contract);
-                delivery.setCreateAt(new Date());
-                delivery.setUpdatedAt(new Date());
                 delivery.setMilestoneId(request.getMilestoneId());
-                contract.setDeliveryStatus(DeliveryStatus.SENDING);
-                contract.setUpdatedAt(new Date());
-                contractRepository.save(contract);
                 Delivery update = deliveryRepository.save(delivery);
 //                if (contract.getExpectCompleteDate().compareTo(delivery.getCreateAt()) < 0) {
 //                    contract.setDeliveryStatus(DeliveryStatus.LATE);
