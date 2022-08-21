@@ -23,7 +23,6 @@ import com.jovinn.capstoneproject.util.EmailSender;
 import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
@@ -63,6 +62,7 @@ public class ContractServiceImpl implements ContractService {
     private EmailSender emailSender;
     @Autowired
     private DateDelivery dateDelivery;
+
     @Override
     public ContractResponse createContract(ContractRequest request, UserPrincipal currentUser) throws RuntimeException {
         Package pack = packageRepository.findById(request.getPackageId())
@@ -95,7 +95,7 @@ public class ContractServiceImpl implements ContractService {
 
         if (buyer.getUser().getId().equals(currentUser.getId()) &&
                 buyer.getUser().getIsEnabled().equals(Boolean.TRUE)) {
-            if (walletBuyer.getWithdraw().compareTo(totalPrice.add(serviceDeposit)) >= 0) {
+            if (walletBuyer.getWithdraw().compareTo(totalPrice) >= 0) {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                 saveWallet(walletBuyer);
 
@@ -707,12 +707,6 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public CountTotalRevenueResponse getTotalRevenue() {
-//        List<Contract> contracts = contractRepository.findAllByContractStatus(ContractStatus.COMPLETE);
-//        BigDecimal totalRevenue = new BigDecimal(0);
-//        BigDecimal number = new BigDecimal(0.1);
-//        for (Contract contract:contracts){
-//            totalRevenue.add(contract.getTotalPrice());
-//        }
         return new CountTotalRevenueResponse(contractRepository.countTotalRevenue());
     }
 
@@ -725,8 +719,7 @@ public class ContractServiceImpl implements ContractService {
     public List<AdminViewContractsResponse> getContractsByCategoryId(UUID catId) {
         List<Contract> contracts = contractRepository.findAllByPostRequest_Category_Id(catId);
         List<AdminViewContractsResponse> contractResponses = new ArrayList<>();
-        for (Contract newContract:
-             contracts) {
+        for (Contract newContract : contracts) {
             contractResponses.add(new AdminViewContractsResponse(newContract.getContractCode(),
                     newContract.getPostRequest().getUser().getUsername(),
                     newContract.getPostRequest().getUser().getFirstName()+" "+
