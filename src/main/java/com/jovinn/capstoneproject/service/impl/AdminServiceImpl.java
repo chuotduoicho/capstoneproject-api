@@ -8,10 +8,7 @@ import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.Admin;
 import com.jovinn.capstoneproject.model.User;
-import com.jovinn.capstoneproject.repository.AdminRepository;
-import com.jovinn.capstoneproject.repository.BoxRepository;
-import com.jovinn.capstoneproject.repository.ContractRepository;
-import com.jovinn.capstoneproject.repository.UserRepository;
+import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.repository.payment.TransactionRepository;
 import com.jovinn.capstoneproject.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +32,8 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private TransactionRepository transactionRepository;
     @Autowired
+    private PostRequestRepository postRequestRepository;
+    @Autowired
     private AdminRepository adminRepository;
 
     @Autowired
@@ -42,7 +41,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public AdminCountDataResponse getAllCountDataResponse() {
-        return new AdminCountDataResponse(userRepository.count(), boxRepository.count(), contractRepository.countTotalRevenue());
+        return new AdminCountDataResponse(userRepository.count(), boxRepository.count(),postRequestRepository.count(),contractRepository.count(), contractRepository.countTotalRevenue());
     }
 
     @Override
@@ -51,7 +50,7 @@ public class AdminServiceImpl implements AdminService {
         List<AdminViewUserResponse> usersResponse = new ArrayList<>();
         for (User user : users) {
             usersResponse.add(new AdminViewUserResponse(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhoneNumber(),
-                    user.getUsername()));
+                    user.getUsername(),user.getIsEnabled()));
         }
         return usersResponse;
     }

@@ -29,7 +29,7 @@ public class SkillController {
         return skillService.getAllSkillBySellerId(id);
     }
 
-    @GetMapping("/meta-data/{subCategoryId}")
+    @GetMapping("/meta-data-list/{subCategoryId}")
     public ResponseEntity<List<SkillMetaDataResponse>> getSkillMetaBySubCategory(@PathVariable("subCategoryId") UUID subCategoryId) {
         List<SkillMetaDataResponse> responses = skillMetaDataService.getSkillMetaBySubCategoryId(subCategoryId);
         return new ResponseEntity<>(responses, HttpStatus.OK);

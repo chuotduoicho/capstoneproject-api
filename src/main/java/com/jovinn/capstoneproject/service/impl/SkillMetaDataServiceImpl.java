@@ -33,9 +33,14 @@ public class SkillMetaDataServiceImpl implements SkillMetaDataService {
     public List<SkillMetaDataResponse> getSkillMetaBySubCategoryId(UUID subCategoryId) {
         try {
             List<SkillMetaData> skillMetaDataList = skillMetaDataRepository.findAllBySubCategoryId(subCategoryId);
-            return skillMetaDataList.stream()
-                    .map(skillMetaData -> modelMapper.map(skillMetaData, SkillMetaDataResponse.class))
-                    .collect(Collectors.toList());
+//            return skillMetaDataList.stream()
+//                    .map(skillMetaData -> modelMapper.map(skillMetaData, SkillMetaDataResponse.class))
+//                    .collect(Collectors.toList());
+            List<SkillMetaDataResponse> skillMetaDataResponseList = new ArrayList<>();
+            for(SkillMetaData skill:skillMetaDataList){
+                skillMetaDataResponseList.add(new SkillMetaDataResponse(skill.getId(),skill.getSubCategory().getId(),skill.getName()));
+            }
+            return skillMetaDataResponseList;
         } catch (BadRequestException e) {
             throw new JovinnException(HttpStatus.BAD_REQUEST, "Đã xảy ra lỗi");
         }
