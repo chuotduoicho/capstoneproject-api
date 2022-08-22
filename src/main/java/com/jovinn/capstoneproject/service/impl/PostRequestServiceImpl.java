@@ -24,8 +24,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class PostRequestServiceImpl implements PostRequestService {
@@ -73,12 +75,18 @@ public class PostRequestServiceImpl implements PostRequestService {
 
             List<MilestoneContract> milestoneContractList = request.getMilestoneContracts();
             BigDecimal budget = new BigDecimal(0);
+            Date pointEnd = new Date();
             int totalDeliveryTime = 0;
-            for (MilestoneContract milestoneContract : milestoneContractList){
+            int pointEndStart = 0;
+            for (MilestoneContract milestoneContract : milestoneContractList) {
                 budget = budget.add(milestoneContract.getMilestoneFee());
-                totalDeliveryTime = totalDeliveryTime + milestoneContract.getEndDate().getDate() - milestoneContract.getStartDate().getDate();
+                if(milestoneContract.getStartDate().compareTo(pointEnd) > 0) {
+                    pointEndStart = pointEndStart + countTotalDelivery(milestoneContract.getStartDate(), pointEnd);
+                }
+                totalDeliveryTime = totalDeliveryTime + pointEndStart + countTotalDelivery(milestoneContract.getStartDate(), milestoneContract.getEndDate());;
                 milestoneContract.setPostRequest(postRequest);
                 milestoneContractService.addMilestoneContract(milestoneContract);
+                pointEnd = milestoneContract.getEndDate();
             }
 
             postRequest.setBudget(budget);
@@ -305,5 +313,18 @@ public class PostRequestServiceImpl implements PostRequestService {
             newMilestone.setPostRequest(post);
             milestoneContractService.addMilestoneContract(newMilestone);
         }
+    }
+
+    private int countTotalDelivery(Date startDate, Date endDate) {
+        long start = startDate.getTime();
+        long end = endDate.getTime();
+        long timeDiff;
+        if(end < start) {
+            timeDiff = Math.abs(start - end);
+        } else {
+            timeDiff = Math.abs(end - start);
+        }
+        long daysDiff = TimeUnit.DAYS.convert(timeDiff, TimeUnit.MILLISECONDS);
+        return (int)daysDiff;
     }
 }

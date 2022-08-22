@@ -4,6 +4,7 @@ import com.jovinn.capstoneproject.dto.client.request.RatingRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.RatingResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
+import com.jovinn.capstoneproject.enumerable.ContractType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
@@ -56,7 +57,9 @@ public class RatingServiceImpl implements RatingService {
                 Rating rating = new Rating();
                 rating.setBuyerId(buyer.getId());
                 rating.setSellerId(contract.getSeller().getId());
-                rating.setBox(box);
+                if(contract.getType().equals(ContractType.SERVICE)) {
+                    rating.setBox(box);
+                }
                 rating.setComment(request.getComment());
                 rating.setRatingPoint(getInputRating(request.getRatingPoint()));
                 ratingRepository.save(rating);
