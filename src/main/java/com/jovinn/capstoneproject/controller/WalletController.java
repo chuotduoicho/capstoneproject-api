@@ -39,4 +39,10 @@ public class WalletController {
         TransactionResponse response = walletService.saveWallet(paymentId, payerId, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
+    @PostMapping("/buy")
+    public ResponseEntity<String> buy() {
+        String response = walletService.buy();
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 }

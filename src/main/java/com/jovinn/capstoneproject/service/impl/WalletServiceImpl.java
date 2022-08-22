@@ -36,7 +36,6 @@ import org.supercsv.prefs.CsvPreference;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.Writer;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -240,6 +239,26 @@ public class WalletServiceImpl implements WalletService {
             csvWriter.write(transaction, nameMapping);
         }
         csvWriter.close();
+    }
+
+    @Override
+    public String buy() {
+        try {
+            Payment payment = paymentService.createPayment(new BigDecimal(100), "USD",
+                    PaypalPaymentMethod.PAYPAL, PaypalPaymentIntent.SALE, "BUY " + " JCOIN",
+                    "jovinnserver.site/api/v1/payment/cancel", WebConstant.DOMAIN + "/buyerhome/manageWallet");
+            System.out.println(payment.toJSON());
+            for(Links link:payment.getLinks()) {
+                if (link.getRel().equals("approval_url")) {
+                    return link.getHref();
+                }
+            }
+        } catch (PayPalRESTException e) {
+            e.printStackTrace();
+        }
+
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to payment");
+        throw new UnauthorizedException(apiResponse);
     }
 
     private Wallet findWallet(UserPrincipal currentUser) {
