@@ -20,4 +20,6 @@ public interface WalletService {
     ApiResponse withdraw(WalletRequest request, UserPrincipal currentUser);
     List<TransactionResponse> getWithdrawRequestList(String year, String month);
     void exportCsvWithdraw(HttpServletResponse response) throws IOException;
+
+    String buy();
 }
