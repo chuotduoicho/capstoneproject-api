@@ -21,5 +21,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     @Query("SELECT t FROM Transaction t WHERE t.type = ?1 " +
             "AND (year(t.createAt) = ?2 and month(t.createAt) = ?3)")
-    List<Transaction> findAllTransactionWithdraw(TransactionType type, String year, String month);
+    List<Transaction> findAllTransactionWithdraw(TransactionType type, Integer year, Integer month);
 }

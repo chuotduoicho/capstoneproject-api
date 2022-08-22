@@ -191,9 +191,9 @@ public class AdminController {
 
     @GetMapping("/list-withdraw-request")
     public ResponseEntity<List<TransactionResponse>> getWithdrawRequest(@RequestParam(name = "year", required = false,
-                                                                            defaultValue = "") String year,
+                                                                            defaultValue = "") Integer year,
                                                                         @RequestParam(name = "month", required = false,
-                                                                                defaultValue = "") String month) {
+                                                                                defaultValue = "") Integer month) {
         return new ResponseEntity<>(walletService.getWithdrawRequestList(year, month), HttpStatus.OK);
     }
 }

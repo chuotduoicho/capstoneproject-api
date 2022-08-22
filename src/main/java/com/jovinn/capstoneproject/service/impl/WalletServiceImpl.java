@@ -221,7 +221,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public List<TransactionResponse> getWithdrawRequestList(String year, String month) {
+    public List<TransactionResponse> getWithdrawRequestList(Integer year, Integer month) {
         List<Transaction> payoutRequest = transactionRepository.findAllTransactionWithdraw(TransactionType.WITHDRAW, year, month);
         List<TransactionResponse> responses = new ArrayList<>();
         for(Transaction transaction : payoutRequest) {
