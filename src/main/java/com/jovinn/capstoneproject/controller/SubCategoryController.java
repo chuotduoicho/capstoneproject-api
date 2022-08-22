@@ -1,9 +1,12 @@
 package com.jovinn.capstoneproject.controller;
 
+import com.jovinn.capstoneproject.model.Category;
 import com.jovinn.capstoneproject.model.SubCategory;
 import com.jovinn.capstoneproject.service.SubCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,12 +21,18 @@ public class SubCategoryController {
     private final SubCategoryService subCategoryService;
 
     @GetMapping("/subCategory/findByCategory/{catId}")
-    List<SubCategory> getByCategory(@PathVariable("catId") UUID catId){
-        return subCategoryService.getSubCategoriesByCategory(catId);
+    public ResponseEntity<List<SubCategory>> getByCategory(@PathVariable("catId") UUID catId){
+        return new ResponseEntity<>(subCategoryService.getSubCategoriesByCategory(catId), HttpStatus.OK);
     }
 
     @GetMapping("/subCategories")
-    List<SubCategory> getAllCategory(){
-        return subCategoryService.getSubCategories();
+    public ResponseEntity<List<SubCategory>> getAllCategory(){
+        return new ResponseEntity<>(subCategoryService.getSubCategories(), HttpStatus.OK);
+    }
+
+    @PostMapping("/subCategory/{catId}")
+    public ResponseEntity<SubCategory> saveSubCategory(@PathVariable("catId") UUID catId,
+                                                       @RequestBody SubCategory subCategory){
+        return new ResponseEntity<>(subCategoryService.saveSubCategory(catId, subCategory), HttpStatus.OK);
     }
 }

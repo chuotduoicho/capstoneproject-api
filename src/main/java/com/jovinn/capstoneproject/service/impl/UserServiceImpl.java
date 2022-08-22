@@ -336,8 +336,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public AdminViewUserResponse getUserById(UUID id) {
         User user = userRepository.findUserById(id);
-        return new AdminViewUserResponse(user.getId(),user.getFirstName(),user.getLastName(),user.getEmail(),
-                user.getPhoneNumber(),user.getUsername());
+        return new AdminViewUserResponse(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(),
+                user.getPhoneNumber(), user.getUsername(), user.getIsEnabled());
     }
 
     @Override

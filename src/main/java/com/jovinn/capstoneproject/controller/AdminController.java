@@ -2,41 +2,25 @@ package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminLoginRequest;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
-import com.jovinn.capstoneproject.enumerable.TransactionType;
-import com.jovinn.capstoneproject.enumerable.UserActivityType;
-import com.jovinn.capstoneproject.exception.JovinnException;
-import com.jovinn.capstoneproject.model.ActivityType;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.model.Admin;
-import com.jovinn.capstoneproject.model.Transaction;
-import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.payment.TransactionRepository;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
 import com.jovinn.capstoneproject.service.*;
+import com.jovinn.capstoneproject.util.WebConstant;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.supercsv.io.CsvBeanWriter;
-import org.supercsv.io.ICsvBeanWriter;
-import org.supercsv.prefs.CsvPreference;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -203,5 +187,13 @@ public class AdminController {
     @GetMapping("/export-withdraw-request")
     public void exportWithdraw(HttpServletResponse response) throws IOException {
         walletService.exportCsvWithdraw(response);
+    }
+
+    @GetMapping("/list-withdraw-request")
+    public ResponseEntity<List<TransactionResponse>> getWithdrawRequest(@RequestParam(name = "year", required = false,
+                                                                            defaultValue = "") String year,
+                                                                        @RequestParam(name = "month", required = false,
+                                                                                defaultValue = "") String month) {
+        return new ResponseEntity<>(walletService.getWithdrawRequestList(year, month), HttpStatus.OK);
     }
 }

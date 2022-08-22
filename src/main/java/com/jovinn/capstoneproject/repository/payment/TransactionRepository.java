@@ -16,6 +16,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     List<Transaction> findAllByWallet_User_Id(UUID userId);
 
     @Query("SELECT t FROM Transaction t WHERE t.type = ?1 " +
-            "AND (year(t.createAt) = year(current_date) and month(t.createAt) = month(current_date ))")
+            "AND (year(t.createAt) = year(current_date) and month(t.createAt) = month(current_date))")
     List<Transaction> findAllTransactionWithdrawRequest(TransactionType type);
+
+    @Query("SELECT t FROM Transaction t WHERE t.type = ?1 " +
+            "AND (year(t.createAt) = ?2 and month(t.createAt) = ?3)")
+    List<Transaction> findAllTransactionWithdraw(TransactionType type, String year, String month);
 }

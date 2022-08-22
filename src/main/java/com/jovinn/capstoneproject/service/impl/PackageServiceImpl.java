@@ -51,6 +51,7 @@ public class PackageServiceImpl implements PackageService {
                 } else {
                     pack.setContractCancelFee(request.getContractCancelFee());
                 }
+                updateFromPriceBoxAfterUpdatePackage(boxId, box);
                 return packageRepository.save(pack);
             } else {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Chỉ được phép tạo tối đa 3 gói dịch vụ");
@@ -75,6 +76,7 @@ public class PackageServiceImpl implements PackageService {
             } else {
                 pack.setContractCancelFee(request.getContractCancelFee());
             }
+            updateFromPriceBoxAfterUpdatePackage(pack.getBox().getId(), pack.getBox());
             return packageRepository.save(pack);
         }
 
@@ -92,5 +94,11 @@ public class PackageServiceImpl implements PackageService {
         }
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to delete this photo");
         throw new UnauthorizedException(apiResponse);
+    }
+
+    private void updateFromPriceBoxAfterUpdatePackage(UUID boxId, Box box) {
+        List<Package> packs = packageRepository.findAllByBoxIdOrderByPriceAsc(boxId);
+        box.setFromPrice(packs.get(0).getPrice());
+        boxRepository.save(box);
     }
 }

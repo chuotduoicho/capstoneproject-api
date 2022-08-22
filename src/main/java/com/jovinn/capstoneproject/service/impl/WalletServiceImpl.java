@@ -40,6 +40,7 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -218,6 +219,20 @@ public class WalletServiceImpl implements WalletService {
         }
 
         return new ApiResponse(Boolean.TRUE, "Đã thực hiện rút tiền thành công, tiền sẽ chuyển về tài khoản trong ngày 30 hàng tháng");
+    }
+
+    @Override
+    public List<TransactionResponse> getWithdrawRequestList(String year, String month) {
+        List<Transaction> payoutRequest = transactionRepository.findAllTransactionWithdraw(TransactionType.WITHDRAW, year, month);
+        List<TransactionResponse> responses = new ArrayList<>();
+        for(Transaction transaction : payoutRequest) {
+            responses.add(new TransactionResponse(transaction.getId(), transaction.getAmount(), transaction.getType(),
+                    transaction.getCurrency(), transaction.getMethod(),
+                    transaction.getIntent(), transaction.getDescription(),
+                    transaction.getPaymentCode(), transaction.getUserId(),
+                    transaction.getMessage(), transaction.getWallet().getId(), transaction.getCreateAt()));
+        }
+        return responses;
     }
 
     @Override
