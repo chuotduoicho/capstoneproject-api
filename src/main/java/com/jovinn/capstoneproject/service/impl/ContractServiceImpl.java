@@ -575,7 +575,7 @@ public class ContractServiceImpl implements ContractService {
                 Date autoCompleteExpectDate = dateDelivery.expectDateCompleteAuto(deliveries.get(0).getCreateAt(), 3);
                 if(contract.getDeliveryStatus().equals(DeliveryStatus.SENDING) &&
                         contract.getContractStatus().equals(ContractStatus.PROCESSING) &&
-                        autoCompleteExpectDate.compareTo(new Date()) < 0) {
+                        autoCompleteExpectDate.compareTo(new Date()) > 0) {
                     contract.setFlag(Boolean.TRUE);
                     contractRepository.save(contract);
                     //Need sending mail for seller

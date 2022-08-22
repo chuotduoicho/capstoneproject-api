@@ -21,21 +21,20 @@ public class PackageController {
     @Autowired
     private PackageService packageService;
     @PostMapping("/package/{boxId}")
-    public ResponseEntity<Package> addPackage(@PathVariable("boxId") UUID boxId, @Valid @RequestBody PackageRequest request,
-                                              @CurrentUser UserPrincipal currentUser) {
-        Package response = packageService.add(boxId, request, currentUser);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<ApiResponse> addPackage(@PathVariable("boxId") UUID boxId,
+                                                  @Valid @RequestBody PackageRequest request,
+                                                  @CurrentUser UserPrincipal currentUser) {
+        return new ResponseEntity<>(packageService.add(boxId, request, currentUser), HttpStatus.OK);
     }
     @PutMapping("/package/{id}")
-    public ResponseEntity<Package> updatePackage(@PathVariable("id") UUID id, @Valid @RequestBody PackageRequest request,
-                                                 @CurrentUser UserPrincipal currentUser) {
-        Package response = packageService.update(id, request, currentUser);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<ApiResponse> updatePackage(@PathVariable("id") UUID id,
+                                                     @Valid @RequestBody PackageRequest request,
+                                                     @CurrentUser UserPrincipal currentUser) {
+        return new ResponseEntity<>(packageService.update(id, request, currentUser), HttpStatus.OK);
     }
     @DeleteMapping("/package/{id}")
     public ResponseEntity<ApiResponse> deletePackage(@PathVariable("id") UUID id,
                                                      @CurrentUser UserPrincipal currentUser) {
-        ApiResponse response = packageService.delete(id, currentUser);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(packageService.delete(id, currentUser), HttpStatus.OK);
     }
 }

@@ -13,7 +13,7 @@ public interface PackageService {
     Package savePackage(Package aPackage);
 
     List<Package> saveAllPackage(List<Package> packageList);
-    Package add(UUID boxId, PackageRequest request, UserPrincipal currentUser);
-    Package update(UUID id, PackageRequest request, UserPrincipal currentUser);
+    ApiResponse add(UUID boxId, PackageRequest request, UserPrincipal currentUser);
+    ApiResponse update(UUID id, PackageRequest request, UserPrincipal currentUser);
     ApiResponse delete(UUID id, UserPrincipal currentUser);
 }

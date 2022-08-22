@@ -35,7 +35,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
-    public Package add(UUID boxId, PackageRequest request, UserPrincipal currentUser) {
+    public ApiResponse add(UUID boxId, PackageRequest request, UserPrincipal currentUser) {
         Box box = boxRepository.findById(boxId)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy hộp dịch vụ"));
         if (box.getSeller().getUser().getId().equals(currentUser.getId())) {
@@ -51,8 +51,9 @@ public class PackageServiceImpl implements PackageService {
                 } else {
                     pack.setContractCancelFee(request.getContractCancelFee());
                 }
+                packageRepository.save(pack);
                 updateFromPriceBoxAfterUpdatePackage(boxId, box);
-                return packageRepository.save(pack);
+                return new ApiResponse(Boolean.TRUE, "Thêm gói dịch vụ thành công");
             } else {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Chỉ được phép tạo tối đa 3 gói dịch vụ");
             }
@@ -63,7 +64,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
-    public Package update(UUID id, PackageRequest request, UserPrincipal currentUser) {
+    public ApiResponse update(UUID id, PackageRequest request, UserPrincipal currentUser) {
         Package pack = packageRepository.findById(id)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy gói dịch vụ"));
         if (pack.getBox().getSeller().getUser().getId().equals(currentUser.getId())) {
@@ -76,8 +77,9 @@ public class PackageServiceImpl implements PackageService {
             } else {
                 pack.setContractCancelFee(request.getContractCancelFee());
             }
+            packageRepository.save(pack);
             updateFromPriceBoxAfterUpdatePackage(pack.getBox().getId(), pack.getBox());
-            return packageRepository.save(pack);
+            return new ApiResponse(Boolean.TRUE, "Cập nhật gói dịch vụ thành công");
         }
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
