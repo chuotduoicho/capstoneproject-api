@@ -215,7 +215,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public JwtAuthenticationResponse loginUser(LoginRequest loginRequest) {
         try {
-            User user = getUserByUserName(loginRequest.getUsernameOrEmail());
+            User user = getUserByUsernameOrEmail(loginRequest.getUsernameOrEmail(), loginRequest.getUsernameOrEmail());
             if(!Objects.equals(activityTypeService.getActivityTypeByUserId(user.getId()), UserActivityType.ADMIN)
                     && activityTypeService.getActivityTypeByUserId(user.getId()) != null) {
                 Authentication authentication = authenticationManager.authenticate(
@@ -236,7 +236,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public JwtAuthenticationResponse loginAdmin(AdminLoginRequest adminLoginRequest) {
         try {
-            User user = getUserByUserName(adminLoginRequest.getAdminAccount());
+            User user = getUserByUsernameOrEmail(adminLoginRequest.getAdminAccount(), adminLoginRequest.getAdminAccount());
             if (Objects.equals(activityTypeService.getActivityTypeByUserId(user.getId()), UserActivityType.ADMIN)
                     && activityTypeService.getActivityTypeByUserId(user.getId()) != null){
 
@@ -343,6 +343,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByUserName(String name) {
         return userRepository.findByUsername(name)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Người dùng không khả dụng"));
+    }
+
+    @Override
+    public User getUserByUsernameOrEmail(String username, String email) {
+        return userRepository.findByUsernameOrEmail(username, email)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Người dùng không khả dụng"));
     }
 }

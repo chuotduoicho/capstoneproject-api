@@ -35,4 +35,5 @@ public interface UserService {
     ApiResponse banOrUnbanUser(UUID userId);
     AdminViewUserResponse getUserById(UUID id);
     User getUserByUserName(String name);
+    User getUserByUsernameOrEmail(String username, String email);
 }
