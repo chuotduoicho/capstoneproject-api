@@ -92,6 +92,14 @@ public class EmailSender {
                 + "<p><a href=\"" + link + "\">JOVINN PAGE</a></p>"
                 + "<br>";
     }
+
+    public String sendNotiComplete(String lastName, String link, String contractCode, BigDecimal totalPrice) {
+        return "<p>Hello," + lastName + "</p>"
+                + "Happy to Complete your contract -" + contractCode + "- with 90% of " + totalPrice + "$ "
+                + "<p>Can find more service box in Jovinn</p>"
+                + "<p><a href=\"" + link + "\">JOVINN THANK FULL</a></p>"
+                + "<br>";
+    }
     public void sendEmailVerify(String recipientEmail, String link) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -208,6 +216,22 @@ public class EmailSender {
 
         String subject = "Here's the link come to new order";
         String content = sendNotiRejectToBuyer(lastName, brandName, link, contractCode, totalPrice);
+
+        helper.setSubject(subject);
+        helper.setText(content, true);
+        mailSender.send(message);
+    }
+
+
+    public void sendEmailCompleteContract(String recipientEmail, String lastName,
+                                                   String link, String contractCode, BigDecimal totalPrice) throws MessagingException, UnsupportedEncodingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        helper.setFrom("duc24600@gmail.com", "Jovinn support");
+        helper.setTo(recipientEmail);
+
+        String subject = "Here's the link come to new order";
+        String content = sendNotiComplete(lastName, link, contractCode, totalPrice);
 
         helper.setSubject(subject);
         helper.setText(content, true);

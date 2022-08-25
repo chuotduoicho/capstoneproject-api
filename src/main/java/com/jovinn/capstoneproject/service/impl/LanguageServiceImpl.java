@@ -38,7 +38,7 @@ public class LanguageServiceImpl implements LanguageService {
                     newLang.getSeller().getId());
         }
 
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to add certificate with seller");
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }
 
@@ -59,7 +59,7 @@ public class LanguageServiceImpl implements LanguageService {
                     update.getSeller().getId());
         }
 
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to add certificate with seller");
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }
 
@@ -71,7 +71,7 @@ public class LanguageServiceImpl implements LanguageService {
             languageRepository.deleteById(id);
             return new ApiResponse(Boolean.TRUE, "Language deleted successfully");
         }
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to delete this photo");
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }
 }

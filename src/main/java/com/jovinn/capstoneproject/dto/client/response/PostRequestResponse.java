@@ -2,12 +2,11 @@ package com.jovinn.capstoneproject.dto.client.response;
 
 import com.jovinn.capstoneproject.dto.UserProfile;
 import com.jovinn.capstoneproject.model.MilestoneContract;
-import com.jovinn.capstoneproject.model.Skill;
 import com.jovinn.capstoneproject.model.SkillMetaData;
-import com.jovinn.capstoneproject.model.User;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -39,11 +38,12 @@ public class PostRequestResponse {
 
     List<UserProfile> invitedUser;
 
-    public PostRequestResponse(UUID postRequestId, UUID categoryId, UUID subcategoryId, String recruitLevel,
+    public PostRequestResponse(UUID postRequestId, Date createdAt, UUID categoryId, UUID subcategoryId, String recruitLevel,
                                List<SkillMetaData> skillsName, String jobTitle, String shortRequirement, String attachFile,
                                List<MilestoneContract> milestoneContracts, Integer contractCancelFee,
                                BigDecimal budget, List<UserProfile> invitedUser) {
         this.postRequestId = postRequestId;
+        this.createdAt = createdAt;
         this.categoryId = categoryId;
         this.subcategoryId = subcategoryId;
         this.recruitLevel = recruitLevel;
