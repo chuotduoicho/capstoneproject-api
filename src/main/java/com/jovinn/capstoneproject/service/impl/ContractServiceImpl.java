@@ -10,10 +10,9 @@ import com.jovinn.capstoneproject.dto.client.response.ContractResponse;
 import com.jovinn.capstoneproject.enumerable.*;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.JovinnException;
-import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
-import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.model.Package;
+import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.repository.payment.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
@@ -105,8 +104,8 @@ public class ContractServiceImpl implements ContractService {
                         null, OrderStatus.PENDING,null, ContractType.SERVICE, buyer, seller, Boolean.FALSE);
                 Contract newContract = contractRepository.save(contract);
 
-                String linkOrderForSeller = WebConstant.DOMAIN + "/dashboard/" + seller.getBrandName() + "/order/" + newContract.getId();
-                String linkOrderForBuyer = WebConstant.DOMAIN + "/dashboard/" + currentUser.getId() + "/order/" + newContract.getId();
+                String linkOrderForSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + newContract.getId();
+                String linkOrderForBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + newContract.getId();
                 try {
                     emailSender.sendEmailNotiContractSeller(seller.getUser().getEmail(),
                             seller.getUser().getLastName(), linkOrderForSeller,
@@ -141,9 +140,9 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public ContractResponse updateStatusAcceptFromSeller(UUID id, UserPrincipal currentUser) throws RuntimeException {
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Seller", "Seller not found", currentUser.getId()));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
         Contract contract = contractRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Contract", "Contract not found", id));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         Wallet walletSeller = walletRepository.findWalletByUserId(currentUser.getId());
 
         Date expectCompleteDate = dateDelivery.expectDate(Calendar.DAY_OF_MONTH, contract.getTotalDeliveryTime());
@@ -169,14 +168,15 @@ public class ContractServiceImpl implements ContractService {
                     delivery.setContract(contract);
                     saveWallet(walletSeller);
 
-                    String linkOrder = WebConstant.DOMAIN + "/dashboard/order/" + contract.getId();
+                    String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + contract.getId();
+                    String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + contract.getId();
                     try {
                         emailSender.sendEmailNotiAcceptContractToSeller(seller.getUser().getEmail(),
-                                seller.getUser().getLastName(), linkOrder, contract.getContractCode(),
+                                seller.getUser().getLastName(), contractLinkSeller, contract.getContractCode(),
                                 contract.getTotalPrice(), contract.getQuantity(), expectCompleteDate);
 
                         emailSender.sendEmailNotiAcceptContractToBuyer(contract.getBuyer().getUser().getEmail(),
-                                contract.getBuyer().getUser().getLastName(), seller.getBrandName(), linkOrder,
+                                contract.getBuyer().getUser().getLastName(), seller.getBrandName(), contractLinkBuyer,
                                 contract.getContractCode(), contract.getTotalPrice(), contract.getQuantity());
                     } catch (UnsupportedEncodingException | MessagingException exception) {
                         throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi khi gửi thông báo tới email của bạn");
@@ -226,13 +226,14 @@ public class ContractServiceImpl implements ContractService {
 
             saveWallet(walletBuyer);
 
-            String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
+            String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + contract.getId();
+            String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + contract.getId();
             try {
                 emailSender.sendEmailNotiRejectContractToSeller(seller.getUser().getEmail(),
-                        seller.getUser().getLastName(), linkOrder, contract.getContractCode());
+                        seller.getUser().getLastName(), contractLinkSeller, contract.getContractCode());
 
                 emailSender.sendEmailNotiRejectContractToBuyer(contract.getBuyer().getUser().getEmail(),
-                        contract.getBuyer().getUser().getLastName(), seller.getBrandName(), linkOrder,
+                        contract.getBuyer().getUser().getLastName(), seller.getBrandName(), contractLinkBuyer,
                         contract.getContractCode(), contract.getTotalPrice());
             } catch (UnsupportedEncodingException | MessagingException exception) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
@@ -280,13 +281,14 @@ public class ContractServiceImpl implements ContractService {
             saveWallet(walletBuyer);
             saveWallet(walletSeller);
 
-            String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
+            String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + contract.getId();
+            String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + contract.getId();
             try {
                 emailSender.sendEmailNotiRejectContractToSeller(contract.getSeller().getUser().getEmail(),
-                        contract.getSeller().getUser().getLastName(), linkOrder, contract.getContractCode());
+                        contract.getSeller().getUser().getLastName(), contractLinkSeller, contract.getContractCode());
 
                 emailSender.sendEmailNotiRejectContractToBuyer(contract.getBuyer().getUser().getEmail(),
-                        contract.getBuyer().getUser().getLastName(), contract.getSeller().getBrandName(), linkOrder,
+                        contract.getBuyer().getUser().getLastName(), contract.getSeller().getBrandName(), contractLinkBuyer,
                         contract.getContractCode(), contract.getTotalPrice());
             } catch (UnsupportedEncodingException | MessagingException exception) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
@@ -310,6 +312,8 @@ public class ContractServiceImpl implements ContractService {
 
         BigDecimal income = calculateRefund90PercentDeposit(contract.getTotalPrice(), 90);
         BigDecimal sellerReceiveAfterCancel = contract.getServiceDeposit().add(income);
+        String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + id;
+        String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + id;
 
         if (contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
             if (contract.getDeliveryStatus() != null && contract.getDeliveryStatus().equals(DeliveryStatus.SENDING)
@@ -336,6 +340,19 @@ public class ContractServiceImpl implements ContractService {
                         Seller seller = contract.getSeller();
                         seller.setTotalOrderFinish(seller.getTotalOrderFinish() + 1);
                         sellerRepository.save(seller);
+
+                        try {
+                            emailSender.sendEmailCompleteContract(contract.getSeller().getUser().getEmail(),
+                                    contract.getSeller().getUser().getLastName(), contractLinkSeller,
+                                    contract.getContractCode(), contract.getTotalPrice());
+
+                            emailSender.sendEmailCompleteContract(contract.getBuyer().getUser().getEmail(),
+                                    contract.getBuyer().getUser().getLastName(), contractLinkBuyer,
+                                    contract.getContractCode(), contract.getTotalPrice());
+                        } catch (UnsupportedEncodingException | MessagingException exception) {
+                            throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
+                        }
+
                         return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
                     } else {
                         throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn chưa đánh dấu xác nhận tất cả các giai đoạn");
@@ -352,19 +369,21 @@ public class ContractServiceImpl implements ContractService {
                     seller.setTotalOrderFinish(seller.getTotalOrderFinish() + 1);
                     sellerRepository.save(seller);
                     updateTotalFinalContract(contract.getPackageId());
+
+                    try {
+                        emailSender.sendEmailCompleteContract(contract.getSeller().getUser().getEmail(),
+                                contract.getSeller().getUser().getLastName(), contractLinkSeller,
+                                contract.getContractCode(), contract.getTotalPrice());
+
+                        emailSender.sendEmailCompleteContract(contract.getBuyer().getUser().getEmail(),
+                                contract.getBuyer().getUser().getLastName(), contractLinkBuyer,
+                                contract.getContractCode(), contract.getTotalPrice());
+                    } catch (UnsupportedEncodingException | MessagingException exception) {
+                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
+                    }
+
                     return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
                 }
-//                String linkOrder = WebConstant.DOMAIN + "/dashboard/order" + contract.getId();
-//                try {
-//                    emailSender.sendEmailNotiRejectContractToSeller(contract.getSeller().getUser().getEmail(),
-//                            contract.getSeller().getUser().getLastName(), linkOrder, contract.getContractCode());
-//
-//                    emailSender.sendEmailNotiRejectContractToBuyer(contract.getBuyer().getUser().getEmail(),
-//                            contract.getBuyer().getUser().getLastName(), contract.getSeller().getBrandName(), linkOrder,
-//                            contract.getContractCode(), contract.getTotalPrice());
-//                } catch (UnsupportedEncodingException | MessagingException exception) {
-//                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Có lỗi khi gửi thông báo tới email của bạn");
-//                }
 
                 //return getUpdateResponse(contract, DeliveryStatus.SENDING, OrderStatus.TO_CONTRACT, ContractStatus.COMPLETE);
             } else {
@@ -789,7 +808,7 @@ public class ContractServiceImpl implements ContractService {
                 Notification notification = new Notification();
                 notification.setUser(offerRequest.getSeller().getUser());
                 notification.setUnread(Boolean.TRUE);
-                notification.setLink("Link tới post request mới");
+                notification.setLink(WebConstant.DOMAIN + "/sellerHome/manageRequest");
                 notification.setShortContent("Bạn đã bị từ chối " + offerRequest.getId()
                         + " do bài đăng đã được ký kết hợp đồng."
                         + " Đừng lo lắng! Hãy cố gắng tìm được việc làm ung ý tại đây");
@@ -802,7 +821,7 @@ public class ContractServiceImpl implements ContractService {
             Notification notification = new Notification();
             notification.setUser(seller.getUser());
             notification.setUnread(Boolean.TRUE);
-            notification.setLink("Link tới post request mới");
+            notification.setLink(WebConstant.DOMAIN + "/sellerHome/manageRequest");
             notification.setShortContent("Bạn đã bị từ chối bài đăng của "
                     + postRequest.getUser().getLastName() + postRequest.getUser().getFirstName()
                     + " do đã được ký kết hợp đồng."

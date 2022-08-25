@@ -4,7 +4,6 @@ import com.jovinn.capstoneproject.dto.client.request.EducationRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.EducationResponse;
 import com.jovinn.capstoneproject.exception.JovinnException;
-import com.jovinn.capstoneproject.exception.ResourceNotFoundException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Education;
 import com.jovinn.capstoneproject.model.Seller;
@@ -43,7 +42,7 @@ public class EducationServiceImpl implements EducationService {
                     newEdu.getToDate(), newEdu.getOpened(), newEdu.getSeller().getId());
         }
 
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to add certificate with seller");
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }
 
@@ -72,7 +71,7 @@ public class EducationServiceImpl implements EducationService {
                     update.getToDate(), update.getOpened(), update.getSeller().getId());
         }
 
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to add certificate with seller");
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }
 
@@ -85,7 +84,7 @@ public class EducationServiceImpl implements EducationService {
             return new ApiResponse(Boolean.TRUE, "Xóa học vấn thành công");
         }
 
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to delete this photo");
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }
 }

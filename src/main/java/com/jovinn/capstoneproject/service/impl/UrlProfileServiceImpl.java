@@ -37,7 +37,7 @@ public class UrlProfileServiceImpl implements UrlProfileService {
                     newUrl.getSeller().getId());
         }
 
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to add certificate with seller");
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }
 
@@ -60,7 +60,7 @@ public class UrlProfileServiceImpl implements UrlProfileService {
                     newUrl.getSeller().getId());
         }
 
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to add certificate with seller");
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }
 
@@ -72,7 +72,7 @@ public class UrlProfileServiceImpl implements UrlProfileService {
             urlProfileRepository.deleteById(id);
             return new ApiResponse(Boolean.TRUE, "UrlProfile deleted successfully");
         }
-        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to delete this photo");
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission");
         throw new UnauthorizedException(apiResponse);
     }
 }
