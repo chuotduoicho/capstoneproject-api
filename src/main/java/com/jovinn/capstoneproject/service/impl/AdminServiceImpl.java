@@ -1,9 +1,6 @@
 package com.jovinn.capstoneproject.service.impl;
 
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminCountDataResponse;
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminProfileResponse;
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountTotalRevenueResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
@@ -20,10 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.*;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -65,10 +61,12 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<BigDecimal> countTotalRevenueByMonth() {
-        List<BigDecimal> list = new ArrayList<>();
+    public List<AdminRevenueByMonth> countTotalRevenueByMonth() {
+        List<AdminRevenueByMonth> list = new ArrayList<>();
+        LocalDate date = LocalDate.now();
+        int month = date.getMonthValue();
         for (int i = 0; i <= 5; i++) {
-            list.add(contractRepository.countTotalRevenueByMonth(i));
+            list.add(new AdminRevenueByMonth(Month.of(month-i).toString(),contractRepository.countTotalRevenueByMonth(i)));
         }
         return list;
     }

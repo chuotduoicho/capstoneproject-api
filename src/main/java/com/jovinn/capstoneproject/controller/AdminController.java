@@ -122,7 +122,7 @@ public class AdminController {
     }
 
     @GetMapping("/count-total-revenue-by-month")
-    public List<BigDecimal> getTotalRevenueByMonth(){
+    public List<AdminRevenueByMonth> getTotalRevenueByMonth(){
         return adminService.countTotalRevenueByMonth();
     }
 

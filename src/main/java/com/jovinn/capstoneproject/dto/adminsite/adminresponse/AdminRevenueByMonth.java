@@ -12,4 +12,8 @@ public class AdminRevenueByMonth {
     String month;
     BigDecimal revenue;
 
+    public AdminRevenueByMonth(String month, BigDecimal revenue) {
+        this.month = month;
+        this.revenue = revenue;
+    }
 }

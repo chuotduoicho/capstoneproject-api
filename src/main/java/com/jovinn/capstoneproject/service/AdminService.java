@@ -1,9 +1,6 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminCountDataResponse;
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminProfileResponse;
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountTotalRevenueResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.model.Admin;
 import com.jovinn.capstoneproject.model.User;
@@ -20,7 +17,7 @@ public interface AdminService {
 
     CountTotalRevenueResponse countTotalRevenueToday();
 
-    List<BigDecimal> countTotalRevenueByMonth();
+    List<AdminRevenueByMonth> countTotalRevenueByMonth();
 
     ApiResponse saveAdmin(User admin);
 
