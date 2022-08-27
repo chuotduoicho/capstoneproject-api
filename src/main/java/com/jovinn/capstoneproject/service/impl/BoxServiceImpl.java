@@ -119,9 +119,9 @@ public class BoxServiceImpl implements BoxService {
         Box box = checkExistBox(id);
         if(box.getSeller().getUser().getId().equals(currentUser.getId())) {
             try {
-                Gallery gallery = box.getGallery();
-                removeOldFile(gallery);
-                boxRepository.deleteById(id);
+                //Gallery gallery = box.getGallery();
+                //removeOldFile(gallery);
+                boxRepository.delete(box);
                 return new ApiResponse(Boolean.TRUE, "Xóa hộp dịch vụ thành công");
             } catch (Exception e){
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Xóa hộp dịch vụ thất bại");
