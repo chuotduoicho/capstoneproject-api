@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.service.impl;
 
+import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminSignupRequest;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
@@ -72,7 +73,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public ApiResponse saveAdmin(User admin) {
+    public ApiResponse saveAdmin(AdminSignupRequest admin) {
         if (Boolean.TRUE.equals(userRepository.existsByUsername(admin.getUsername()))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại");
         }
@@ -82,7 +83,7 @@ public class AdminServiceImpl implements AdminService {
         newAdmin.setUsername(admin.getUsername());
         newAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
         newAdmin.setPhoneNumber(admin.getPhoneNumber());
-        userRepository.save(admin);
+        userRepository.save(newAdmin);
         return new ApiResponse(Boolean.TRUE, "Tạo mới thành công");
     }
 

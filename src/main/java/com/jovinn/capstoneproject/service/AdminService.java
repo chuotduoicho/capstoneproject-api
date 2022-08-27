@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.service;
 
+import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminSignupRequest;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.model.Admin;
@@ -19,7 +20,7 @@ public interface AdminService {
 
     List<AdminRevenueByMonth> countTotalRevenueByMonth();
 
-    ApiResponse saveAdmin(User admin);
+    ApiResponse saveAdmin(AdminSignupRequest admin);
 
     ApiResponse updateAdmin(UUID id,User admin);
 

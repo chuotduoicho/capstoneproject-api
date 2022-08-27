@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.controller;
 
 import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminLoginRequest;
+import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminSignupRequest;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.*;
@@ -132,7 +133,7 @@ public class AdminController {
     }
 
     @PostMapping("/save-admin")
-    public ResponseEntity<ApiResponse> saveAdmin(@RequestBody User admin){
+    public ResponseEntity<ApiResponse> saveAdmin(@RequestBody AdminSignupRequest admin){
         ApiResponse response = adminService.saveAdmin(admin);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
