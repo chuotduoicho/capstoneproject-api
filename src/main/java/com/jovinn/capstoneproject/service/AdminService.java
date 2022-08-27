@@ -6,6 +6,7 @@ import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserRespo
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.model.Admin;
+import com.jovinn.capstoneproject.model.User;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,9 +22,9 @@ public interface AdminService {
 
     List<BigDecimal> countTotalRevenueByMonth();
 
-    ApiResponse saveAdmin(Admin admin);
+    ApiResponse saveAdmin(User admin);
 
-    ApiResponse updateAdmin(UUID id,Admin admin);
+    ApiResponse updateAdmin(UUID id,User admin);
 
     ApiResponse deleteAdmin(UUID id);
 

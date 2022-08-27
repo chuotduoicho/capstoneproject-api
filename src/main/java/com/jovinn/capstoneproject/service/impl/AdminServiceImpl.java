@@ -5,11 +5,14 @@ import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminProfileRespon
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountTotalRevenueResponse;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.Admin;
 import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.*;
+import com.jovinn.capstoneproject.repository.auth.ActivityTypeRepository;
 import com.jovinn.capstoneproject.repository.payment.TransactionRepository;
+import com.jovinn.capstoneproject.service.ActivityTypeService;
 import com.jovinn.capstoneproject.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -30,7 +34,7 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private ContractRepository contractRepository;
     @Autowired
-    private TransactionRepository transactionRepository;
+    private ActivityTypeService activityTypeService;
     @Autowired
     private PostRequestRepository postRequestRepository;
     @Autowired
@@ -70,50 +74,52 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public ApiResponse saveAdmin(Admin admin) {
-        if (Boolean.TRUE.equals(adminRepository.existsAdminByAdminAccount(admin.getAdminAccount()))) {
+    public ApiResponse saveAdmin(User admin) {
+        if (Boolean.TRUE.equals(userRepository.existsByUsername(admin.getUsername()))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại");
         }
-        Admin newAdmin = new Admin();
+        User newAdmin = new User();
         newAdmin.setFirstName(admin.getFirstName());
         newAdmin.setLastName(admin.getLastName());
-        newAdmin.setAdminAccount(admin.getAdminAccount());
+        newAdmin.setUsername(admin.getUsername());
         newAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
         newAdmin.setPhoneNumber(admin.getPhoneNumber());
-        adminRepository.save(newAdmin);
+        userRepository.save(admin);
         return new ApiResponse(Boolean.TRUE, "Tạo mới thành công");
     }
 
     @Override
-    public ApiResponse updateAdmin(UUID id, Admin admin) {
-        Admin existAdmin = adminRepository.findById(id).orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy thông tin admin"));
-        if (Boolean.TRUE.equals(adminRepository.existsAdminByAdminAccount(admin.getAdminAccount()))) {
+    public ApiResponse updateAdmin(UUID id, User admin) {
+        User existAdmin = userRepository.findById(id).orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy thông tin admin"));
+        if (Boolean.TRUE.equals(adminRepository.existsAdminByAdminAccount(admin.getUsername()))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại");
         }
 
         existAdmin.setFirstName(admin.getFirstName());
         existAdmin.setLastName(admin.getLastName());
-        existAdmin.setAdminAccount(admin.getAdminAccount());
+        existAdmin.setUsername(admin.getUsername());
         existAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
         existAdmin.setPhoneNumber(admin.getPhoneNumber());
-        adminRepository.save(existAdmin);
+        userRepository.save(existAdmin);
 
         return new ApiResponse(Boolean.TRUE, "Cập nhật thành công");
     }
 
     @Override
     public ApiResponse deleteAdmin(UUID id) {
-        adminRepository.deleteById(id);
+        userRepository.deleteById(id);
         return new ApiResponse(Boolean.TRUE, "Xóa thành công");
     }
 
     @Override
     public List<AdminProfileResponse> getListAdmin() {
-        List<Admin> admins = adminRepository.findAll();
+        List<User> admins = userRepository.findAll();
         List<AdminProfileResponse> responseList = new ArrayList<>();
-        for (Admin admin : admins) {
-            responseList.add(new AdminProfileResponse(admin.getId(), admin.getFirstName(), admin.getLastName(), admin.getAdminAccount(),
-                    admin.getPhoneNumber()));
+        for (User admin : admins) {
+            if(Objects.equals(activityTypeService.getActivityTypeByUserId(admin.getId()), UserActivityType.ADMIN)){
+                responseList.add(new AdminProfileResponse(admin.getId(), admin.getFirstName(), admin.getLastName(), admin.getUsername(),
+                        admin.getPhoneNumber()));
+            }
         }
         return responseList;
     }

@@ -5,10 +5,11 @@ import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.*;
 import com.jovinn.capstoneproject.model.Admin;
+import com.jovinn.capstoneproject.model.Contract;
+import com.jovinn.capstoneproject.model.User;
 import com.jovinn.capstoneproject.repository.payment.TransactionRepository;
 import com.jovinn.capstoneproject.security.JwtTokenProvider;
 import com.jovinn.capstoneproject.service.*;
-import com.jovinn.capstoneproject.util.WebConstant;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,13 +132,13 @@ public class AdminController {
     }
 
     @PostMapping("/save-admin")
-    public ResponseEntity<ApiResponse> saveAdmin(@RequestBody Admin admin){
+    public ResponseEntity<ApiResponse> saveAdmin(@RequestBody User admin){
         ApiResponse response = adminService.saveAdmin(admin);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/update-admin/{id}")
-    public ResponseEntity<ApiResponse> updateAdmin(@RequestBody Admin admin,@PathVariable UUID id){
+    public ResponseEntity<ApiResponse> updateAdmin(@RequestBody User admin,@PathVariable UUID id){
         ApiResponse response = adminService.updateAdmin(id,admin);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
@@ -196,4 +197,11 @@ public class AdminController {
                                                                                 defaultValue = "") Integer month) {
         return new ResponseEntity<>(walletService.getWithdrawRequestList(year, month), HttpStatus.OK);
     }
+
+    @GetMapping("/list-contracts")
+    public ResponseEntity<List<Contract>> getAllContract(){
+        return new ResponseEntity<>(contractService.getAllContract(), HttpStatus.OK);
+    }
+
+
 }

@@ -725,6 +725,11 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
+    public List<Contract> getAllContract() {
+        return contractRepository.findAll();
+    }
+
+    @Override
     public CountTotalRevenueResponse getTotalRevenue() {
         return new CountTotalRevenueResponse(contractRepository.countTotalRevenue());
     }

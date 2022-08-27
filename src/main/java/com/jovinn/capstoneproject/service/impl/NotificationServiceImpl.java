@@ -44,7 +44,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public ApiResponse deleteNitification(UUID notificationId, UserPrincipal currentUser) {
+    public ApiResponse deleteNotification(UUID notificationId, UserPrincipal currentUser) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy thông báo"));
         notificationRepository.delete(notification);
