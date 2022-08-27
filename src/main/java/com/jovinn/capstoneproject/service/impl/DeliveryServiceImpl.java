@@ -18,6 +18,8 @@ import com.jovinn.capstoneproject.repository.DeliveryRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.DeliveryService;
+import com.jovinn.capstoneproject.util.PushNotification;
+import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     private ContractRepository contractRepository;
     @Autowired
     private SellerRepository sellerRepository;
+    @Autowired
+    private PushNotification pushNotification;
+
     @Override
     public DeliveryNotMilestoneResponse createDelivery(UUID id, DeliveryNotMilestoneRequest request, UserPrincipal currentUser) {
         Contract contract = contractRepository.findById(id)
@@ -44,6 +49,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                 contract.setDeliveryStatus(DeliveryStatus.SENDING);
                 contractRepository.save(contract);
                 Delivery update = deliveryRepository.save(delivery);
+                pushNotification.sendNotification(contract.getBuyer().getUser(),
+                        WebConstant.DOMAIN + "/buyerhome/manageContract/" + contract.getId(),
+                        "Bên đối tác đã tải lên bàn giao cho " + contract.getContractCode() + ", Kiếm tra ngay!");
 //                if (contract.getExpectCompleteDate().compareTo(delivery.getCreateAt()) < 0) {
 //                    contract.setDeliveryStatus(DeliveryStatus.LATE);
 //                    contractRepository.save(contract);
@@ -68,6 +76,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                 Delivery delivery = new Delivery(request.getFile(), request.getDescription(), contract);
                 delivery.setMilestoneId(request.getMilestoneId());
                 Delivery update = deliveryRepository.save(delivery);
+                pushNotification.sendNotification(contract.getBuyer().getUser(),
+                        WebConstant.DOMAIN + "/buyerhome/manageContract/" + contract.getId(),
+                        "Bên đối tác đã tải lên bàn giao cho " + contract.getContractCode() + ", Kiếm tra ngay!");
 //                if (contract.getExpectCompleteDate().compareTo(delivery.getCreateAt()) < 0) {
 //                    contract.setDeliveryStatus(DeliveryStatus.LATE);
 //                    contractRepository.save(contract);

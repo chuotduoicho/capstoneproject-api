@@ -19,6 +19,7 @@ import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ContractService;
 import com.jovinn.capstoneproject.util.DateDelivery;
 import com.jovinn.capstoneproject.util.EmailSender;
+import com.jovinn.capstoneproject.util.PushNotification;
 import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -61,6 +62,8 @@ public class ContractServiceImpl implements ContractService {
     private EmailSender emailSender;
     @Autowired
     private DateDelivery dateDelivery;
+    @Autowired
+    private PushNotification pushNotification;
 
     @Override
     public ContractResponse createContract(ContractRequest request, UserPrincipal currentUser) throws RuntimeException {
@@ -106,6 +109,9 @@ public class ContractServiceImpl implements ContractService {
 
                 String linkOrderForSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + newContract.getId();
                 String linkOrderForBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + newContract.getId();
+                pushNotification.sendNotification(seller.getUser(), linkOrderForSeller,
+                        "Bạn đã nhận được đơn đặt hàng từ " + buyer.getUser().getLastName());
+
                 try {
                     emailSender.sendEmailNotiContractSeller(seller.getUser().getEmail(),
                             seller.getUser().getLastName(), linkOrderForSeller,
@@ -170,6 +176,8 @@ public class ContractServiceImpl implements ContractService {
 
                     String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + contract.getId();
                     String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + contract.getId();
+                    pushNotification.sendNotification(contract.getBuyer().getUser(), contractLinkBuyer,
+                            "Đơn đặt hàng " + contract.getContractCode() + " đã được chấp nhận");
                     try {
                         emailSender.sendEmailNotiAcceptContractToSeller(seller.getUser().getEmail(),
                                 seller.getUser().getLastName(), contractLinkSeller, contract.getContractCode(),
@@ -228,6 +236,8 @@ public class ContractServiceImpl implements ContractService {
 
             String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + contract.getId();
             String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + contract.getId();
+            pushNotification.sendNotification(contract.getBuyer().getUser(), contractLinkBuyer,
+                    "Đơn đặt hàng " + contract.getContractCode() + " đã bị từ chối");
             try {
                 emailSender.sendEmailNotiRejectContractToSeller(seller.getUser().getEmail(),
                         seller.getUser().getLastName(), contractLinkSeller, contract.getContractCode());
@@ -283,6 +293,8 @@ public class ContractServiceImpl implements ContractService {
 
             String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + contract.getId();
             String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + contract.getId();
+            pushNotification.sendNotification(contract.getSeller().getUser(), contractLinkSeller,
+                    "Đơn đặt hàng " + contract.getContractCode() + " đã bị hủy bởi người mua");
             try {
                 emailSender.sendEmailNotiRejectContractToSeller(contract.getSeller().getUser().getEmail(),
                         contract.getSeller().getUser().getLastName(), contractLinkSeller, contract.getContractCode());
@@ -340,7 +352,9 @@ public class ContractServiceImpl implements ContractService {
                         Seller seller = contract.getSeller();
                         seller.setTotalOrderFinish(seller.getTotalOrderFinish() + 1);
                         sellerRepository.save(seller);
-
+                        pushNotification.sendNotification(contract.getSeller().getUser(), contractLinkSeller,
+                                "Chúc mừng! Bạn đã hoàn thành đơn đặt hàng " + contract.getContractCode() +
+                                        " với giá " + contract.getTotalPrice() + "$");
                         try {
                             emailSender.sendEmailCompleteContract(contract.getSeller().getUser().getEmail(),
                                     contract.getSeller().getUser().getLastName(), contractLinkSeller,
@@ -369,7 +383,9 @@ public class ContractServiceImpl implements ContractService {
                     seller.setTotalOrderFinish(seller.getTotalOrderFinish() + 1);
                     sellerRepository.save(seller);
                     updateTotalFinalContract(contract.getPackageId());
-
+                    pushNotification.sendNotification(contract.getSeller().getUser(), contractLinkSeller,
+                            "Chúc mừng! Bạn đã hoàn thành đơn đặt hàng " + contract.getContractCode() +
+                                    " với giá " + contract.getTotalPrice() + "$");
                     try {
                         emailSender.sendEmailCompleteContract(contract.getSeller().getUser().getEmail(),
                                 contract.getSeller().getUser().getLastName(), contractLinkSeller,
@@ -403,6 +419,8 @@ public class ContractServiceImpl implements ContractService {
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
         BigDecimal incomeMilestone = calculateRefund90PercentDeposit(milestoneContract.getMilestoneFee(), 90);
+        String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + contractId;
+
         if(contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
             if(milestoneContract.getStatus().equals(MilestoneStatus.PROCESSING)) {
                 if(Boolean.TRUE.equals(deliveryRepository.existsByMilestoneId(milestoneContract.getId()))) {
@@ -411,7 +429,9 @@ public class ContractServiceImpl implements ContractService {
                     walletSeller.setWithdraw(walletSeller.getWithdraw().add(incomeMilestone));
                     walletSeller.setIncome(walletSeller.getIncome().add(incomeMilestone));
                     saveWallet(walletSeller);
-
+                    pushNotification.sendNotification(contract.getSeller().getUser(), contractLinkSeller,
+                            "Chúc mừng! Bạn đã được xác nhận bàn giao giai đoạn" +
+                                    " với giá " + milestoneContract.getMilestoneFee() + "$");
                     //Check if delivery for milestone is the last will update DeliveryStatus.SENDING for contract
                     boolean checkAllComplete = Boolean.FALSE;
                     List<MilestoneContract> milestoneContracts = contract.getPostRequest().getMilestoneContracts();
@@ -484,7 +504,9 @@ public class ContractServiceImpl implements ContractService {
 
                     walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                     saveWallet(walletBuyer);
-
+                    pushNotification.sendNotification(newContract.getSeller().getUser(),
+                            WebConstant.DOMAIN + "/sellerHome/manageContract/" + newContract.getId(),
+                             "Hợp đồng " + newContract.getContractCode() + " từ lời đề xuất đã được tạo");
                     updateStatusAfterAcceptOffer(postRequest, offerRequest, contract);
                     changeStatusAllOfferRejected(postRequest);
                     return new ContractResponse(newContract.getId(),
@@ -542,7 +564,9 @@ public class ContractServiceImpl implements ContractService {
 
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                 saveWallet(walletBuyer);
-
+                pushNotification.sendNotification(newContract.getSeller().getUser(),
+                        WebConstant.DOMAIN + "/sellerHome/manageContract/" + newContract.getId(),
+                        "Hợp đồng " + newContract.getContractCode() + " ứng tuyển đã được tạo");
                 updateStatusPostRequestAfterAccepted(postRequest, contract);
                 changeStatusAllOfferRejected(postRequest);
                 return new ContractResponse(newContract.getId(),
@@ -597,6 +621,10 @@ public class ContractServiceImpl implements ContractService {
                         autoCompleteExpectDate.compareTo(new Date()) > 0) {
                     contract.setFlag(Boolean.TRUE);
                     contractRepository.save(contract);
+                    pushNotification.sendNotification(contract.getSeller().getUser(),
+                            WebConstant.DOMAIN + "/sellerHome/manageContract/" + contract.getId(),
+                            "Hợp đồng " + contract.getContractCode() +
+                                    " đã nhận được cờ dừng tiếp nhận bàn giao! Hãy làm việc với đối tác để giải quyết vấn đề");
                     //Need sending mail for seller
                     return new ApiResponse(Boolean.TRUE, "Bạn đã đặt cờ từ chối bàn giao thành công");
                 } else {

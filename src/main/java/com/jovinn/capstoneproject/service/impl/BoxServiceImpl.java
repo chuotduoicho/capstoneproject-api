@@ -246,6 +246,12 @@ public class BoxServiceImpl implements BoxService {
         Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
         Page<Box> boxes;
 
+        if(searchKeyWord.length() > 20) {
+            String error = "Chỉ được nhập tối đa 20 ký tự để tìm kiếm";
+            return new PageResponse<>(null, error, 0, 0, 0,
+                    0, true);
+        }
+
         if(subCategoryId != null && minPrice != null && maxPrice != null) {
             boxes = boxRepository.findAllBySubCategoryIdAndFromPriceBetweenAndTitleLike(subCategoryId, minPrice, maxPrice, searchKeyWord, BoxServiceStatus.ACTIVE, pageable);
         } else if(subCategoryId != null){

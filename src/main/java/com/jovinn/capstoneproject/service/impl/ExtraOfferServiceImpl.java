@@ -51,7 +51,7 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
                 extraOffer.setContract(contract);
                 ExtraOffer save = extraOfferRepository.save(extraOffer);
                 sendNotification(WebConstant.DOMAIN + "/sellerHome/manageContract/" + contractId,
-                        "Bạn nhận được lời đề nghị mới cho hợp đồng với giá " + extraOffer.getExtraPrice(), contract.getSeller().getUser());
+                        "Bạn nhận được lời đề nghị mới cho hợp đồng với giá " + extraOffer.getExtraPrice() + "$", contract.getSeller().getUser());
                 return new ApiResponse(Boolean.TRUE, "Bạn đã gửi lời đề nghị cho hợp đồng thành công với mức giá là " + save.getExtraPrice());
             } else {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể thêm lời đề nghị mới do hợp đồng đã hoàn thành hoặc bị hủy");
@@ -100,6 +100,10 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
             if(extraOffer.getOpened().equals(Boolean.TRUE)) {
                 extraOffer.setOpened(Boolean.FALSE);
                 extraOfferRepository.save(extraOffer);
+                sendNotification(WebConstant.DOMAIN + "/sellerHome/manageContract/" + contractId,
+                        "Lời đề nghị đã bị hủy " + extraOffer.getExtraPrice() + "$", contract.getSeller().getUser());
+                sendNotification(WebConstant.DOMAIN + "/buyerHome/manageContract/" + contractId,
+                        "Lời đề nghị đã bị hủy " + extraOffer.getExtraPrice() + "$", contract.getBuyer().getUser());
                 return new ApiResponse(Boolean.TRUE, "Bạn đã hủy lời đề nghị với mức giá " + extraOffer.getExtraPrice());
             } else {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể nhận lời đề nghị mới do hợp đồng đã hoàn thành hoặc bị hủy");

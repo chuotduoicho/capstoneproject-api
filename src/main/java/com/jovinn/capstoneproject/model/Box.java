@@ -10,6 +10,9 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -30,8 +33,11 @@ public class Box extends BaseEntity {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type = "uuid-char")
     UUID id;
-
+    @NotBlank(message = "Không được để trống")
+    @Size(max = 50, message = "Tiêu đề tối đa 50 ký tự")
     String title;
+    @NotBlank(message = "Không được để trống")
+    @Size(max = 500, message = "Mô tả tối đa 500 ký tự")
     String description;
     Integer impression;
     Integer interesting;

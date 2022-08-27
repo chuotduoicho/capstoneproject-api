@@ -7,10 +7,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -26,8 +23,10 @@ public class PostRequestRequest {
     String recruitLevel;
     List<String> skillsName;
     @NotBlank(message = "Không được để trống")
+    @Size(max = 50, message = "Chỉ được nhập tối đa 50 ký tự")
     String jobTitle;
     @NotBlank(message = "Không được để trống")
+    @Size(max = 255, message = "Mô tả ngắn gọn chỉ được nhập tối đa 255 ký tự")
     String shortRequirement;
     String attachFile;
     PostRequestStatus status;
@@ -35,6 +34,7 @@ public class PostRequestRequest {
     @NotNull(message = "Không được để trống, tối thiểu là 0% và tối đa là 100%")
     @Min(value = 0, message = "Không được nhỏ hơn 0")
     @Max(value = 100, message = "Không được vượt quá 100")
+    @Size(max = 3)
     Integer contractCancelFee;
 //    @NotNull
 //    BigDecimal budget;

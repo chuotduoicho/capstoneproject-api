@@ -12,6 +12,6 @@ import javax.validation.constraints.Size;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentRequest {
     @NotBlank(message = "Không thể bình luận trạng thái trống")
-    @Size(min = 1, max = 255)
+    @Size(min = 1, max = 500, message = "Chỉ được phép nhập tối đa 500 ký tự")
     String text;
 }

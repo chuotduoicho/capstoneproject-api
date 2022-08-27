@@ -12,7 +12,7 @@ import java.util.Date;
 public class UserChangeProfileRequest {
     String firstName;
     String lastName;
-    @Size(min = 10, max = 11, message = "Số điện thoại cần nằm trong khoảng 10 - 11 ký tự")
+    @Size(max = 10, message = "Số điện thoại tối đa 10 ký tự")
     String phoneNumber;
     Gender gender;
     Date birthDate;

@@ -9,6 +9,8 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
@@ -34,7 +36,8 @@ public class MilestoneContract extends BaseEntity {
     Date endDate;
     @Enumerated(EnumType.STRING)
     MilestoneStatus status;
-
+    @Min(value = 1, message = "Tối thiểu chi phí của giai đoạn là 1$")
+    @Size(max = 10, message = "Chỉ được phép nhập tối đa 10 ký tự")
     BigDecimal milestoneFee;
 
     @ManyToOne(fetch = FetchType.EAGER)

@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
             if(request.getPhoneNumber() != null && !request.getPhoneNumber().equals(existUser.getPhoneNumber())) {
                 User existPhoneNumber = userRepository.findUserByPhoneNumber(request.getPhoneNumber());
                 if(existPhoneNumber != null) {
-                    throw new ApiException(HttpStatus.BAD_REQUEST, "Số điện thoại đã được sử dụng. vui lòng nhập số khác");
+                    throw new ApiException(HttpStatus.BAD_REQUEST, "Số điện thoại đã được sử dụng, vui lòng nhập số khác");
                 } else {
                     existUser.setPhoneNumber(request.getPhoneNumber());
                 }

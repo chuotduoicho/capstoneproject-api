@@ -10,6 +10,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,8 +32,10 @@ public class Seller extends BaseEntity {
     @Type(type = "uuid-char")
     UUID id;
     @NotBlank(message = "Không được để trống tên thương hiệu của bạn")
+    @Size(max = 30, message = "Tên thương hiệu tối đa 30 ký tự")
     String brandName;
     @NotBlank(message = "Không được để trống mô tả ngắn về bạn")
+    @Size(max = 255, message = "Tên thương hiệu tối đa 255 ký tự")
     String descriptionBio;
     String sellerNumber;
     @Enumerated(EnumType.STRING)
