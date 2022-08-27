@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminSignupRequest;
 import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
+import com.jovinn.capstoneproject.enumerable.AuthTypeUser;
 import com.jovinn.capstoneproject.enumerable.UserActivityType;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.model.Admin;
@@ -42,7 +43,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public AdminCountDataResponse getAllCountDataResponse() {
-        return new AdminCountDataResponse(userRepository.count(), boxRepository.count(),postRequestRepository.count(),contractRepository.count(), contractRepository.countTotalRevenue());
+        return new AdminCountDataResponse(userRepository.count(), boxRepository.count(),postRequestRepository.count(),contractRepository.count(), contractRepository.countTotalRevenue(), contractRepository.countTotalRevenueToday());
     }
 
     @Override
@@ -82,8 +83,14 @@ public class AdminServiceImpl implements AdminService {
         newAdmin.setLastName(admin.getLastName());
         newAdmin.setUsername(admin.getUsername());
         newAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        newAdmin.setEmail(admin.getEmail());
         newAdmin.setPhoneNumber(admin.getPhoneNumber());
+        newAdmin.setJoinedAt(new Date());
+        newAdmin.setAuthType(AuthTypeUser.LOCAL);
+        newAdmin.setIsEnabled(Boolean.TRUE);
+        newAdmin.setActivityType(activityTypeService.getByActivityType(UserActivityType.ADMIN));
         userRepository.save(newAdmin);
+
         return new ApiResponse(Boolean.TRUE, "Tạo mới thành công");
     }
 

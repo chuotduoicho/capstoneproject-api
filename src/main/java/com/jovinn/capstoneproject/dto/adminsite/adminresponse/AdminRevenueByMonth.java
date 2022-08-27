@@ -9,11 +9,11 @@ import java.math.BigDecimal;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminRevenueByMonth {
-    String month;
-    BigDecimal revenue;
+    String name;
+    BigDecimal Total;
 
     public AdminRevenueByMonth(String month, BigDecimal revenue) {
-        this.month = month;
-        this.revenue = revenue;
+        this.name = month;
+        this.Total = revenue;
     }
 }
