@@ -68,8 +68,9 @@ public class AdminServiceImpl implements AdminService {
         LocalDate date = LocalDate.now();
         int month = date.getMonthValue();
         for (int i = 0; i <= 5; i++) {
-            list.add(new AdminRevenueByMonth(Month.of(month-i).toString(),contractRepository.countTotalRevenueByMonth(i)));
+            list.add(new AdminRevenueByMonth("Tháng "+ (month-i),contractRepository.countTotalRevenueByMonth(i)));
         }
+        Collections.reverse(list);
         return list;
     }
 
@@ -113,6 +114,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public ApiResponse deleteAdmin(UUID id) {
+
         userRepository.deleteById(id);
         return new ApiResponse(Boolean.TRUE, "Xóa thành công");
     }
