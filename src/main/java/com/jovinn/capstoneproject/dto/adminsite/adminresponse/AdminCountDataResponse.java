@@ -13,12 +13,14 @@ public class AdminCountDataResponse {
     Long totalRequest;
     Long totalContract;
     BigDecimal totalRevenue;
+    BigDecimal totalRevenueToday;
 
-    public AdminCountDataResponse(Long totalUser, Long totalService,Long totalRequest,Long totalContract, BigDecimal totalRevenue) {
+    public AdminCountDataResponse(Long totalUser, Long totalService,Long totalRequest,Long totalContract, BigDecimal totalRevenue, BigDecimal totalRevenueToday) {
         this.totalUser = totalUser;
         this.totalService = totalService;
         this.totalRequest = totalRequest;
         this.totalContract = totalContract;
         this.totalRevenue = totalRevenue;
+        this.totalRevenueToday = totalRevenueToday;
     }
 }
