@@ -128,4 +128,11 @@ public class UserController {
         NotificationResponse response = notificationService.getNotifications(currentUser);
         return new ResponseEntity< >(response, HttpStatus.OK);
     }
+
+    @DeleteMapping("/delete-noti/{notificationId}")
+    public  ResponseEntity<ApiResponse> deleteNotification(@PathVariable("notificationId") UUID notificationId,
+                                                           @CurrentUser UserPrincipal currentUser){
+        ApiResponse response = notificationService.deleteNotification(notificationId, currentUser);
+        return new ResponseEntity< >(response, HttpStatus.OK);
+    }
 }

@@ -10,5 +10,5 @@ public interface NotificationService {
     ApiResponse readNotification(UUID notificationId, UserPrincipal currentUser);
     NotificationResponse getNotifications(UserPrincipal currentUser);
 
-    ApiResponse deleteNitification(UUID notificationId, UserPrincipal currentUser);
+    ApiResponse deleteNotification(UUID notificationId, UserPrincipal currentUser);
 }

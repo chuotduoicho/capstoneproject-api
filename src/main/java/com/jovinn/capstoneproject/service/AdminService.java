@@ -1,11 +1,10 @@
 package com.jovinn.capstoneproject.service;
 
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminCountDataResponse;
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminProfileResponse;
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.AdminViewUserResponse;
-import com.jovinn.capstoneproject.dto.adminsite.adminresponse.CountTotalRevenueResponse;
+import com.jovinn.capstoneproject.dto.adminsite.adminrequest.AdminSignupRequest;
+import com.jovinn.capstoneproject.dto.adminsite.adminresponse.*;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.model.Admin;
+import com.jovinn.capstoneproject.model.User;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,11 +18,11 @@ public interface AdminService {
 
     CountTotalRevenueResponse countTotalRevenueToday();
 
-    List<BigDecimal> countTotalRevenueByMonth();
+    List<AdminRevenueByMonth> countTotalRevenueByMonth();
 
-    ApiResponse saveAdmin(Admin admin);
+    ApiResponse saveAdmin(AdminSignupRequest admin);
 
-    ApiResponse updateAdmin(UUID id,Admin admin);
+    ApiResponse updateAdmin(UUID id,User admin);
 
     ApiResponse deleteAdmin(UUID id);
 
