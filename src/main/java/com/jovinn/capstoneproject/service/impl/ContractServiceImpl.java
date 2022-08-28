@@ -68,12 +68,12 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public ContractResponse createContract(ContractRequest request, UserPrincipal currentUser) throws RuntimeException {
         Package pack = packageRepository.findById(request.getPackageId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Package not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy gói dịch vụ"));
         UUID sellerId = pack.getBox().getSeller().getId();
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         Seller seller = sellerRepository.findById(sellerId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Seller not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người bán"));
         //PackageOptional packageOptional = packageOptionalRepository.findPackageOptionalByPackId(pack.getId())
         //.orElseThrow(() -> new ResourceNotFoundException("PackageOptional", "PackageOptional not found ", pack.getId()));
         Wallet walletBuyer = walletRepository.findWalletByUserId(currentUser.getId());
@@ -174,8 +174,8 @@ public class ContractServiceImpl implements ContractService {
                     delivery.setContract(contract);
                     saveWallet(walletSeller);
 
-                    String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + contract.getId();
-                    String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + contract.getId();
+                    String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageContract/" + contract.getId();
+                    String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageContract/" + contract.getId();
                     pushNotification.sendNotification(contract.getBuyer().getUser(), contractLinkBuyer,
                             "Đơn đặt hàng " + contract.getContractCode() + " đã được chấp nhận");
                     try {
@@ -234,8 +234,8 @@ public class ContractServiceImpl implements ContractService {
 
             saveWallet(walletBuyer);
 
-            String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + contract.getId();
-            String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + contract.getId();
+            String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageContract/" + contract.getId();
+            String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageContract/" + contract.getId();
             pushNotification.sendNotification(contract.getBuyer().getUser(), contractLinkBuyer,
                     "Đơn đặt hàng " + contract.getContractCode() + " đã bị từ chối");
             try {
@@ -259,9 +259,9 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public ContractResponse updateStatusCancelFromBuyer(UUID id, UserPrincipal currentUser) throws RuntimeException {
         Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Buyer not found "));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         Contract contract = contractRepository.findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Contract not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         Wallet walletBuyer = walletRepository.findWalletByUserId(contract.getBuyer().getUser().getId());
         Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
 
@@ -291,8 +291,8 @@ public class ContractServiceImpl implements ContractService {
             saveWallet(walletBuyer);
             saveWallet(walletSeller);
 
-            String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + contract.getId();
-            String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + contract.getId();
+            String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageContract/" + id;
+            String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageContract/" + id;
             pushNotification.sendNotification(contract.getSeller().getUser(), contractLinkSeller,
                     "Đơn đặt hàng " + contract.getContractCode() + " đã bị hủy bởi người mua");
             try {
@@ -324,8 +324,8 @@ public class ContractServiceImpl implements ContractService {
 
         BigDecimal income = calculateRefund90PercentDeposit(contract.getTotalPrice(), 90);
         BigDecimal sellerReceiveAfterCancel = contract.getServiceDeposit().add(income);
-        String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + id;
-        String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + id;
+        String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageContract/" + id;
+        String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageContract/" + id;
 
         if (contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
             if (contract.getDeliveryStatus() != null && contract.getDeliveryStatus().equals(DeliveryStatus.SENDING)
@@ -419,7 +419,7 @@ public class ContractServiceImpl implements ContractService {
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         Wallet walletSeller = walletRepository.findWalletByUserId(contract.getSeller().getUser().getId());
         BigDecimal incomeMilestone = calculateRefund90PercentDeposit(milestoneContract.getMilestoneFee(), 90);
-        String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageOrder/" + contractId;
+        String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageContract/" + contractId;
 
         if(contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
             if(milestoneContract.getStatus().equals(MilestoneStatus.PROCESSING)) {

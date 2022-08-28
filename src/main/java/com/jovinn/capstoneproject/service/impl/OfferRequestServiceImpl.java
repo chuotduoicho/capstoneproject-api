@@ -76,9 +76,9 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     @Override
     public OfferRequestResponse sendOfferApplyToBuyer(UUID postRequestId, OfferRequestRequest request, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy post cần gửi offer"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy bài đăng cần gửi đề nghị"));
         Seller seller = sellerRepository.findSellerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy seller"));
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "không tìm thấy người bán"));
         if(seller.getUser().getId().equals(currentUser.getId())) {
             OfferRequest offerRequest = new OfferRequest();
             offerRequest.setPostRequest(postRequest);
@@ -89,7 +89,7 @@ public class OfferRequestServiceImpl implements OfferRequestService {
             offerRequest.setOfferType(OfferType.APPLY);
             offerRequest.setOfferRequestStatus(OfferRequestStatus.PENDING);
             OfferRequest save = offerRequestRepository.save(offerRequest);
-            String message = "Gửi đi offer thành công qua " + postRequest.getId();
+            String message = "Gửi đi đề nghị thành công cho " + postRequest.getId();
             return new OfferRequestResponse(save.getId(), save.getPostRequest().getId(), save.getDescriptionBio(),
                     save.getTotalDeliveryTime(), save.getOfferPrice(), save.getCancelFee(), message);
         }
@@ -120,7 +120,7 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     @Override
     public List<OfferRequest> getAllOffersByPostRequest(UUID postRequestId, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
-                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tim thấy post"));
+                .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tim thấy bài đăng"));
         //Pageable pageable = Pagination.paginationCommon(page, size, sortBy, sortDir);
 
         if(postRequest.getUser().getId().equals(currentUser.getId())) {

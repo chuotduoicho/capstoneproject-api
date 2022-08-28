@@ -35,4 +35,5 @@ public interface ContractRepository extends JpaRepository<Contract, UUID> {
     Long countContractByPostRequest_Category_Id(UUID catId);
     List<Contract> findAllByPostRequest_Category_Id(UUID catId);
     List<Contract> findAllByContractStatus(ContractStatus status);
+    Boolean existsContractByPackageIdAndOrderStatusOrContractStatus(UUID packageId, OrderStatus orderStatus, ContractStatus contractStatus);
 }

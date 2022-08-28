@@ -9,12 +9,15 @@ import com.jovinn.capstoneproject.dto.client.request.BoxRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.dto.client.response.BoxResponse;
 import com.jovinn.capstoneproject.enumerable.BoxServiceStatus;
+import com.jovinn.capstoneproject.enumerable.ContractStatus;
+import com.jovinn.capstoneproject.enumerable.OrderStatus;
 import com.jovinn.capstoneproject.enumerable.RankSeller;
 import com.jovinn.capstoneproject.exception.ApiException;
 import com.jovinn.capstoneproject.exception.BadRequestException;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.*;
+import com.jovinn.capstoneproject.model.Package;
 import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.BoxService;
@@ -54,6 +57,8 @@ public class BoxServiceImpl implements BoxService {
     private GoogleDriveManagerService googleDriveManagerService;
     @Autowired
     private SubCategoryRepository subCategoryRepository;
+    @Autowired
+    private ContractRepository contractRepository;
     @Autowired
     private ModelMapper modelMapper;
 
@@ -119,6 +124,12 @@ public class BoxServiceImpl implements BoxService {
         Box box = checkExistBox(id);
         if(box.getSeller().getUser().getId().equals(currentUser.getId())) {
             try {
+                List<Package> listPack = box.getPackages();
+                for(Package pack : listPack) {
+                    if(contractRepository.existsContractByPackageIdAndOrderStatusOrContractStatus(pack.getId(), OrderStatus.PENDING, ContractStatus.PROCESSING)) {
+                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể xóa do có gói dịch vụ đang trong giai đoạn thực hiện");
+                    }
+                }
                 //Gallery gallery = box.getGallery();
                 //removeOldFile(gallery);
                 boxRepository.delete(box);
