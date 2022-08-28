@@ -8,6 +8,8 @@ import com.jovinn.capstoneproject.model.Delivery;
 import com.jovinn.capstoneproject.model.Seller;
 import com.jovinn.capstoneproject.repository.*;
 import com.jovinn.capstoneproject.util.DateDelivery;
+import com.jovinn.capstoneproject.util.PushNotification;
+import com.jovinn.capstoneproject.util.WebConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,8 @@ public class ScheduleService {
     private DateDelivery dateDelivery;
     @Autowired
     private SellerRepository sellerRepository;
+    @Autowired
+    private PushNotification pushNotification;
 
     @Scheduled(cron = "0 0 * * * MON-SAT")
     void autoCompleteContract() throws InterruptedException {
@@ -45,6 +49,12 @@ public class ScheduleService {
                         autoCompleteExpectDate.compareTo(new Date()) < 0 && contract.getFlag().equals(Boolean.FALSE)) {
                     contract.setContractStatus(ContractStatus.COMPLETE);
                     contractRepository.save(contract);
+                    pushNotification.sendNotification(contract.getBuyer().getUser(),
+                            WebConstant.DOMAIN + "/buyerhome/manageContract/" + contract.getId(),
+                            "Hợp đồng " + contract.getContractCode() + " của bạn đã được hoàn thành tự động");
+                    pushNotification.sendNotification(contract.getSeller().getUser(),
+                            WebConstant.DOMAIN + "/buyerhome/manageContract/" + contract.getId(),
+                            "Hợp đồng " + contract.getContractCode() + " của bạn đã được hoàn thành tự động");
                     list.add(contract);
                 }
             }

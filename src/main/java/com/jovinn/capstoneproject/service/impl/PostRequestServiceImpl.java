@@ -18,6 +18,7 @@ import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.MilestoneContractService;
 import com.jovinn.capstoneproject.service.PostRequestService;
 import com.jovinn.capstoneproject.service.UserService;
+import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -101,9 +102,9 @@ public class PostRequestServiceImpl implements PostRequestService {
                 notification = new Notification();
                 notification.setUser(userInvite);
                 notification.setUnread(Boolean.TRUE);
-                notification.setLink("manageRequest/" + postRequest.getId());
+                notification.setLink(WebConstant.DOMAIN + "/sellerHome/manageRequest/" + postRequest.getId());
                 notification.setShortContent("Bạn có lời mời làm việc mới từ " +
-                        buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName() +
+                        buyer.getUser().getFirstName() + " " + buyer.getUser().getLastName() + " Với mức giá " + budget + "$" +
                         " Kiểm tra ngay");
                 notificationRepository.save(notification);
             }
