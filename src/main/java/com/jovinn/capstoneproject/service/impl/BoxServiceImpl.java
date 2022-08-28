@@ -294,7 +294,7 @@ public class BoxServiceImpl implements BoxService {
             Box box = checkExistBox(UUID.fromString(boxId));
             responses.add(new BoxSearchResponse(box.getId(), box.getCreateAt(), box.getUpdatedAt(),
                     box.getSeller(), box.getGallery().getImageGallery1(), box.getSeller().getUser().getAvatar(),
-                    box.getSeller().getBrandName(), box.getSeller().getRankSeller(), box.getSeller().getTotalOrderFinish(),
+                    box.getSeller().getBrandName(), box.getSeller().getRankSeller(), box.getSeller().getTotalOrderFinish(), box.getTotalFinalContract(),
                     box.getSeller().getRatingPoint(), box.getImpression(), box.getTitle(), box.getFromPrice()));
         }
         return responses;
