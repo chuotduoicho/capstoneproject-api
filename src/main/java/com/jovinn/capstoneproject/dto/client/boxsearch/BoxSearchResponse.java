@@ -34,7 +34,7 @@ public class BoxSearchResponse {
 
     public BoxSearchResponse(UUID id, Date createAt, Date updatedAt, Seller seller,
                              String imageGallery1, String avatar, String branchName, RankSeller rankSeller,
-                             Integer totalOrderFinish, Integer ratingPoint, Integer impression, String title,
+                             Integer totalOrderFinish, Integer totalFinalContract, Integer ratingPoint, Integer impression, String title,
                              BigDecimal fromPrice, List<Package> packages) {
         this.id = id;
         this.createAt = createAt;
@@ -45,6 +45,7 @@ public class BoxSearchResponse {
         this.branchName = branchName;
         this.rankSeller = rankSeller;
         this.totalOrderFinish = totalOrderFinish;
+        this.totalFinalContract = totalFinalContract;
         this.ratingPoint = ratingPoint;
         this.impression = impression;
         this.title = title;
@@ -54,7 +55,7 @@ public class BoxSearchResponse {
 
     public BoxSearchResponse(UUID id, Date createAt, Date updatedAt, Seller seller,
                              String imageGallery1, String avatar, String branchName, RankSeller rankSeller,
-                             Integer totalOrderFinish, Integer ratingPoint, Integer impression, String title,
+                             Integer totalOrderFinish, Integer totalFinalContract, Integer ratingPoint, Integer impression, String title,
                              BigDecimal fromPrice) {
         this.id = id;
         this.seller = seller;
@@ -63,6 +64,7 @@ public class BoxSearchResponse {
         this.branchName = branchName;
         this.rankSeller = rankSeller;
         this.totalOrderFinish = totalOrderFinish;
+        this.totalFinalContract = totalFinalContract;
         this.ratingPoint = ratingPoint;
         this.impression = impression;
         this.title = title;
@@ -117,8 +119,4 @@ public class BoxSearchResponse {
     public Date getUpdatedAt() {
         return updatedAt;
     }
-
-//    public List<Skill> getListSkill() {
-//        return seller.getSkills();
-//    }
 }
