@@ -34,7 +34,6 @@ public class PostRequestRequest {
     @NotNull(message = "Không được để trống, tối thiểu là 0% và tối đa là 100%")
     @Min(value = 0, message = "Không được nhỏ hơn 0")
     @Max(value = 100, message = "Không được vượt quá 100")
-    @Size(max = 3)
     Integer contractCancelFee;
 //    @NotNull
 //    BigDecimal budget;
