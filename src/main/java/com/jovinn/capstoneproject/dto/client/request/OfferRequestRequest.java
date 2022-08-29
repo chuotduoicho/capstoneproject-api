@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OfferRequestRequest {
     @NotBlank(message = "Mô tả sơ bộ thông tin của bạn cho lời đề nghỉ không được để trống")
-    @Size(min = 20, max = 255, message = "Lời mô tả đề nghị của bạn cần tối thiểu 20 ký tự")
+    @Size(max = 500, message = "Lời mô tả đề nghị của bạn cần tối đa 500 ký tự")
     String descriptionBio;
 
     @NotBlank(message = "Ngày bàn giao không được để trống")

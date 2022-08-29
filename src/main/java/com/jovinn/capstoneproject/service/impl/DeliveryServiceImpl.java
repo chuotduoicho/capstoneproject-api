@@ -9,12 +9,14 @@ import com.jovinn.capstoneproject.enumerable.ContractStatus;
 import com.jovinn.capstoneproject.enumerable.DeliveryStatus;
 import com.jovinn.capstoneproject.enumerable.MilestoneStatus;
 import com.jovinn.capstoneproject.exception.ApiException;
+import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Contract;
 import com.jovinn.capstoneproject.model.Delivery;
 import com.jovinn.capstoneproject.model.MilestoneContract;
 import com.jovinn.capstoneproject.repository.ContractRepository;
 import com.jovinn.capstoneproject.repository.DeliveryRepository;
+import com.jovinn.capstoneproject.repository.MilestoneContractRepository;
 import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.DeliveryService;
@@ -38,6 +40,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private SellerRepository sellerRepository;
     @Autowired
     private PushNotification pushNotification;
+    @Autowired
+    private MilestoneContractRepository milestoneContractRepository;
 
     @Override
     public DeliveryNotMilestoneResponse createDelivery(UUID id, DeliveryNotMilestoneRequest request, UserPrincipal currentUser) {
@@ -76,6 +80,25 @@ public class DeliveryServiceImpl implements DeliveryService {
                 Delivery delivery = new Delivery(request.getFile(), request.getDescription(), contract);
                 delivery.setMilestoneId(request.getMilestoneId());
                 Delivery update = deliveryRepository.save(delivery);
+                MilestoneContract milestoneContract = milestoneContractRepository.findById(request.getMilestoneId())
+                        .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy giai đoạn"));
+                milestoneContract.setStatus(MilestoneStatus.SENDING);
+                //Check if delivery for milestone is the last will update DeliveryStatus.SENDING for contract
+                boolean checkAllComplete = Boolean.FALSE;
+                List<MilestoneContract> milestoneContracts = contract.getPostRequest().getMilestoneContracts();
+                for(MilestoneContract milestone : milestoneContracts) {
+                    if(milestone.getStatus().equals(MilestoneStatus.SENDING)) {
+                        checkAllComplete = Boolean.TRUE;
+                    } else {
+                        checkAllComplete = Boolean.FALSE;
+                        break;
+                    }
+                }
+
+                if(checkAllComplete) {
+                    contract.setDeliveryStatus(DeliveryStatus.SENDING);
+                    contractRepository.save(contract);
+                }
                 pushNotification.sendNotification(contract.getBuyer().getUser(),
                         WebConstant.DOMAIN + "/buyerhome/manageContract/" + contract.getId(),
                         "Bên đối tác đã tải lên bàn giao cho " + contract.getContractCode() + ", Kiếm tra ngay!");
