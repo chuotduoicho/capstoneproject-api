@@ -37,7 +37,7 @@ public class Box extends BaseEntity {
     @Size(max = 50, message = "Tiêu đề tối đa 50 ký tự")
     String title;
     @NotBlank(message = "Không được để trống")
-    @Size(max = 500, message = "Mô tả tối đa 500 ký tự")
+    @Size(max = 5000, message = "Mô tả tối đa 5000 ký tự")
     String description;
     Integer impression;
     Integer interesting;

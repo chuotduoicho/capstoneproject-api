@@ -13,7 +13,7 @@ public class ContractRequest {
     @NotNull UUID packageId;
 
     @NotBlank(message = "Yêu cầu của bạn không được để trống")
-    @Size(max = 5000, message = "Yêu cầu tối đa 500 ký tự")
+    @Size(max = 5000, message = "Yêu cầu tối đa 5000 ký tự")
     String requirement;
 
     @NotNull(message = "Số lượng không được để trống")

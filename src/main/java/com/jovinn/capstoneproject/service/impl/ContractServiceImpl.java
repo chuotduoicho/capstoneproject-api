@@ -307,7 +307,7 @@ public class ContractServiceImpl implements ContractService {
                 contract.setOrderStatus(OrderStatus.CANCEL);
                 createTakeTransaction(walletBuyer.getUser().getId(), walletBuyer, contract.getTotalPrice(),
                         "REJECT-CONTRACT-" + contract.getContractCode(),
-                        "Bạn được hoàn tiền do người bán từ chối đơn hàng");
+                        "Bạn được hoàn tiền do đơn hàng đã bị hủy");
             }
 
             contract.setDeliveryStatus(null);
@@ -534,8 +534,10 @@ public class ContractServiceImpl implements ContractService {
                             ContractType.REQUEST, buyer, seller, Boolean.FALSE);
                     if (postRequest.getMilestoneContracts() != null) {
                         List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(postRequest.getId());
+                        BigDecimal updatePriceForEachMilestone = totalPrice.divide(new BigDecimal(milestoneContracts.size()), RoundingMode.FLOOR);
                         for(MilestoneContract milestoneContract : milestoneContracts) {
                             milestoneContract.setStatus(MilestoneStatus.PROCESSING);
+                            milestoneContract.setMilestoneFee(updatePriceForEachMilestone);
                             milestoneContractRepository.save(milestoneContract);
                         }
                     }
