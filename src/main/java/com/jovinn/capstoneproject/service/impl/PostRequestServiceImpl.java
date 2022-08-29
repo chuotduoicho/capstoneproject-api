@@ -18,6 +18,7 @@ import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.MilestoneContractService;
 import com.jovinn.capstoneproject.service.PostRequestService;
 import com.jovinn.capstoneproject.service.UserService;
+import com.jovinn.capstoneproject.util.PushNotification;
 import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -56,6 +57,8 @@ public class PostRequestServiceImpl implements PostRequestService {
     private NotificationRepository notificationRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private PushNotification pushNotification;
 
     @Override
     public ApiResponse addPostRequest(PostRequestRequest request, UserPrincipal currentUser) {
@@ -250,6 +253,8 @@ public class PostRequestServiceImpl implements PostRequestService {
                         throw new JovinnException(HttpStatus.BAD_REQUEST, "Bạn đã ứng cử vào bài đăng này");
                     }
                 }
+                pushNotification.sendNotification(post.getUser(), WebConstant.DOMAIN + "/buyerhome/manageRequest/" + postRequestId,
+                        "Bạn nhận được ứng tuyển từ " + seller.getUser().getLastName());
                 sellersApply.add(seller);
                 post.setSellersApplyRequest(sellersApply);
                 postRequestRepository.save(post);
