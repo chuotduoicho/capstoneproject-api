@@ -18,6 +18,8 @@ import com.jovinn.capstoneproject.repository.SellerRepository;
 import com.jovinn.capstoneproject.repository.payment.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.OfferRequestService;
+import com.jovinn.capstoneproject.util.PushNotification;
+import com.jovinn.capstoneproject.util.WebConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,8 @@ public class OfferRequestServiceImpl implements OfferRequestService {
     private SellerRepository sellerRepository;
     @Autowired
     private WalletRepository walletRepository;
+    @Autowired
+    private PushNotification pushNotification;
     @Override
     public OfferRequestResponse sendOfferToBuyer(UUID postRequestId, OfferRequestRequest request, UserPrincipal currentUser) {
         PostRequest postRequest = postRequestRepository.findById(postRequestId)
@@ -60,6 +64,8 @@ public class OfferRequestServiceImpl implements OfferRequestService {
                 offerRequest.setOfferType(OfferType.OFFER);
                 offerRequest.setOfferRequestStatus(OfferRequestStatus.PENDING);
                 OfferRequest save = offerRequestRepository.save(offerRequest);
+                pushNotification.sendNotification(postRequest.getUser(), WebConstant.DOMAIN + "/buyerHome/manageOffer/" + postRequest.getId(),
+                        "Bạn nhận được lời đề nghị mới từ " + seller.getBrandName());
                 String message = "Gửi đi dề nghị thành công qua " + postRequest.getId();
                 return new OfferRequestResponse(save.getId(), save.getPostRequest().getId(), save.getDescriptionBio(),
                         save.getTotalDeliveryTime(), save.getOfferPrice(), save.getCancelFee(), message);
