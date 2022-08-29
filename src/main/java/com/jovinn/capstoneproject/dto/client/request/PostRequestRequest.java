@@ -26,7 +26,7 @@ public class PostRequestRequest {
     @Size(max = 50, message = "Chỉ được nhập tối đa 50 ký tự")
     String jobTitle;
     @NotBlank(message = "Không được để trống")
-    @Size(max = 255, message = "Mô tả ngắn gọn chỉ được nhập tối đa 255 ký tự")
+    @Size(max = 500, message = "Mô tả ngắn gọn chỉ được nhập tối đa 500 ký tự")
     String shortRequirement;
     String attachFile;
     PostRequestStatus status;

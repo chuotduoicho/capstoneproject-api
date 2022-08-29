@@ -476,21 +476,21 @@ public class ContractServiceImpl implements ContractService {
                             "Bạn nhận được khoản thanh toán cho giai đoạn");
 
                     //Check if delivery for milestone is the last will update DeliveryStatus.SENDING for contract
-                    boolean checkAllComplete = Boolean.FALSE;
-                    List<MilestoneContract> milestoneContracts = contract.getPostRequest().getMilestoneContracts();
-                    for(MilestoneContract milestone : milestoneContracts) {
-                        if(milestone.getStatus().equals(MilestoneStatus.COMPLETE)) {
-                            checkAllComplete = Boolean.TRUE;
-                        } else {
-                            checkAllComplete = Boolean.FALSE;
-                            break;
-                        }
-                    }
-
-                    if(checkAllComplete) {
-                        contract.setDeliveryStatus(DeliveryStatus.SENDING);
-                        contractRepository.save(contract);
-                    }
+//                    boolean checkAllComplete = Boolean.FALSE;
+//                    List<MilestoneContract> milestoneContracts = contract.getPostRequest().getMilestoneContracts();
+//                    for(MilestoneContract milestone : milestoneContracts) {
+//                        if(milestone.getStatus().equals(MilestoneStatus.COMPLETE)) {
+//                            checkAllComplete = Boolean.TRUE;
+//                        } else {
+//                            checkAllComplete = Boolean.FALSE;
+//                            break;
+//                        }
+//                    }
+//
+//                    if(checkAllComplete) {
+//                        contract.setDeliveryStatus(DeliveryStatus.SENDING);
+//                        contractRepository.save(contract);
+//                    }
 
                     return new ApiResponse(Boolean.TRUE, "Bạn đã nhận và thanh toán mã giai đoạn này thành công");
                 } else {
@@ -652,7 +652,7 @@ public class ContractServiceImpl implements ContractService {
             if(contract.getPostRequest().getMilestoneContracts() != null) {
                 List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(contract.getPostRequest().getId());
                 for(MilestoneContract milestoneContract : milestoneContracts) {
-                    if(milestoneContract.getStatus().equals(MilestoneStatus.COMPLETE)) {
+                    if(milestoneContract.getStatus().equals(MilestoneStatus.SENDING)) {
                         checkAllFinish = Boolean.TRUE;
                     } else {
                         checkAllFinish = Boolean.FALSE;
@@ -661,14 +661,14 @@ public class ContractServiceImpl implements ContractService {
                 }
 
                 if(!checkAllFinish) {
-                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể đánh cờ do chưa hoàn thành hết các bàn giao");
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể đánh cờ do chưa tải lên hết các bàn giao");
                 }
             }
 
             List<Delivery> deliveries = deliveryRepository.findAllByContractIdOrderByCreateAtDesc(contractId);
             if(deliveries.size() == 0 || !checkAllFinish) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể cắm cờ vì chưa có bàn giao tải lên từ phía người bán" +
-                                                                " hoặc các giai đoạn chưa được hoàn thành");
+                                                                " hoặc các giai đoạn chưa được bàn giao");
             } else {
                 Date autoCompleteExpectDate = dateDelivery.expectDateCompleteAuto(deliveries.get(0).getCreateAt(), 3);
                 if(contract.getDeliveryStatus().equals(DeliveryStatus.SENDING) &&
