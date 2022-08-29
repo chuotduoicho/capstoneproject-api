@@ -455,7 +455,7 @@ public class ContractServiceImpl implements ContractService {
         String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageContract/" + contractId;
 
         if(contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
-            if(milestoneContract.getStatus().equals(MilestoneStatus.PROCESSING)) {
+            if(milestoneContract.getStatus().equals(MilestoneStatus.SENDING)) {
                 if(Boolean.TRUE.equals(deliveryRepository.existsByMilestoneId(milestoneContract.getId()))) {
                     milestoneContract.setStatus(MilestoneStatus.COMPLETE);
                     milestoneContractRepository.save(milestoneContract);
@@ -652,16 +652,16 @@ public class ContractServiceImpl implements ContractService {
             if(contract.getPostRequest().getMilestoneContracts() != null) {
                 List<MilestoneContract> milestoneContracts = milestoneContractRepository.findAllByPostRequestId(contract.getPostRequest().getId());
                 for(MilestoneContract milestoneContract : milestoneContracts) {
-                    if(milestoneContract.getStatus().equals(MilestoneStatus.SENDING)) {
-                        checkAllFinish = Boolean.TRUE;
-                    } else {
+                    if(milestoneContract.getStatus().equals(MilestoneStatus.PROCESSING)) {
                         checkAllFinish = Boolean.FALSE;
                         break;
+                    } else if (milestoneContract.getStatus().equals(MilestoneStatus.SENDING)){
+                        checkAllFinish = Boolean.TRUE;
                     }
                 }
 
                 if(!checkAllFinish) {
-                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể đánh cờ do chưa tải lên hết các bàn giao");
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể đánh cờ do chưa tải lên hết các bàn giao hoặc đã hoàn thành");
                 }
             }
 
