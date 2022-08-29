@@ -302,6 +302,8 @@ public class ContractServiceImpl implements ContractService {
             } else if (contract.getContractStatus() != null && contract.getContractStatus().equals(ContractStatus.CANCEL)
                     || contract.getOrderStatus() != null && contract.getOrderStatus().equals(OrderStatus.CANCEL)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể từ chối do hợp đồng đã kết thúc");
+            } else if(contract.getTotalPrice().compareTo(new BigDecimal(0)) == 0) {
+                throw new JovinnException(HttpStatus.BAD_REQUEST, "Hợp đồng đã được hoàn thành");
             } else {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(contract.getTotalPrice()));
                 contract.setOrderStatus(OrderStatus.CANCEL);
