@@ -3,6 +3,7 @@ package com.jovinn.capstoneproject.service.impl;
 import com.jovinn.capstoneproject.dto.client.request.ExtraOfferRequest;
 import com.jovinn.capstoneproject.dto.client.response.ApiResponse;
 import com.jovinn.capstoneproject.enumerable.ContractStatus;
+import com.jovinn.capstoneproject.enumerable.ExtraOfferStatus;
 import com.jovinn.capstoneproject.enumerable.TransactionType;
 import com.jovinn.capstoneproject.exception.JovinnException;
 import com.jovinn.capstoneproject.exception.UnauthorizedException;
@@ -54,6 +55,7 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
                     extraOffer.setExtraPrice(request.getExtraPrice());
                     extraOffer.setAdditionTime(request.getAdditionTime());
                     extraOffer.setOpened(Boolean.TRUE);
+                    extraOffer.setStatus(ExtraOfferStatus.PENDING);
                     extraOffer.setContract(contract);
                     ExtraOffer save = extraOfferRepository.save(extraOffer);
                     walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(extraOffer.getExtraPrice()));
@@ -83,7 +85,9 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         if(contract.getSeller().getUser().getId().equals(currentUser.getId())) {
-            if(contract.getContractStatus().equals(ContractStatus.PROCESSING) && extraOffer.getOpened().equals(Boolean.TRUE)) {
+            if(contract.getContractStatus().equals(ContractStatus.PROCESSING)
+                    && extraOffer.getOpened().equals(Boolean.TRUE)
+                    && extraOffer.getStatus().equals(ExtraOfferStatus.PENDING)) {
                 Date completeExpectDateWithExtra = dateDelivery.expectDateCompleteAuto(contract.getExpectCompleteDate(), extraOffer.getAdditionTime());
                 contract.setTotalPrice(contract.getTotalPrice().add(extraOffer.getExtraPrice()));
                 contract.setExpectCompleteDate(completeExpectDateWithExtra);
@@ -91,8 +95,8 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
                 contract.setServiceDeposit(contract.getServiceDeposit().add(
                         extraOffer.getExtraPrice().multiply(
                                 new BigDecimal(10)).divide(new BigDecimal(100), RoundingMode.FLOOR)));
+                extraOffer.setStatus(ExtraOfferStatus.ACCEPT);
                 contractRepository.save(contract);
-                extraOffer.setOpened(Boolean.FALSE);
                 extraOfferRepository.save(extraOffer);
                 return new ApiResponse(Boolean.TRUE, "Bạn đã tiếp nhận lời đề nghị thành công");
             } else {
@@ -111,9 +115,11 @@ public class ExtraOfferServiceImpl implements ExtraOfferService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         if(contract.getSeller().getUser().getId().equals(currentUser.getId()) || contract.getBuyer().getUser().getId().equals(currentUser.getId()) ) {
-            if(extraOffer.getOpened().equals(Boolean.TRUE)) {
+            if(contract.getContractStatus().equals(ContractStatus.PROCESSING) &&
+                    extraOffer.getOpened().equals(Boolean.TRUE) && extraOffer.getStatus().equals(ExtraOfferStatus.PENDING)) {
                 Wallet walletBuyer = walletRepository.findWalletByUserId(contract.getBuyer().getUser().getId());
                 extraOffer.setOpened(Boolean.FALSE);
+                extraOffer.setStatus(ExtraOfferStatus.REJECT);
                 extraOfferRepository.save(extraOffer);
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(extraOffer.getExtraPrice()));
                 walletRepository.save(walletBuyer);

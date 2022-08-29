@@ -290,21 +290,23 @@ public class ContractServiceImpl implements ContractService {
 
         if (contract.getBuyer().getUser().getId().equals(currentUser.getId())) {
             if (contract.getContractStatus() != null && contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
-                walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(buyerReceiveAfterCancel));
-                walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
-                contract.setContractStatus(ContractStatus.CANCEL);
-                createTakeTransaction(walletBuyer.getUser().getId(), walletBuyer, buyerReceiveAfterCancel,
-                        "REJECT-CONTRACT-" + contract.getContractCode(),
-                        "Bạn được hoàn lại toàn bộ phí đơn hàng và bị phạt đi khoản phí hủy hợp đồng do đang trong quá trình thực hiện");
-                createTakeTransaction(walletSeller.getUser().getId(), walletSeller, sellerReceiveAfterCancel,
-                        "REJECT-CONTRACT-" + contract.getContractCode(),
-                        "Bạn được hoàn lại số tiền đặt cọc và phí đền bù hủy hợp đồng do người mua đã hủy trong quá trình thực hiện");
+                 if(contract.getTotalPrice().compareTo(new BigDecimal(0)) == 0) {
+                    throw new JovinnException(HttpStatus.BAD_REQUEST, "Hợp đồng đã được hoàn thành");
+                 } else {
+                     walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(buyerReceiveAfterCancel));
+                     walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
+                     contract.setContractStatus(ContractStatus.CANCEL);
+                     createTakeTransaction(walletBuyer.getUser().getId(), walletBuyer, buyerReceiveAfterCancel,
+                             "REJECT-CONTRACT-" + contract.getContractCode(),
+                             "Bạn được hoàn lại toàn bộ phí đơn hàng và bị phạt đi khoản phí hủy hợp đồng do đang trong quá trình thực hiện");
+                     createTakeTransaction(walletSeller.getUser().getId(), walletSeller, sellerReceiveAfterCancel,
+                             "REJECT-CONTRACT-" + contract.getContractCode(),
+                             "Bạn được hoàn lại số tiền đặt cọc và phí đền bù hủy hợp đồng do người mua đã hủy trong quá trình thực hiện");
+                 }
             } else if (contract.getContractStatus() != null && contract.getContractStatus().equals(ContractStatus.CANCEL)
                     || contract.getOrderStatus() != null && contract.getOrderStatus().equals(OrderStatus.CANCEL)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể từ chối do hợp đồng đã kết thúc");
-            } else if(contract.getTotalPrice().compareTo(new BigDecimal(0)) == 0) {
-                throw new JovinnException(HttpStatus.BAD_REQUEST, "Hợp đồng đã được hoàn thành");
-            } else {
+            }  else {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(contract.getTotalPrice()));
                 contract.setOrderStatus(OrderStatus.CANCEL);
                 createTakeTransaction(walletBuyer.getUser().getId(), walletBuyer, contract.getTotalPrice(),
@@ -375,8 +377,16 @@ public class ContractServiceImpl implements ContractService {
                     }
 
                     if(checkAllFinish) {
+                        if(contract.getTotalPrice().compareTo(new BigDecimal(0)) > 0) {
+                            totalPrice = totalPrice.add(contract.getTotalPrice());
+                            walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
+                            walletSeller.setIncome(walletSeller.getIncome().add(income));
+                            walletRepository.save(walletSeller);
+                            createTakeTransaction(walletSeller.getUser().getId(), walletSeller, income,
+                                    "SUCCESS-CONTRACT-" + contract.getContractCode(),
+                                    "Bạn nhận được số tiền hoàn thành hợp đồng");
+                        }
                         contract.setContractStatus(ContractStatus.COMPLETE);
-                        contract.setUpdatedAt(new Date());
                         buyer.setSuccessContract(buyer.getSuccessContract() + 1);
                         buyerRepository.save(buyer);
                         Seller seller = contract.getSeller();

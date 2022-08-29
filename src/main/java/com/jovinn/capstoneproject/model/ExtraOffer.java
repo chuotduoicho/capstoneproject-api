@@ -1,6 +1,7 @@
 package com.jovinn.capstoneproject.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.jovinn.capstoneproject.enumerable.ExtraOfferStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +33,8 @@ public class ExtraOffer extends BaseEntity {
     BigDecimal extraPrice;
     Integer additionTime;
     Boolean opened;
+    @Enumerated(EnumType.STRING)
+    ExtraOfferStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contractId", referencedColumnName = "id")
