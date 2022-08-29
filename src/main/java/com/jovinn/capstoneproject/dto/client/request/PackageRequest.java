@@ -25,7 +25,6 @@ public class PackageRequest {
 
     @NotNull(message = "Giá của package không được để trống")
     @Min(value = 1, message = "Giá của package của bạn tối thiểu là 1$")
-    @Size(max = 10, message = "Chỉ được phép nhập tối đa 10 ký tự")
     BigDecimal price;
 
     @Min(value = 0, message = "Tối thiểu sẽ là 0%")

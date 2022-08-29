@@ -105,10 +105,10 @@ public class WalletServiceImpl implements WalletService {
                 Payment payment = paymentService.executePayment(paymentId, payerId);
                 System.out.println(payment.toJSON());
                 if (payment.getState().equals("approved")) {
-                    String message =  "PAYMENT SUCCESSFULLY " + payment.getId() + " WITH - "
-                            + payment.getTransactions().get(0).getAmount().getCurrency()
-                            + payment.getTransactions().get(0).getAmount().getTotal()
-                            + " By " + currentUser.getLastName() + " " + currentUser.getFirstName();
+                    String message =  "Nạp tiền từ Paypal thành công "
+//                            + payment.getTransactions().get(0).getAmount().getCurrency()
+                            + payment.getTransactions().get(0).getAmount().getTotal() + "$";
+//                            + " Cho " + currentUser.getLastName() + " " + currentUser.getFirstName();
 
                     Transaction transaction = new Transaction();
                     transaction.setWallet(wallet);
