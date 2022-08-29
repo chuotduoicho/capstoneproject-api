@@ -124,15 +124,15 @@ public class BoxServiceImpl implements BoxService {
         Box box = checkExistBox(id);
         if(box.getSeller().getUser().getId().equals(currentUser.getId())) {
             try {
-                List<Package> listPack = box.getPackages();
-                for(Package pack : listPack) {
-                    if(contractRepository.existsContractByPackageIdAndOrderStatusOrContractStatus(pack.getId(), OrderStatus.PENDING, ContractStatus.PROCESSING)) {
-                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể xóa do có gói dịch vụ đang trong giai đoạn thực hiện");
-                    }
-                }
+//                List<Package> listPack = box.getPackages();
+//                for(Package pack : listPack) {
+//                    if(contractRepository.existsContractByPackageIdAndOrderStatusOrContractStatus(pack.getId(), OrderStatus.PENDING, ContractStatus.PROCESSING)) {
+//                        throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể xóa do có gói dịch vụ đang trong giai đoạn thực hiện");
+//                    }
+//                }
                 //Gallery gallery = box.getGallery();
                 //removeOldFile(gallery);
-                boxRepository.delete(box);
+                boxRepository.deleteById(id);
                 return new ApiResponse(Boolean.TRUE, "Xóa hộp dịch vụ thành công");
             } catch (Exception e){
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Xóa hộp dịch vụ thất bại");
