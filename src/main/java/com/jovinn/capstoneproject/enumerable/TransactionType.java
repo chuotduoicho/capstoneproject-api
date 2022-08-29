@@ -1,5 +1,6 @@
 package com.jovinn.capstoneproject.enumerable;
 
 public enum TransactionType {
-    CHARGE, WITHDRAW
+    CHARGE, WITHDRAW,
+    TAKE, SPEND
 }

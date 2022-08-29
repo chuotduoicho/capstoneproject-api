@@ -14,6 +14,7 @@ import com.jovinn.capstoneproject.exception.UnauthorizedException;
 import com.jovinn.capstoneproject.model.Package;
 import com.jovinn.capstoneproject.model.*;
 import com.jovinn.capstoneproject.repository.*;
+import com.jovinn.capstoneproject.repository.payment.TransactionRepository;
 import com.jovinn.capstoneproject.repository.payment.WalletRepository;
 import com.jovinn.capstoneproject.security.UserPrincipal;
 import com.jovinn.capstoneproject.service.ContractService;
@@ -58,6 +59,8 @@ public class ContractServiceImpl implements ContractService {
     private DeliveryRepository deliveryRepository;
     @Autowired
     private NotificationRepository notificationRepository;
+    @Autowired
+    private TransactionRepository transactionRepository;
     @Autowired
     private EmailSender emailSender;
     @Autowired
@@ -111,6 +114,10 @@ public class ContractServiceImpl implements ContractService {
                 String linkOrderForBuyer = WebConstant.DOMAIN + "/buyerHome/manageOrder/" + newContract.getId();
                 pushNotification.sendNotification(seller.getUser(), linkOrderForSeller,
                         "Bạn đã nhận được đơn đặt hàng từ " + buyer.getUser().getLastName());
+
+                createSpendTransaction(currentUser.getId(), walletBuyer, totalPrice,
+                        "JOV-ORDER-" + newContract.getContractCode(),
+                        "Bạn đã tạo đơn hàng mới " + newContract.getContractCode());
 
                 try {
                     emailSender.sendEmailNotiContractSeller(seller.getUser().getEmail(),
@@ -170,14 +177,18 @@ public class ContractServiceImpl implements ContractService {
                     //Khi accept order ngày nào thì từ ngày hiện tại + totalDeliveryTime ra ngày expectmpleteDate tren front-end
                     contract.setExpectCompleteDate(expectCompleteDate);
                     contract.setUpdatedAt(new Date());
-                    Delivery delivery = new Delivery();
-                    delivery.setContract(contract);
+
                     saveWallet(walletSeller);
+
+                    createSpendTransaction(currentUser.getId(), walletSeller, serviceDeposit,
+                            "JOV-CONTRACT" + contract.getContractCode(),
+                            "Bạn đã đóng phí hủy dịch vụ để thực hiện hợp đồng");
 
                     String contractLinkSeller = WebConstant.DOMAIN + "/sellerHome/manageContract/" + contract.getId();
                     String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageContract/" + contract.getId();
                     pushNotification.sendNotification(contract.getBuyer().getUser(), contractLinkBuyer,
                             "Đơn đặt hàng " + contract.getContractCode() + " đã được chấp nhận");
+
                     try {
                         emailSender.sendEmailNotiAcceptContractToSeller(seller.getUser().getEmail(),
                                 seller.getUser().getLastName(), contractLinkSeller, contract.getContractCode(),
@@ -216,6 +227,9 @@ public class ContractServiceImpl implements ContractService {
             if (contract.getContractStatus() != null && contract.getContractStatus().equals(ContractStatus.PROCESSING)) {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(buyerReceiveWhenProcessing));
                 contract.setContractStatus(ContractStatus.CANCEL);
+                createTakeTransaction(contract.getBuyer().getUser().getId(), walletBuyer, buyerReceiveWhenProcessing,
+                        "JOV-REJECT-CONTRACT-" + contract.getContractCode(),
+                        "Bạn được hoàn tiền hợp đồng do người bán đã hủy hợp đồng khi đang thực hiện");
             }  else if (contract.getContractStatus() != null && contract.getContractStatus().equals(ContractStatus.CANCEL)
                     || contract.getOrderStatus() != null && contract.getOrderStatus().equals(OrderStatus.CANCEL)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể từ chối do hợp đồng đã kết thúc");
@@ -224,6 +238,9 @@ public class ContractServiceImpl implements ContractService {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(contract.getTotalPrice()));
                 contract.setOrderStatus(OrderStatus.REJECT);
                 contract.setContractStatus(null);
+                createTakeTransaction(walletBuyer.getUser().getId(), walletBuyer, contract.getTotalPrice(),
+                        "JOV-REJECT-CONTRACT-" + contract.getContractCode(),
+                        "Bạn được hoàn tiền do người bán từ chối đơn hàng");
             }
 
             contract.setDeliveryStatus(null);
@@ -238,6 +255,7 @@ public class ContractServiceImpl implements ContractService {
             String contractLinkBuyer = WebConstant.DOMAIN + "/buyerHome/manageContract/" + contract.getId();
             pushNotification.sendNotification(contract.getBuyer().getUser(), contractLinkBuyer,
                     "Đơn đặt hàng " + contract.getContractCode() + " đã bị từ chối");
+
             try {
                 emailSender.sendEmailNotiRejectContractToSeller(seller.getUser().getEmail(),
                         seller.getUser().getLastName(), contractLinkSeller, contract.getContractCode());
@@ -258,8 +276,8 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public ContractResponse updateStatusCancelFromBuyer(UUID id, UserPrincipal currentUser) throws RuntimeException {
-        Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
+//        Buyer buyer = buyerRepository.findBuyerByUserId(currentUser.getId())
+//                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy người mua"));
         Contract contract = contractRepository.findById(id)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Không tìm thấy hợp đồng"));
         Wallet walletBuyer = walletRepository.findWalletByUserId(contract.getBuyer().getUser().getId());
@@ -274,17 +292,24 @@ public class ContractServiceImpl implements ContractService {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(buyerReceiveAfterCancel));
                 walletSeller.setWithdraw(walletSeller.getWithdraw().add(sellerReceiveAfterCancel));
                 contract.setContractStatus(ContractStatus.CANCEL);
+                createTakeTransaction(walletBuyer.getUser().getId(), walletBuyer, buyerReceiveAfterCancel,
+                        "JOV-REJECT-CONTRACT-" + contract.getContractCode(),
+                        "Bạn được hoàn lại toàn bộ phí đơn hàng và bị phạt đi khoản phí hủy hợp đồng do đang trong quá trình thực hiện");
+                createTakeTransaction(walletSeller.getUser().getId(), walletSeller, sellerReceiveAfterCancel,
+                        "JOV-REJECT-CONTRACT-" + contract.getContractCode(),
+                        "Bạn được hoàn lại số tiền đặt cọc và phí đền bù hủy hợp đồng do người mua đã hủy trong quá trình thực hiện");
             } else if (contract.getContractStatus() != null && contract.getContractStatus().equals(ContractStatus.CANCEL)
                     || contract.getOrderStatus() != null && contract.getOrderStatus().equals(OrderStatus.CANCEL)) {
                 throw new JovinnException(HttpStatus.BAD_REQUEST, "Không thể từ chối do hợp đồng đã kết thúc");
             } else {
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().add(contract.getTotalPrice()));
                 contract.setOrderStatus(OrderStatus.CANCEL);
+                createTakeTransaction(walletBuyer.getUser().getId(), walletBuyer, contract.getTotalPrice(),
+                        "JOV-REJECT-CONTRACT-" + contract.getContractCode(),
+                        "Bạn được hoàn tiền do người bán từ chối đơn hàng");
             }
 
             contract.setDeliveryStatus(null);
-            contract.setUpdatedAt(new Date());
-            contract.setBuyer(buyer);
             OrderStatus orderStatus = contract.getOrderStatus();
             ContractStatus contractStatus = contract.getContractStatus();
 
@@ -331,12 +356,14 @@ public class ContractServiceImpl implements ContractService {
             if (contract.getDeliveryStatus() != null && contract.getDeliveryStatus().equals(DeliveryStatus.SENDING)
                 && contract.getContractStatus() != null && !contract.getContractStatus().equals(ContractStatus.COMPLETE)) {
                 if (contract.getPostRequest() != null && contract.getPostRequest().getMilestoneContracts() != null) {
+                    BigDecimal totalPrice = new BigDecimal(0);
                     boolean checkAllFinish = Boolean.FALSE;
                     List<MilestoneContract> milestoneContracts = contract.getPostRequest().getMilestoneContracts();
                     //Finding existing delivery for each milestone or not
                     for(MilestoneContract milestoneContract : milestoneContracts) {
                         if(Boolean.TRUE.equals(deliveryRepository.existsByMilestoneId(milestoneContract.getId()))
                                 && milestoneContract.getStatus().equals(MilestoneStatus.COMPLETE)) {
+                            totalPrice = totalPrice.add(milestoneContract.getMilestoneFee());
                             checkAllFinish = Boolean.TRUE;
                         } else {
                             checkAllFinish = Boolean.FALSE;
@@ -354,7 +381,7 @@ public class ContractServiceImpl implements ContractService {
                         sellerRepository.save(seller);
                         pushNotification.sendNotification(contract.getSeller().getUser(), contractLinkSeller,
                                 "Chúc mừng! Bạn đã hoàn thành đơn đặt hàng " + contract.getContractCode() +
-                                        " với giá " + contract.getTotalPrice() + "$");
+                                        " với giá " + totalPrice + "$");
                         try {
                             emailSender.sendEmailCompleteContract(contract.getSeller().getUser().getEmail(),
                                     contract.getSeller().getUser().getLastName(), contractLinkSeller,
@@ -383,9 +410,14 @@ public class ContractServiceImpl implements ContractService {
                     seller.setTotalOrderFinish(seller.getTotalOrderFinish() + 1);
                     sellerRepository.save(seller);
                     updateTotalFinalContract(contract.getPackageId());
+
                     pushNotification.sendNotification(contract.getSeller().getUser(), contractLinkSeller,
                             "Chúc mừng! Bạn đã hoàn thành đơn đặt hàng " + contract.getContractCode() +
                                     " với giá " + contract.getTotalPrice() + "$");
+                    createTakeTransaction(walletSeller.getUser().getId(), walletSeller, income,
+                            "JOV-SUCCESS-CONTRACT-" + contract.getContractCode(),
+                            "Bạn nhận được số tiền hoàn thành hợp đồng");
+
                     try {
                         emailSender.sendEmailCompleteContract(contract.getSeller().getUser().getEmail(),
                                 contract.getSeller().getUser().getLastName(), contractLinkSeller,
@@ -432,6 +464,16 @@ public class ContractServiceImpl implements ContractService {
                     pushNotification.sendNotification(contract.getSeller().getUser(), contractLinkSeller,
                             "Chúc mừng! Bạn đã được xác nhận bàn giao giai đoạn" +
                                     " với giá " + milestoneContract.getMilestoneFee() + "$");
+
+                    contract.setTotalPrice(contract.getTotalPrice().subtract(milestoneContract.getMilestoneFee()));
+                    contract.setServiceDeposit(contract.getTotalPrice()
+                            .multiply(new BigDecimal(contract.getContractCancelFee()))
+                            .divide(ONE_HUNDRED, RoundingMode.FLOOR));
+                    contractRepository.save(contract);
+                    createTakeTransaction(walletSeller.getUser().getId(), walletSeller, incomeMilestone,
+                            "JOV-SUCCESS-MILESTONE-" + contract.getContractCode(),
+                            "Bạn nhận được khoản thanh toán cho giai đoạn");
+
                     //Check if delivery for milestone is the last will update DeliveryStatus.SENDING for contract
                     boolean checkAllComplete = Boolean.FALSE;
                     List<MilestoneContract> milestoneContracts = contract.getPostRequest().getMilestoneContracts();
@@ -504,9 +546,14 @@ public class ContractServiceImpl implements ContractService {
 
                     walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                     saveWallet(walletBuyer);
+
                     pushNotification.sendNotification(newContract.getSeller().getUser(),
                             WebConstant.DOMAIN + "/sellerHome/manageContract/" + newContract.getId(),
                              "Hợp đồng " + newContract.getContractCode() + " từ lời đề xuất đã được tạo");
+                    createSpendTransaction(walletBuyer.getUser().getId(), walletBuyer, totalPrice,
+                            "JOV-OFFER-CONTRACT-" + contractCode,
+                            "Bạn đã thực hiện thanh toán tạo hợp đồng từ lời đề nghị");
+
                     updateStatusAfterAcceptOffer(postRequest, offerRequest, contract);
                     changeStatusAllOfferRejected(postRequest);
                     return new ContractResponse(newContract.getId(),
@@ -564,9 +611,14 @@ public class ContractServiceImpl implements ContractService {
 
                 walletBuyer.setWithdraw(walletBuyer.getWithdraw().subtract(totalPrice));
                 saveWallet(walletBuyer);
+
                 pushNotification.sendNotification(newContract.getSeller().getUser(),
                         WebConstant.DOMAIN + "/sellerHome/manageContract/" + newContract.getId(),
                         "Hợp đồng " + newContract.getContractCode() + " ứng tuyển đã được tạo");
+                createSpendTransaction(walletBuyer.getUser().getId(), walletBuyer, totalPrice,
+                        "JOV-APPLY-CONTRACT-" + contractCode,
+                        "Bạn đã thực hiện thanh toán tạo hợp đồng từ người bán ứng tuyển");
+
                 updateStatusPostRequestAfterAccepted(postRequest, contract);
                 changeStatusAllOfferRejected(postRequest);
                 return new ContractResponse(newContract.getId(),
@@ -830,6 +882,30 @@ public class ContractServiceImpl implements ContractService {
                 .orElseThrow(() -> new JovinnException(HttpStatus.BAD_REQUEST, "Không tìm thấy hộp dịch vụ"));
         box.setTotalFinalContract(box.getTotalFinalContract() + 1);
         boxRepository.save(box);
+    }
+
+    private void createSpendTransaction(UUID userId, Wallet wallet, BigDecimal amount,
+                                        String paymentCode, String message) {
+        Transaction transaction = new Transaction();
+        transaction.setUserId(userId);
+        transaction.setWallet(wallet);
+        transaction.setAmount(amount);
+        transaction.setType(TransactionType.SPEND);
+        transaction.setPaymentCode(paymentCode);
+        transaction.setMessage(message);
+        transactionRepository.save(transaction);
+    }
+
+    private void createTakeTransaction(UUID userId, Wallet wallet, BigDecimal amount,
+                                       String paymentCode, String message) {
+        Transaction transaction = new Transaction();
+        transaction.setUserId(userId);
+        transaction.setWallet(wallet);
+        transaction.setAmount(amount);
+        transaction.setType(TransactionType.TAKE);
+        transaction.setPaymentCode(paymentCode);
+        transaction.setMessage(message);
+        transactionRepository.save(transaction);
     }
 
     private void changeStatusAllOfferRejected(PostRequest postRequest) {
